@@ -1,0 +1,83 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3CB31E8B-134F-4773-81A0-3269F563668E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CommWebCtrlLib</RootNamespace>
+    <AssemblyName>CommWebCtrlLib</AssemblyName>
+
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="XmlProcess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\DebugPath\XmlProcess.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CommFunction.cs" />
+    <Compile Include="ToolBarStrip.cs">
+    </Compile>
+    <Compile Include="TreeViwEx.cs" />
+    <Compile Include="WebGrid.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WebListGrid.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebPageModel.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebPageSwitcher.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommCtrlLib\CommCtrlLib.csproj">
+      <Project>{ABA4A021-FE6A-4216-BD1B-F716F1C1C94A}</Project>
+      <Name>CommCtrlLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataCenter\DataCenter.csproj">
+      <Project>{8883EE98-F4EF-41D1-A9CA-E2E0335B7E88}</Project>
+      <Name>DataCenter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ITMS_Process\ITMS_Process.csproj">
+      <Project>{53690EBC-3637-4EDD-85D0-0506B4BBB92F}</Project>
+      <Name>ITMS_Process</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MetaDataCenter\MetaDataCenter.csproj">
+      <Project>{B1A83DC4-31DD-4764-B98A-DC95BCF9F0B1}</Project>
+      <Name>MetaDataCenter</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

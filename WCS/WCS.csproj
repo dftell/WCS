@@ -12,13 +12,29 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\project\WCS\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,14 +43,63 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\..\project\WCS\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>WCS.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AccessDataBase, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\project\WCS\AccessDataBase.dll</HintPath>
+    </Reference>
+    <Reference Include="DataCenter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\project\WCS\DataCenter.dll</HintPath>
+    </Reference>
+    <Reference Include="JSCore, Version=1.0.1.2, Culture=neutral, PublicKeyToken=d6b823da6d3fa04b, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\project\WCS\JSCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Toolkit.Forms.UI.Controls.WebView, Version=5.1.0.0, Culture=neutral, PublicKeyToken=4aff67a105548ee2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\project\WCS\Microsoft.Toolkit.Forms.UI.Controls.WebView.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenWebKitSharp, Version=3.0.1.23, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\project\WCS\OpenWebKitSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,16 +109,129 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WebKit.Interop, Version=536.0.0.0, Culture=neutral, PublicKeyToken=22198f6602307c03, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\..\..\..\project\WCS\WebKit.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="WSVRXml, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\project\WCS\WSVRXml.dll</HintPath>
+    </Reference>
+    <Reference Include="XmlProcess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\project\WCS\XmlProcess.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dlg_AdvSearch.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Dlg_AdvSearch.Designer.cs">
+      <DependentUpon>Dlg_AdvSearch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dlg_SelectSingle.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dlg_SelectSingle.Designer.cs">
+      <DependentUpon>Dlg_SelectSingle.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="frm_EditView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frm_EditView.Designer.cs">
+      <DependentUpon>frm_EditView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frm_frame.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="frm_frame.Designer.cs">
+      <DependentUpon>frm_frame.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frm_Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frm_Main.Designer.cs">
+      <DependentUpon>frm_Main.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frm_MainSubFrame.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="frm_MainSubFrame.Designer.cs">
+      <DependentUpon>frm_MainSubFrame.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frm_PrintPDF.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="frm_PrintPDF.Designer.cs">
+      <DependentUpon>frm_PrintPDF.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frm_TabFrame.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="frm_TabFrame.Designer.cs">
+      <DependentUpon>frm_TabFrame.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Frm_Test.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Frm_Test.Designer.cs">
+      <DependentUpon>Frm_Test.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frm_View.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="frm_View.Designer.cs">
+      <DependentUpon>frm_View.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frm_WebFrame.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="frm_WebFrame.Designer.cs">
+      <DependentUpon>frm_WebFrame.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Dlg_AdvSearch.resx">
+      <DependentUpon>Dlg_AdvSearch.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_EditView.resx">
+      <DependentUpon>frm_EditView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_frame.resx">
+      <DependentUpon>frm_frame.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_Main.resx">
+      <DependentUpon>frm_Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_MainSubFrame.resx">
+      <DependentUpon>frm_MainSubFrame.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_PrintPdf.resx">
+      <DependentUpon>frm_PrintPDF.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_TabFrame.resx">
+      <DependentUpon>frm_TabFrame.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Frm_Test.resx">
+      <DependentUpon>Frm_Test.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_View.resx">
+      <DependentUpon>frm_View.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_WebFrame.resx">
+      <DependentUpon>frm_WebFrame.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -62,7 +240,11 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="Properties\app.manifest">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -74,7 +256,47 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommCtrlLib\CommCtrlLib.csproj">
+      <Project>{09988d88-46ba-4f25-af54-c4ae877a1e34}</Project>
+      <Name>CommCtrlLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CommFormCtrlLib\CommFormCtrlLib.csproj">
+      <Project>{421e2fd1-0262-40ab-ab04-af75110ec844}</Project>
+      <Name>CommFormCtrlLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HtmlExp\HtmlExp.csproj">
+      <Project>{1b2fe61a-c3d7-439f-a2e7-82fbcfd23ad1}</Project>
+      <Name>HtmlExp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MetaDataCenter\MetaDataCenter.csproj">
+      <Project>{19f4307a-b863-4529-bffa-c6c95bebdfb8}</Project>
+      <Name>MetaDataCenter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WCS_Process\WCS_Process.csproj">
+      <Project>{6faecb53-c67a-402c-a7ed-e243c3d114b2}</Project>
+      <Name>WCS_Process</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XPlatformCtrlLib\XPlatformCtrlLib.csproj">
+      <Project>{14C54C3C-3D6F-4D8D-B52B-F6005FF8D8DD}</Project>
+      <Name>XPlatformCtrlLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 和 x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

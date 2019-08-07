@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("WCS")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("企业通用信息管理系统")]
+[assembly: AssemblyDescription("深圳市武府投资发展有限公司")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("WolfInv.Com")]
 [assembly: AssemblyProduct("WCS")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
