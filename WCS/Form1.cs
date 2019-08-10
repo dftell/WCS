@@ -8,9 +8,12 @@ using System.Windows.Forms;
 using WolfInv.Com.CommCtrlLib;
 using WolfInv.Com.CommFormCtrlLib;
 using WolfInv.Com.WCS_Process;
-using WebKit.Interop;
 using WebKit;
+using WebKit.JSCore;
+
+
 using WolfInv.Com.XPlatformCtrlLib;
+using System.Net;
 //using Microsoft.Toolkit.Win32.UI.Controls.WinForms;
 namespace WCS
 {
@@ -35,13 +38,10 @@ namespace WCS
 
         private void WebView1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            WebKitBrowser wv = sender as WebKitBrowser;
-            if (e.Url == null)
-                return;
-            this.Cursor = Cursors.Default;
+
         }
 
-        
+
 
         private void btn_out_Click(object sender, EventArgs e)
         {
@@ -72,7 +72,13 @@ namespace WCS
             }
             else
             {
-                //webView1.Navigate(GlobalShare.SystemAppInfo.LoginUrl);
+                string strurl = GlobalShare.SystemAppInfo.LoginUrl;
+                string reurl = GetRedirectUrl(strurl);
+                //this.webKitBrowser1.Navigate(GlobalShare.SystemAppInfo.LoginUrl);
+                webKitBrowser1.AllowNavigation = true;
+                webKitBrowser1.Url = new Uri(strurl);
+                this.webKitBrowser1.Visible = true;
+                this.webKitBrowser1.BringToFront();
                 Application.DoEvents();
                 return;
             }
@@ -133,7 +139,8 @@ namespace WCS
             if(GlobalShare.SystemAppInfo.LoginUrl!=null)
             {
                 this.Cursor = Cursors.WaitCursor;
-                //webView1.Navigate(GlobalShare.SystemAppInfo.LoginUrl);
+                //webKitBrowser1.Navigate(GlobalShare.SystemAppInfo.LoginUrl);
+                //webKitBrowser1.Url = new Uri(GlobalShare.SystemAppInfo.LoginUrl);
             }
         }
 
@@ -203,5 +210,60 @@ namespace WCS
             return null; ;
         }
 
+        private void webKitBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+            if(e!= null)
+            {
+                WebKitBrowser wb = (sender as WebKitBrowser);
+            }
+        }
+
+        private void webKitBrowser1_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+        {
+            string url = e.Url.OriginalString;
+            if(e.Cancel == true)
+            {
+                return;
+            }
+        }
+
+        private void webKitBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+        {
+            string url = e.Url.OriginalString;
+        }
+
+        /// <summary>
+        /// 获取页面重定向url
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="referer"></param>
+        /// <param name="cookie"></param>
+        /// <returns></returns>
+        public static string GetRedirectUrl(string url, string referer = "", string cookie = "")
+        {
+            string DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
+        
+            try
+            {
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+                req.Method = "HEAD";
+                req.ProtocolVersion = HttpVersion.Version10;
+                //req.ContentType = "application/json";// "application/x-www-form-urlencoded";
+                req.UserAgent = DefaultUserAgent;
+                req.Referer = referer;
+                req.AllowAutoRedirect = false;
+                if (cookie.Length > 0)
+                {
+                    req.Headers.Add("Cookie:" + cookie);
+                }
+                WebResponse response = req.GetResponse();
+                return response.Headers["Location"];
+            }
+            catch (Exception e)
+            {
+                //TextTool.Log(e, "获取url重定向地址错误");
+                return null;
+            }
+        }
     }
 }

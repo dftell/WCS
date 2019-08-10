@@ -87,7 +87,7 @@ namespace WolfInv.Com.CommCtrlLib
 
         public Dictionary<string, ViewItem> ViewList = new Dictionary<string, ViewItem>();
 
-        public ICalcGrid listViewObj;
+        public ICalcGrid listViewObj ;
 
  
         
@@ -96,7 +96,8 @@ namespace WolfInv.Com.CommCtrlLib
 
 
             //gridÁÐ´¦Àí
-            listViewObj.AllowSum = XmlUtil.GetSubNodeText(cmbNode, "@sum") == "1";
+            if(XmlUtil.GetSubNodeText(cmbNode, "@sum") != null)
+                listViewObj.AllowSum = XmlUtil.GetSubNodeText(cmbNode, "@sum") == "1";
 
             XmlNodeList nodes = cmbNode.SelectNodes("cols/f");
             if (nodes.Count > 0)

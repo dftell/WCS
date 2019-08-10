@@ -105,7 +105,8 @@ namespace WolfInv.Com.CommCtrlLib
                 msg = "无法获得程序集！";
                 return false;
             }
-            Type tFrm = ass.GetType(string.Format(mnu.LinkValue,GlobalShare.SystemAppInfo.AssemName));
+            string strFrmB = string.Format(mnu.LinkValue, GlobalShare.SystemAppInfo.AssemName)+"B";
+            Type tFrm = ass.GetType(strFrmB);
             if (mnu.linkType != LinkType.WebPage)
             {
 

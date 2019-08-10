@@ -556,7 +556,7 @@ namespace WolfInv.Com.CommCtrlLib
             }
         }
 
-        void AddSimpleSearchInToolBar(XmlDocument xmldoc)
+        protected  virtual void AddSimpleSearchInToolBar(XmlDocument xmldoc)
         {
             //SearchBox
             XmlNode cmbNode = xmldoc.SelectSingleNode("/root/SearchBox");
@@ -649,6 +649,7 @@ namespace WolfInv.Com.CommCtrlLib
         public virtual ITag AddToolBarItem(string id, XmlNode backxml, string lbl, ToolBarItemType type, EventHandler del)
         {
             throw new Exception("请先实现该功能！");
+
         }
     }
 

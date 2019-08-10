@@ -44,13 +44,13 @@ namespace WolfInv.Com.CommWebCtrlLib
             ExtraReqMappings = new Dictionary<string, ExtraRequest>();
             try
             {
-                AppDllasmb = Assembly.LoadFrom(string.Format("{0}\\bin\\ITMS_APP.dll", GlobalShare.AppDllPath));
+                AppDllasmb = GlobalShare.MainAssem;// Assembly.LoadFrom(string.Format("{0}\\bin\\ITMS_APP.dll", GlobalShare.AppDllPath));
             }
             catch (Exception ce)
             {
                 try
                 {
-                    AppDllasmb = Assembly.LoadFile(string.Format("{0}\\bin\\ITMS_APP.dll", GlobalShare.AppDllPath));
+                    AppDllasmb = GlobalShare.MainAssem; ;// Assembly.LoadFile(string.Format("{0}\\bin\\ITMS_APP.dll", GlobalShare.AppDllPath));
                 }
                 catch(Exception se)
                 {

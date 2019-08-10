@@ -20,9 +20,11 @@ namespace WolfInv.Com.CommCtrlLib
         public static string SystemText;
         protected static Assembly Appasmb;
         public static Dictionary<string, WebForm> ShowWebForms = new Dictionary<string, WebForm>();
+
         static FrameSwitch()
         {
-            Appasmb = Assembly.LoadFrom(string.Format("{0}.exe",GlobalShare.SystemAppInfo.AssemName));
+            //ExtraReqMappings = new Dictionary<string, ExtraRequest>();
+            Appasmb = GlobalShare.MainAssem; //Assembly.LoadFrom(string.Format("{0}.exe",GlobalShare.SystemAppInfo.AssemName));
 
         }
 
@@ -254,7 +256,8 @@ namespace WolfInv.Com.CommCtrlLib
                         Ifrm_Model objInst;
                         if (mnu.Params == null || mnu.Params.Trim().Length == 0)
                         {
-                            objInst = Activator.CreateInstance(tFrm, null) as Ifrm_Model;
+                            object obj = Activator.CreateInstance(tFrm, null) ;
+                            objInst = obj as Ifrm_Model;
                         }
                         else
                         {

@@ -9,9 +9,12 @@ namespace jdyInterfaceLib
 
     public abstract class JDYSCM_Class: JdyRequestClass
     {
+        public JDYSCM_Class()
+        {
+
+        }
         public string dbId { get; set; } //账套Id
-        public string code { get; set; }
-        public string msg { get; set; }
+        
         public int page { get; set; }   //当前页码
         public int totalsize { get; set; }  //当前返回总记录数
         public int records { get; set; }    //总记录数
@@ -62,6 +65,20 @@ namespace jdyInterfaceLib
     {
         public JDYSCM_Bussiness_Filter_Class filter;
         public class JDYSCM_Bussiness_Filter_Class:JsonableClass<JDYSCM_Bussiness_Filter_Class>
+        {
+            //public string updTimeBegin { get; set; }//": "2019-01-08",
+            //public string updTimeEnd { get; set; }//":"2019-10-09",
+            public int pageSize { get; set; }//":20,
+            public int page { get; set; }//":1
+        }
+    }
+
+    
+    public abstract class JDYSCM_Bussiness_Add_Return_Class : JdyRequestClass
+    {
+
+
+        public class JDYSCM_Bussiness_Filter_Class : JsonableClass<JDYSCM_Bussiness_Filter_Class>
         {
             //public string updTimeBegin { get; set; }//": "2019-01-08",
             //public string updTimeEnd { get; set; }//":"2019-10-09",
@@ -203,6 +220,10 @@ namespace jdyInterfaceLib
 
         }
 
+        public class SaleOrderReturnResult
+        {
+
+        }
     }
 
     public class JDYSCM_Product_Unit_List_Class: JDYSCM_Bussiness_List_Class

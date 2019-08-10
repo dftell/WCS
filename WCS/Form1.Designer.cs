@@ -40,6 +40,7 @@ namespace WCS
             this.btn_enter = new System.Windows.Forms.Button();
             this.btn_out = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.webKitBrowser1 = new WebKit.WebKitBrowser();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -123,6 +124,22 @@ namespace WCS
             this.panel1.Size = new System.Drawing.Size(996, 68);
             this.panel1.TabIndex = 7;
             // 
+            // webKitBrowser1
+            // 
+            this.webKitBrowser1.AutoScroll = true;
+            this.webKitBrowser1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            this.webKitBrowser1.BackColor = System.Drawing.Color.White;
+            this.webKitBrowser1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.webKitBrowser1.Location = new System.Drawing.Point(0, 0);
+            this.webKitBrowser1.Name = "webKitBrowser1";
+            this.webKitBrowser1.Size = new System.Drawing.Size(1592, 1264);
+            this.webKitBrowser1.TabIndex = 8;
+            this.webKitBrowser1.Url = null;
+            this.webKitBrowser1.Visible = false;
+            this.webKitBrowser1.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webKitBrowser1_DocumentCompleted);
+            this.webKitBrowser1.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.webKitBrowser1_Navigated);
+            this.webKitBrowser1.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webKitBrowser1_Navigating);
+            // 
             // Form1
             // 
             this.AcceptButton = this.btn_enter;
@@ -130,6 +147,7 @@ namespace WCS
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btn_out;
             this.ClientSize = new System.Drawing.Size(1592, 1264);
+            this.Controls.Add(this.webKitBrowser1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.btn_out);
             this.Controls.Add(this.btn_enter);
@@ -139,7 +157,6 @@ namespace WCS
             this.Controls.Add(this.label1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(6);
-            this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -164,6 +181,7 @@ namespace WCS
         private System.Windows.Forms.Button btn_enter;
         private System.Windows.Forms.Button btn_out;
         private System.Windows.Forms.Panel panel1;
+        private WebKitBrowser webKitBrowser1;
     }
 }
 

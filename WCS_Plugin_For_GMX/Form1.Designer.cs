@@ -40,10 +40,10 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(142, 31);
-            this.button1.Margin = new System.Windows.Forms.Padding(2);
+            this.button1.Location = new System.Drawing.Point(284, 62);
+            this.button1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(128, 34);
+            this.button1.Size = new System.Drawing.Size(256, 68);
             this.button1.TabIndex = 0;
             this.button1.Text = "转换销售计划表支持企业一号";
             this.button1.UseVisualStyleBackColor = true;
@@ -51,10 +51,10 @@
             // 
             // btn_save_saleOrder
             // 
-            this.btn_save_saleOrder.Location = new System.Drawing.Point(272, 31);
-            this.btn_save_saleOrder.Margin = new System.Windows.Forms.Padding(2);
+            this.btn_save_saleOrder.Location = new System.Drawing.Point(544, 62);
+            this.btn_save_saleOrder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btn_save_saleOrder.Name = "btn_save_saleOrder";
-            this.btn_save_saleOrder.Size = new System.Drawing.Size(130, 34);
+            this.btn_save_saleOrder.Size = new System.Drawing.Size(260, 68);
             this.btn_save_saleOrder.TabIndex = 1;
             this.btn_save_saleOrder.Text = "同步出货单";
             this.btn_save_saleOrder.UseVisualStyleBackColor = true;
@@ -62,10 +62,10 @@
             // 
             // btn_sync_productlist
             // 
-            this.btn_sync_productlist.Location = new System.Drawing.Point(22, 31);
-            this.btn_sync_productlist.Margin = new System.Windows.Forms.Padding(2);
+            this.btn_sync_productlist.Location = new System.Drawing.Point(44, 62);
+            this.btn_sync_productlist.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btn_sync_productlist.Name = "btn_sync_productlist";
-            this.btn_sync_productlist.Size = new System.Drawing.Size(117, 34);
+            this.btn_sync_productlist.Size = new System.Drawing.Size(234, 68);
             this.btn_sync_productlist.TabIndex = 3;
             this.btn_sync_productlist.Text = "同步物料清单";
             this.btn_sync_productlist.UseVisualStyleBackColor = true;
@@ -73,28 +73,32 @@
             // 
             // statusStrip1
             // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripProgressBar1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 184);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 374);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(423, 22);
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(2, 0, 28, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(846, 38);
             this.statusStrip1.TabIndex = 5;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(32, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(62, 33);
             this.toolStripStatusLabel1.Text = "状态";
+            this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // toolStripProgressBar1
             // 
             this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(300, 16);
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(600, 32);
             // 
             // backgroundWorker1
             // 
+            this.backgroundWorker1.WorkerSupportsCancellation = true;
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
@@ -102,14 +106,14 @@
             // Form1
             // 
             this.AcceptButton = this.btn_save_saleOrder;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(423, 206);
+            this.ClientSize = new System.Drawing.Size(846, 412);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btn_sync_productlist);
             this.Controls.Add(this.btn_save_saleOrder);
             this.Controls.Add(this.button1);
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "Form1";
             this.Text = "果美香临时补丁";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);

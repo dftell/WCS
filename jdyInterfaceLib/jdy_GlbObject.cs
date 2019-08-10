@@ -81,9 +81,9 @@ namespace jdyInterfaceLib
             CtmObj.Req_PostData = "{\"filter\":{0}}".Replace("{0}",flt.ToJson());
             //AccessObj.InitRequestJson();
             CtmObj = new JsonableClass<string>().GetFromJson<JDYSCM_Customer_List_Class>(CtmObj.PostRequest());
-            if (WhouseObj == null)
+            if (CtmObj == null)
                 return null;
-            if (CtmObj.errcode == 0)
+            if (CtmObj.code == "0")
             {
                 t_Customers = new Dictionary<string, string>();
                 CtmObj.items.ForEach(a =>

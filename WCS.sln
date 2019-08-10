@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsLib", "JsLib\JsLib.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommWebCtrlLib", "CommWebCtrlLib\CommWebCtrlLib.csproj", "{3CB31E8B-134F-4773-81A0-3269F563668E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCSWeb", "..\ITMSVR\WCSWeb.csproj", "{CF783A3E-0CE2-48A3-B8B8-D2F435DE7800}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,12 @@ Global
 		{3CB31E8B-134F-4773-81A0-3269F563668E}.FMSM_DEBUG|Any CPU.Build.0 = Release|Any CPU
 		{3CB31E8B-134F-4773-81A0-3269F563668E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CB31E8B-134F-4773-81A0-3269F563668E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF783A3E-0CE2-48A3-B8B8-D2F435DE7800}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF783A3E-0CE2-48A3-B8B8-D2F435DE7800}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF783A3E-0CE2-48A3-B8B8-D2F435DE7800}.FMSM_DEBUG|Any CPU.ActiveCfg = FMSM_DEBUG|Any CPU
+		{CF783A3E-0CE2-48A3-B8B8-D2F435DE7800}.FMSM_DEBUG|Any CPU.Build.0 = FMSM_DEBUG|Any CPU
+		{CF783A3E-0CE2-48A3-B8B8-D2F435DE7800}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF783A3E-0CE2-48A3-B8B8-D2F435DE7800}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

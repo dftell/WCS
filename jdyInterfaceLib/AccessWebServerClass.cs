@@ -40,6 +40,7 @@ namespace jdyInterfaceLib
             HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
             req.ProtocolVersion = HttpVersion.Version10;
             req.Method = "POST";
+            //req.Timeout = 5 * 60 * 1000;
             req.ContentType = "application/json";// "application/x-www-form-urlencoded";
             req.UserAgent = DefaultUserAgent;
             try

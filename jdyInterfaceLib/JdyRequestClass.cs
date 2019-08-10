@@ -6,7 +6,7 @@ using WolfInv.Com.JsLib;
 
 namespace jdyInterfaceLib
 {
-    public abstract class JdyModuleProcessClass: JdyJsonClass
+    public abstract class JdyModuleProcessClass : JdyJsonClass
     {
         public JDY_ModuleClass Module { get; set; }
 
@@ -23,9 +23,28 @@ namespace jdyInterfaceLib
             return true;
         }
     }
-
-    public abstract class JdyRequestClass: JdyModuleProcessClass
+    public interface iReturnMsg
     {
+        string code { get; set; }
+        string msg { get; set; }
+    }
+    public class JdyReturnClass : iReturnMsg
+    {
+        public string code { get; set; }
+        public string msg { get; set; }
+    }
+
+    public class JdyReturnItemsClass : JdyReturnClass
+    {
+        public string totalsize{get;set;} 
+    }
+    
+
+
+    public abstract class JdyRequestClass: JdyModuleProcessClass,iReturnMsg
+    {
+        public string code { get; set; }
+        public string msg { get; set; }
         public AccessTokenClass data;
         public string access_token { get; set; }
         public JdyRequestClass()

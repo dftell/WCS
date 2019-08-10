@@ -9,13 +9,9 @@ namespace WolfInv.Com.CommWebCtrlLib
     {
         public static void SwitchView(Page page,string url,string Target)
         {
-        string sHtml = @"
-            <a name=""test"" href=""{0}"" target=""{1}"" style=""display:none"">ldkjsljfl</a>
-<script>
-test.click();
-</script>             
-            ";
-        page.Response.Write(string.Format(sHtml, url, Target));
+            string sHtml = "<a id=\"test123456\" href=\"{0}\" target=\"{1}\" style=\"display:none\">ldkjsljfl</a><script>document.getElementById('test123456').click();</script>";
+            string strResponse = string.Format(sHtml, url, Target);
+            System.Web.HttpContext.Current.Response.Write(strResponse);
         }
         
     }

@@ -7,43 +7,16 @@ using System.Threading.Tasks;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
+
 namespace WolfInv.Com.XPlatformCtrlLib
 {
     public class XWebForm_Control : Control, IXControl
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
-    public class XWebForm_UserControl : UserControl, IXUserControl
-    {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
-
-
-
-        public void Controls_Add(IXControl ctrl)
-        {
-            Control c = ctrl as Control;
-            this.Controls.Add(c);
-        }
-
-        public void Controls_Clear()
-        {
-            this.Controls.Clear();
-        }
-
-        public void SetDock(XPlatformDockStyle dock)
-        {
-            //Dock = (DockStyle)dock;
-        }
-
-        public void ToTopLevel()
-        {
-            //BringToFront();
-
-        }
-    }
-
+    
     public class XWebForm_Form : Page, IXForm
     {
         public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
@@ -107,47 +80,27 @@ namespace WolfInv.Com.XPlatformCtrlLib
 
     public class XWebForm_TextBox : TextBox, IXTextBox
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
     public class XWebForm_Button : Button, IXButton
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
-    public class XWebForm_Panel : Panel, IXPanel
-    {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
-
-        public void Controls_Add(IXControl ctrl)
-        {
-            this.Controls.Add(ctrl as Control);
-        }
-
-        public void Controls_Clear()
-        {
-            this.Controls.Clear();
-        }
-
-        public void SetDock(XPlatformDockStyle dock)
-        {
-            //Dock = (DockStyle)dock;
-        }
-    }
-
-
+    
 
     public class XWebForm_Label : Label, IXLabel
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
     public class XWebForm_ListViewGrid : DataGrid, IXListViewGrid
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
@@ -158,7 +111,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
             //默认设置成日期
         }
 
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
@@ -168,7 +121,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
         {
             //设置成日期时间
         }
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
@@ -178,13 +131,13 @@ namespace WolfInv.Com.XPlatformCtrlLib
         {
 
         }
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
     public class XWebForm_ImagePicket : Control, IXImagePicker
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
@@ -195,25 +148,27 @@ namespace WolfInv.Com.XPlatformCtrlLib
 
     public class XWebForm_PictureBox : Control, IXPictureBox
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
     public class XWebForm_FilePicket : IXFilePicker
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
     public class XWebForm_Menu : Menu, IXMenu
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
 
     public class XWebForm_TreeView : TreeView, IXTreeView
     {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
+        public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
     }
+
+    
 }

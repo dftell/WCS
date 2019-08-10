@@ -12,7 +12,9 @@ using WolfInv.Com.ExcelIOLib;
 using WolfInv.Com.JsLib;
 using jdyInterfaceLib;
 using System.Threading;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
+using Newtonsoft.Json.Linq;
 namespace WCS_Plugin_For_GMX
 {
     public partial class Form1 : Form
@@ -108,15 +110,15 @@ namespace WCS_Plugin_For_GMX
             Dictionary<string, JDYSCM_SaleOrder_Add_Class.SaleOrderProduct> AllProductQty = new Dictionary<string, JDYSCM_SaleOrder_Add_Class.SaleOrderProduct>();
             list.ForEach(a =>
             {
-                
-                JDYSCM_SaleOrder_Add_Class.SaleOrderProduct sale_prd = new JDYSCM_SaleOrder_Add_Class.SaleOrderProduct();
+
+                JDYSCM_SaleOrder_Add_Class.SaleOrderProduct sale_prd = a;
                 if(AllProductQty.ContainsKey(a.productNumber))
                 {
                     sale_prd = AllProductQty[a.productNumber];
                 }
                 sale_prd.productNumber = a.productNumber;
                 sale_prd.location = jdy_GlbObject.AllWareHouses.Values.First();
-                if(sale_prd.price == null)
+                if(sale_prd.price == null||sale_prd.price.Trim().Length == 0)
                     sale_prd.price = a.price;
                 sale_prd.qty += a.qty;
                 if (jdy_GlbObject.UnitList.ContainsKey(a.unit))
@@ -186,6 +188,10 @@ namespace WCS_Plugin_For_GMX
                     HasPriceList.ForEach(a=>Order.entries.Add(a));
                 }
             }
+            if(Order.entries.Count>0)
+            {
+                Order.date = Order.entries[0].remark;// 用备注值对应excel表中的单据日期，用第一条备注值填充订单日期
+            }
             pdc.items.Clear();
             pdc.items.Add(Order);
             pdc.InitRequestJson();
@@ -199,10 +205,11 @@ namespace WCS_Plugin_For_GMX
             strPostJson = "{\"items\":[{0}]}".Replace("{0}", strPostJson);
             pdc.Req_PostData = strPostJson.Replace("null","\"\"");
             string strRet = pdc.PostRequest();
-            JDYSCM_SaleOrder_Add_Class res = new JDYSCM_SaleOrder_Add_Class().GetFromJson<JDYSCM_SaleOrder_Add_Class>(strRet);
+            //JDYSCM_SaleOrder_Add_Class res = new JDYSCM_SaleOrder_Add_Class().GetFromJson<JDYSCM_Class>(strRet);
+            JObject res = XML_JSON.ToJsonObj(strRet);
             sender.ReportProgress(100);
             sender.CancelAsync();
-            if (res.code == "0")
+            if (res["code"].Value<string>() == "0")
             {
                 MessageBox.Show(string.Format("成功保存{0}条记录！", pdc.items.Count));
             }
@@ -299,7 +306,7 @@ namespace WCS_Plugin_For_GMX
                     a.primaryStock = jdy_GlbObject.AllWareHouses.Keys.First();
                     pdc.Req_PostData = "{\"items\":[{0}]}".Replace("{0}", a.ToJson()).Replace("null", "\"\"");
                     string res = pdc.PostRequest();
-                    JDYSCM_Product_Add_Class tmp = new JDYSCM_Product_Add_Class().GetFromJson<JDYSCM_Product_Add_Class>(res);
+                    JdyReturnItemsClass tmp = new JDYSCM_Product_Add_Class().GetFromJson<JdyReturnItemsClass>(res);
 
                     
                     if (tmp.code == "0")
