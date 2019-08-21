@@ -13,7 +13,7 @@ namespace WolfInv.Com.DataCenter
             req = dataReq;
         }
 
-        public string GenerateColumnAndAlisName(List<RequestItem> Cols, bool AddAliasName,ref List<string> tables)
+        public string GenerateColumnAndAlisName(List<RequestItem> Cols, bool AddAliasName,List<string> tables)
         {
             Dictionary<string, List<DataColumn>> ColGroups = new Dictionary<string, List<DataColumn>>();
             Dictionary<string, RequestItem> reqitems = new Dictionary<string, RequestItem>();
@@ -27,6 +27,10 @@ namespace WolfInv.Com.DataCenter
                 List<DataColumn> collist;
                 if (dc == null) 
                     continue;
+                if(!tables.Contains(dc.Table))//如果表不可用，直接跳过，兼容外部系统，允许外部表作为引用表，并不在本系统内实际调用
+                {
+                    continue;
+                }
                 if (ColGroups.ContainsKey(dc.Table))
                 {
                     collist = ColGroups[dc.Table];
@@ -41,8 +45,7 @@ namespace WolfInv.Com.DataCenter
             ////ColGroups = ReOrganizeTable(ColGroups);
             StringBuilder strb = new StringBuilder();
             //List<string> 
-            if(tables == null)
-                tables = new List<string>();
+
             foreach (string strTab in ColGroups.Keys)
             {
                 string strTabcols = "";
@@ -132,17 +135,31 @@ namespace WolfInv.Com.DataCenter
             }*/
             //
             List<string> tables = null;
-            string ret = GenerateColumnAndAlisName(req.RequestItems,true,ref tables);//先取得group的值，保证tables的内容是columns 和group by的和
+
+
+            //2019/8/21 为兼容外部系统，可以容忍非关联表的请求，先获取有效表，再根据表获取字段，非法表不产生字段
+
+
+
+
+
+            tables = getValidTables(req.RequestItems);
+
+
+
+
+
+            string ret = GenerateColumnAndAlisName(req.RequestItems,true,tables);//先取得group的值，保证tables的内容是columns 和group by的和
             string sbtab = "";//GenerateFrom(ColGroups);//不使用该逻辑
             
-            string sGroupBy = GenerateColumnAndAlisName(req.GroupByItems, false, ref tables);
+            string sGroupBy = GenerateColumnAndAlisName(req.GroupByItems, false, tables);
             if (sGroupBy != null && sGroupBy.Trim().Length > 0)
             {
                 sGroupBy = " Group By " + sGroupBy;
             }
             sbtab = GenerateFrom(tables);
             string strwhere = "";
-            strwhere = TableSqlProcess.GenerateWhere(ref strwhere,req.ConditonGroup);
+            strwhere = TableSqlProcess.GenerateWhere(ref strwhere,req.ConditonGroup,tables);
             if (req.ConditonGroup != null)
             {
 
@@ -199,6 +216,72 @@ namespace WolfInv.Com.DataCenter
             }
             #endregion
             return sbtab.ToString();
+        }
+
+        List<string> getValidTables(List<RequestItem> Cols)
+        {
+            List<string> tables = new List<string>();
+            //HashSet<string> ColGroups = new HashSet<string>();
+            for (int i = 0; i < Cols.Count; i++)
+            {
+               
+                DataColumn dc = MappingConvert.DataPointToColumn(Cols[i].DataPt);
+                if (dc == null)
+                    continue;
+                if (!tables.Contains(dc.Table))
+                {
+                    tables.Add(dc.Table);
+                }
+            }
+            List<string> tablist = new List<string>();
+           
+            for(int cnt=0;cnt<tables.Count;cnt++)
+            {
+                string strTab = tables[cnt];
+                if (cnt == 0)
+                {
+                    tablist.Add(strTab);
+                    continue;
+                }
+                //如果关系映射表里面有该表，查找映射关系
+                bool onFlag = false;
+                if (DataAccessCenter.DataTableReRefs.ContainsKey(strTab))
+                {
+                    DataTableReference dtr = DataAccessCenter.DataTableReRefs[strTab];
+                    Dictionary<string, DataColumnReference> dcrs = dtr.GetMaps();
+
+                    for (int re = tablist.Count - 1; re >= 0; re--)//向前找，且只限一个
+                    {
+                        if (dcrs.ContainsKey(tablist[re]))//找到
+                        {
+                            onFlag = true;
+                            break;
+                        }
+                    }
+
+                }
+                if (!onFlag && DataAccessCenter.DataTableRefs.ContainsKey(strTab))
+                {
+                    DataTableReference dtr = DataAccessCenter.DataTableRefs[strTab];
+                    Dictionary<string, DataColumnReference> dcrs = dtr.GetMaps();
+                    for (int re = tablist.Count - 1; re >= 0; re--)//从后向前找，且只限一个
+                    {
+                        if (dcrs.ContainsKey(tablist[re]))//找到
+                        {
+                            onFlag = true;
+                            break;
+                        }
+
+                    }
+
+                }
+                if (!onFlag)
+                {
+                    continue;
+                }
+                tablist.Add(strTab);
+            }
+            return tablist;
         }
 
         string GenerateFrom(List<string> tables)
@@ -273,7 +356,8 @@ namespace WolfInv.Com.DataCenter
                 }
                 if (!onFlag)
                 {
-                    throw new Exception(string.Format("{0}无法找到关系！",strTab));
+                    continue;
+                    //throw new Exception(string.Format("{0}无法找到关系！",strTab));
                 }
                 tablist.Add(strTab);
                 cnt++;
@@ -712,7 +796,7 @@ namespace WolfInv.Com.DataCenter
         public List<UpdateItem> datas;
         public abstract string GenerateSql(string Table, DataPoint key, string keyval,DataCondition dc);
         
-        public static string GenerateWhere(ref string ret, DataCondition datacond)
+        public static string GenerateWhere(ref string ret, DataCondition datacond,List<string> tables)
         {
             if (ret == null)
                 ret = "";
@@ -723,7 +807,7 @@ namespace WolfInv.Com.DataCenter
             {
                 for (int i = 0; i < datacond.SubConditions.Count; i++)
                 {
-                    GenerateWhere(ref substr, datacond.SubConditions[i]).ToString();
+                    GenerateWhere(ref substr, datacond.SubConditions[i],tables);
                 }
                 ret += string.Format("{1} ({2} {0})", substr.ToString(), datacond.Logic.ToString(),substr.ToString().Trim().StartsWith("Or") ?"1<>1":"1=1");
             }
@@ -740,6 +824,10 @@ namespace WolfInv.Com.DataCenter
                         {
                             DataPoint dpt = new DataPoint(names[n]);
                             DataColumn dptdc = MappingConvert.DataPointToColumn(dpt);
+                            if (!tables.Contains(dptdc.Table))
+                            {
+                                continue;
+                            }
                             ret += GetColumnWhere(datacond, dptdc);
                             return ret;
                         }
@@ -750,6 +838,10 @@ namespace WolfInv.Com.DataCenter
                     }
                 }
                 DataColumn dc = MappingConvert.DataPointToColumn(datacond.Datapoint);
+                if(!tables.Contains(dc.Table))
+                {
+                    return ret;
+                }
                 ret += GetColumnWhere(datacond, dc); //string.Format(" {0} {1}.{2}{3}'{4}'", datacond.Logic.ToString(), dc.Table, dc.Column, datacond.strOpt, datacond.value);
             }
             return ret;

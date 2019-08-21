@@ -173,7 +173,7 @@ namespace WolfInv.Com.WCS_Process
             DataSource.GetDataSourceMapping();
             userinfo.mapDataSource = DataSource.GetGlobalSourcesClone();
             userinfo.UpdateSource();//Ìæ»»datasource
-
+            userinfo.CurrUser = user;
             if(!GlobalShare.UserAppInfos.ContainsKey(LoginName))
                 GlobalShare.UserAppInfos.Add(LoginName ,userinfo);
             UserPerm uperm = new UserPerm(GlobalShare.SystemAppInfo.PermUserPoint, user.LoginName, userinfo);

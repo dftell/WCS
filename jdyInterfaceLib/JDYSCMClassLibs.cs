@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WolfInv.Com.AccessWebLib;
 using WolfInv.Com.JsLib;
-namespace jdyInterfaceLib
+namespace WolfInv.Com.jdyInterfaceLib
 {
 
     public abstract class JDYSCM_Class: JdyRequestClass
@@ -70,6 +71,17 @@ namespace jdyInterfaceLib
             //public string updTimeEnd { get; set; }//":"2019-10-09",
             public int pageSize { get; set; }//":20,
             public int page { get; set; }//":1
+        }
+
+        public void RequestSizeAndPage(int pageSize, int page)
+        {
+            if(this.Module.RequestMethodUseGET)
+            {
+                this.ReqJson = string.Format("{0}&pageSize={1}&page={2}", this.ReqJson, pageSize, page); 
+                return;
+            }
+            string strjsonmodel = jdy_GlbObject.getJsonText("System.Bussiness.Item.Filter.Model");
+            Req_PostData = strjsonmodel.Replace("{0}", pageSize.ToString()).Replace("{1}",page.ToString());
         }
     }
 
@@ -187,7 +199,8 @@ namespace jdyInterfaceLib
     }
     public class JDYSCM_SaleOrder_List_Class : JDYSCM_Bussiness_List_Class
     {
-        }
+
+    }
     public class JDYSCM_SaleOrder_Add_Class : JDYSCM_Bussiness_Class
     {
         public List<JDYSCM_SaleOrder_List_Item_Class> items { get; set; }
@@ -247,7 +260,7 @@ namespace jdyInterfaceLib
     {
         public List<WareHouse_List_Item> items { get; set; }
         //https://api.kingdee.com/jdyscm/warehouse/list
-        public class WareHouse_List_Item: SimleListItem
+        public class WareHouse_List_Item: SimpleListItem
         {
             public bool isDeleted { get; set; }
         }
@@ -257,18 +270,27 @@ namespace jdyInterfaceLib
     {
         public List<Supplier_Litem_Item> items{ get; set; }
         //https://api.kingdee.com/jdyscm/supplier/list
-        public class Supplier_Litem_Item: SimleListItem
+        public class Supplier_Litem_Item: SimpleListItem
         {
             
             public string contact { get; set; }
         }
     }
+    public class JDYSCM_Category_List_Class : JDYSCM_Bussiness_List_Class
+    {
+        public List<Category_Litem_Item> items { get; set; }
+        //https://api.kingdee.com/jdyscm/supplier/list
+        public class Category_Litem_Item : SimpleListItem
+        {
 
+            public string parentId { get; set; }
+        }
+    }
     public class JDYSCM_Customer_List_Class : JDYSCM_Bussiness_List_Class
     {
         public List<Customer_Litem_Item> items { get; set; }
         //https://api.kingdee.com/jdyscm/supplier/list
-        public class Customer_Litem_Item : SimleListItem
+        public class Customer_Litem_Item : SimpleListItem
         {
             public string id { get; set; }
 
@@ -302,7 +324,7 @@ namespace jdyInterfaceLib
         }
     }
 
-    public class SimleListItem
+    public class SimpleListItem
     {
         public string number { get; set; }
         public string name { get; set; }

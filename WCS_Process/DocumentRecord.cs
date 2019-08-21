@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using DBAccess;
+using WolfInv.Com.AccessDataBase;
 using System.Data;
 using System.Xml;
 using XmlProcess;
@@ -192,7 +192,8 @@ namespace WolfInv.Com.WCS_Process
         {
             List<DocumentType> retList = new List<DocumentType>();
             db.Connect();
-            DataSet ds = db.ExecuteDataSet("Select TypeId,TypeName from ITMS_CommTypes where parentType = 1");
+            DataSet ds = null;
+            db.GetResult("Select TypeId,TypeName from ITMS_CommTypes where parentType = 1",ref ds);
             if (ds == null || ds.Tables.Count != 1)
             {
                 return null;

@@ -32,7 +32,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
         }
         public PlatformControlType ControlType { get { return PlatformControlType.Web; } }
 
-
+        public IXControl CurrMainControl { get; set; }
 
         public void Controls_Add(IXControl ctrl)
         {

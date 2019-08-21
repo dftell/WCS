@@ -5,10 +5,10 @@ namespace WolfInv.Com.WCS_Process
 {
     public class UserGlobalShare
     {
-        public Dictionary<string, DataSource> mapDataSource;
-        public CITMSUser CurrUser;
-        public Dictionary<string, DataChoice> DataChoices;
-        public AppInfo appinfo;
+        public Dictionary<string, DataSource> mapDataSource=new Dictionary<string, DataSource>();
+        public CITMSUser CurrUser = new CITMSUser();
+        public Dictionary<string, DataChoice> DataChoices = new Dictionary<string, DataChoice>();
+        public AppInfo appinfo = new AppInfo();
         public XmlDocument PermXml;
 
         public CITMSUser user;

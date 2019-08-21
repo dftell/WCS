@@ -1,7 +1,8 @@
 ﻿using WolfInv.Com.CommFormCtrlLib;
 using WolfInv.Com.CommCtrlLib;
 using System.Windows.Forms;
-
+using WolfInv.Com.WCS_Process;
+using System.Xml;
 namespace WCS
 {
     partial class frm_View
@@ -10,7 +11,7 @@ namespace WCS
         /// 必需的设计器变量。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-        public ListViewColumnSorter  lvwColumnSorter;
+        
 
         /// <summary> 
         /// 清理所有正在使用的资源。
@@ -33,66 +34,66 @@ namespace WCS
         /// </summary>
         private void InitializeComponent()
         {
-            this.listView1 = new ListGrid();
-            this.panel1.SuspendLayout();
-            (this.panel_main as Panel).SuspendLayout();
+            this.listView1 = new WolfInv.Com.CommCtrlLib.ListGrid();
+            this.panel_main.SuspendLayout();
             this.panel_bottom.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
-            this.panel1.Size = new System.Drawing.Size(750, 21);
+            //this.panel1.Size = new System.Drawing.Size(1200, 42);
             // 
             // panel_main
             // 
-            (this.panel_main as Panel).AutoSize = true;
-            (this.panel_main as Panel).Controls.Add(this.listView1);
-            (this.panel_main as Panel).Size = new System.Drawing.Size(743, 392);
+            this.panel_main.AutoSize = true;
+            this.panel_main.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.panel_main.Controls.Add(this.listView1);
+            this.panel_main.Margin = new System.Windows.Forms.Padding(12);
+            this.panel_main.Size = new System.Drawing.Size(1190, 737);
             // 
             // panel_bottom
             // 
             this.panel_bottom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.panel_bottom.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.panel_bottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel_bottom.Location = new System.Drawing.Point(0, 447);
-            this.panel_bottom.Size = new System.Drawing.Size(750, 26);
+            this.panel_bottom.Location = new System.Drawing.Point(0, 838);
+            this.panel_bottom.Margin = new System.Windows.Forms.Padding(12);
+            this.panel_bottom.Size = new System.Drawing.Size(1188, 46);
             // 
             // listView1
             // 
             this.listView1.AllowSum = false;
-            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listView1.CheckBoxes = true;
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
-            this.listView1.Location = new System.Drawing.Point(5, 7);
+            this.listView1.Location = new System.Drawing.Point(0, 0);
+            this.listView1.Margin = new System.Windows.Forms.Padding(6);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(727, 376);
+            this.listView1.Size = new System.Drawing.Size(1184, 731);
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
-            this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
             this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
+            this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
             // 
             // frm_View
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Margin = new System.Windows.Forms.Padding(12);
             this.Name = "frm_View";
-            this.Size = new System.Drawing.Size(750, 473);
-            this.Load += new System.EventHandler(this.frm_View_Load);
-            this.ToolBar_NewCreate += new AddExistHandle(this.NewCreate_Click);
+            this.Size = new System.Drawing.Size(1200, 900);
             this.ToolBar_OnSimpleSearchClicked += new System.EventHandler(this.SimpleSearch);
-            this.ToolBar_RefreshData += new ToolBarHandle(this.RefreshData_Click);
-            this.ToolBar_Export += new ToolBarHandle(this.Export_Click);
-            this.ToolBar_ListSelectedItemsClicked += new ToolBarHandle(this.ListSelectedItems_Click);
-            this.ToolBar_EditView += new ToolBarHandle(this.EditView_Click);
-            this.ToolBar_PrintPDF += new ToolBarHandle(this.PrintPDF_Click); ;
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            (this.panel_main as Panel).ResumeLayout(false);
+            this.ToolBar_ListSelectedItemsClicked += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.ListSelectedItems_Click);
+            this.ToolBar_EditView += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.EditView_Click);
+            this.ToolBar_NewCreate += new WolfInv.Com.CommCtrlLib.AddExistHandle(this.NewCreate_Click);
+            this.ToolBar_RefreshData += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.RefreshData_Click);
+            this.ToolBar_Export += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.Export_Click);
+            this.Load += new System.EventHandler(this.frm_View_Load);
+            this.panel_main.ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();
             this.ResumeLayout(false);
@@ -100,10 +101,12 @@ namespace WCS
 
         }
 
-        private void Frm_View_ToolBar_PrintPDF()
+        private void Frm_View_ToolBar_Sync(WolfInv.Com.XPlatformCtrlLib.CMenuItem mnu)
         {
-            throw new System.NotImplementedException();
+            XmlDocument xmldoc = getExtraData(mnu);
         }
+
+
 
         #endregion
 

@@ -7,9 +7,9 @@ using WolfInv.Com.JsLib;
 using System.Reflection;
 using System.Data;
 using System.IO;
-using static jdyInterfaceLib.JDYSCM_Class;
 
-namespace jdyInterfaceLib
+
+namespace WolfInv.Com.jdyInterfaceLib
 {
     public class jdy_GlbObject
     {
@@ -109,6 +109,40 @@ namespace jdyInterfaceLib
             }
         }
 
+        public static string getJsonText(string filepath)
+        {
+            string file = new JdySystemClass().getJsonPath(filepath);
+            if(!File.Exists(file))
+            {
+                return null;
+            }
+            try
+            {
+                return File.ReadAllText(file);
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
+        public static string getText(string filepath,string folder,string type)
+        {
+            string file = new JdySystemClass().getFilePath(filepath,folder,type);
+            if (!File.Exists(file))
+            {
+                return null;
+            }
+            try
+            {
+                return File.ReadAllText(file);
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
         static Dictionary<string, string> t_ProductList;
         /// <summary>
         /// 所有单位
@@ -498,6 +532,7 @@ namespace jdyInterfaceLib
         public string AccessUrl { get; set; }
         public string RequestModel { get; set; }
 
+        public bool RequestMethodUseGET { get; set; }
         
     }
 }

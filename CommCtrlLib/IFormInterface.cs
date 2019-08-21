@@ -5,6 +5,7 @@ using WolfInv.Com.MetaDataCenter;
 using System.Xml;
 using XmlProcess;
 using System.Data;
+using WolfInv.Com.XPlatformCtrlLib;
 namespace WolfInv.Com.CommCtrlLib
 {
     /// <summary>
@@ -16,6 +17,8 @@ namespace WolfInv.Com.CommCtrlLib
         UpdateData NeedUpdateData { get;set;}//保存的数据
         List<DataTranMapping> TranData { get;set;}//传输的数据
         UpdateData GetCurrFrameData();
+
+        
     }
 
     
@@ -24,7 +27,7 @@ namespace WolfInv.Com.CommCtrlLib
     /// </summary>
     public interface ISaveableInterFace : ITranslateableInterFace
     {
-        bool SaveData();
+        bool SaveData(DataRequestType type= DataRequestType.Update);
     }
 
    
@@ -41,7 +44,9 @@ namespace WolfInv.Com.CommCtrlLib
 
     public interface ILink
     {
+        CMenuItem FromMenu { get; set; }
         IKeyForm Link { get; set; }
+        
     }
 
     public interface IKeyTransable

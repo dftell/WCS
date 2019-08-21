@@ -51,6 +51,12 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="Xilium.CefGlue">
+      <HintPath>..\..\..\..\project\WCS\Xilium.CefGlue.dll</HintPath>
+    </Reference>
+    <Reference Include="Xilium.CefGlue.WindowsForms">
+      <HintPath>..\..\..\..\project\WCS\Xilium.CefGlue.WindowsForms.dll</HintPath>
+    </Reference>
     <Reference Include="XmlProcess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\project\WCS\XmlProcess.dll</HintPath>
@@ -58,7 +64,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionHandle.cs" />
+    <Compile Include="AutoCalcTextItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="BaseFormHandle.cs" />
     <Compile Include="BaseGrid.cs" />
+    <Compile Include="BaseToolBarBuild.cs" />
+    <Compile Include="CellViewItem.cs" />
+    <Compile Include="DataComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DataControlItem.cs" />
+    <Compile Include="DataGridColumn.cs" />
     <Compile Include="DefinedCells.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -73,6 +90,7 @@
     <Compile Include="ExcelExporter.cs" />
     <Compile Include="FrameSwitch.cs" />
     <Compile Include="Grid.cs" />
+    <Compile Include="GridRow.cs" />
     <Compile Include="IControls.cs" />
     <Compile Include="IFormInterface.cs" />
     <Compile Include="IFrame.cs" />
@@ -89,6 +107,9 @@
     <Compile Include="SubForm.Designer.cs">
       <DependentUpon>SubForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubGrid.cs" />
+    <Compile Include="ToolBarItemBuilder.cs" />
+    <Compile Include="ViewItem.cs" />
     <Compile Include="WebForm.cs">
       <SubType>Form</SubType>
     </Compile>

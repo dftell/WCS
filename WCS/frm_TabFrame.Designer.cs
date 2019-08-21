@@ -33,7 +33,7 @@ namespace WCS
             this.tabControl1 = new TabControlEx();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.panel1.SuspendLayout();
+            this.panel_Title.SuspendLayout();
             (this.panel_main as Panel).SuspendLayout();
             this.panel_bottom.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -41,7 +41,7 @@ namespace WCS
             // 
             // panel1
             // 
-            this.panel1.Size = new System.Drawing.Size(600, 21);
+            this.panel_Title.Size = new System.Drawing.Size(600, 21);
             // 
             // panel_main
             // 
@@ -92,8 +92,8 @@ namespace WCS
             this.Name = "frm_TabFrame";
             this.Size = new System.Drawing.Size(600, 480);
             this.Load += new System.EventHandler(this.frm_TabFrame_Load);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.panel_Title.ResumeLayout(false);
+            this.panel_Title.PerformLayout();
             (this.panel_main as Panel).ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();

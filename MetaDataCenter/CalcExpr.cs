@@ -14,7 +14,7 @@ namespace WolfInv.Com.MetaDataCenter
         public string type;
 
 
-        public HandleBase GetHandleCalss(XmlNode node)
+        public HandleBase GetHandleClass(XmlNode node)
         {
             LoadXml(node);
             Init();
@@ -33,28 +33,74 @@ namespace WolfInv.Com.MetaDataCenter
         {
             //this.TargetField = XmlUtil.GetSubNodeText(node, "@f");
             this.EvalExpress = XmlUtil.GetSubNodeText(node, "@expr");
-            string type = XmlUtil.GetSubNodeText(node, "@method");
-            
+            type = XmlUtil.GetSubNodeText(node, "@method");
            
         }
 
+        public string getValue(string streval, string strtype, string datapoint, string val, string splitor = "|")
+        {
+            return getValue(streval, strtype, new string[] { datapoint }, new string[] { val }, splitor);
+        }
+        public string getValue(string streval, string strtype, string[] datapoints,string[] vals, string splitor = "|")
+        {
+            int cnt = Math.Min(datapoints.Length, vals.Length);
+            UpdateData ud = new UpdateData();
+            for(int i=0;i<cnt;i++)
+            {
+                UpdateItem ui = new UpdateItem(datapoints[i], vals[i]);
+                if (!ud.Items.ContainsKey(datapoints[i]))
+                    ud.Items.Add(datapoints[i],ui);
+            }
+            return getValue(streval, strtype, ud, splitor);
+        }
+        public string getValue(string streval, string strtype,UpdateData inputData, string splitor = "|")
+        {
+
+            string[] cols = streval.Split(splitor.ToCharArray());
+            if (cols.Length == 0)
+                return null;
+            //List<string> strparam = new List<string>();
+            for (int i = 1; i < cols.Length; i++)
+            {
+                string dpt = cols[i];
+                string val = dpt;//默认为常量
+                if (inputData.Items.ContainsKey(dpt))//field pc
+                {
+                    val = inputData.Items[dpt].value;
+                    if (val == null)//引用的其中一个值为空，暂时不计算结果
+                        return null;
+                }
+                string strindex = "{" + string.Format("{0}", i - 1) + "}";
+                cols[0] = cols[0].Replace(strindex, val);
+                //strparam.Add(val);
+            }
+            
+            HandleBase hb = GetHandleClass(cols[0], strtype);
+            return hb.Handle();
+        }
+
+
+
         void Init()
         {
-            switch (type)
+            switch (type.ToLower())
             {
-                case "String":
-                    {
-                        HdlMethod = HandleMethod.String;
-                        HandleCalss = new StringHandle(EvalExpress);
-                        break;
-                    }
-                case "Date":
+                
+                
+                case "date":
                     {
                         HdlMethod = HandleMethod.Date;
                         HandleCalss = new DateHandle(EvalExpress);
                         break;
                     }
-                case "Math":
+                case "string":
+                
+                    {
+                        HdlMethod = HandleMethod.String;
+                        HandleCalss = new StringHandle(EvalExpress);
+                        break;
+                    }
+                case "math":
                 default:
                     {
                         HdlMethod = HandleMethod.Math;
@@ -67,8 +113,9 @@ namespace WolfInv.Com.MetaDataCenter
 
     public enum HandleMethod
     {
-        Math,
         String,
+        Math,
+        
         Date,
         Logic
     }
@@ -115,7 +162,19 @@ namespace WolfInv.Com.MetaDataCenter
         }
         public override string Handle()
         {
-            return InputExpr;
+            ScriptEngine src = new ScriptEngine(ScriptLanguage.JScript);
+            //src.Language = "ENU";
+            try
+            {
+                object str = src.eval_r(InputExpr, "");
+                if (str == null)
+                    return null;
+                return str.ToString().Trim();
+            }
+            catch (Exception ce)
+            {
+                return null;
+            }
         }
     }
 

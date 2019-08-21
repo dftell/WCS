@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using jdyInterfaceLib;
+using WolfInv.Com.jdyInterfaceLib;
 namespace testWCS
 {
     public partial class form2 : Form

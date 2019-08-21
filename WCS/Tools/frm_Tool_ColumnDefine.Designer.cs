@@ -1,4 +1,4 @@
-﻿namespace WolfInv.Com.DataCenter
+﻿namespace WCS
 {
     partial class frm_Tool_ColumnDefine
     {

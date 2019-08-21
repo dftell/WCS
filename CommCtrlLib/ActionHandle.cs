@@ -143,7 +143,8 @@ namespace WolfInv.Com.CommCtrlLib
                             return false;
                         }
                         objInst.strUid = mnu.strUid;
-                        objInst.Tag = mnu.MnuName;
+                        objInst.Title = mnu.MnuName;
+                        objInst.Tag = mnu;
                         objInst.GridSource = mnu.GridSource;
                         objInst.DetailSource = mnu.DetailSrouce;
                         if (mnu.Module.Trim().Length > 0)

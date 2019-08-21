@@ -34,21 +34,21 @@ namespace WCS
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_frame));
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.button1 = new System.Windows.Forms.Button();
-            this.panel1.SuspendLayout();
-            (this.panel_main as Panel).SuspendLayout();
+            this.panel_Title.SuspendLayout();
+            this.panel_main.SuspendLayout();
             this.panel_bottom.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
-            this.panel1.Margin = new System.Windows.Forms.Padding(12);
-            this.panel1.Size = new System.Drawing.Size(1878, 42);
+            this.panel_Title.Margin = new System.Windows.Forms.Padding(12);
+            this.panel_Title.Size = new System.Drawing.Size(1878, 42);
             // 
             // panel_main
             // 
-            (this.panel_main as Panel).Controls.Add(this.tableLayoutPanel1);
-            (this.panel_main as Panel).Margin = new System.Windows.Forms.Padding(12);
-            (this.panel_main as Panel).Size = new System.Drawing.Size(1852, 676);
+            this.panel_main.Controls.Add(this.tableLayoutPanel1);
+            this.panel_main.Margin = new System.Windows.Forms.Padding(12);
+            this.panel_main.Size = new System.Drawing.Size(1852, 676);
             // 
             // panel_bottom
             // 
@@ -89,9 +89,9 @@ namespace WCS
             this.Name = "frm_frame";
             this.Size = new System.Drawing.Size(1878, 852);
             this.Load += new System.EventHandler(this.frm_frame_Load);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            (this.panel_main as Panel).ResumeLayout(false);
+            this.panel_Title.ResumeLayout(false);
+            this.panel_Title.PerformLayout();
+            this.panel_main.ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();
             this.ResumeLayout(false);

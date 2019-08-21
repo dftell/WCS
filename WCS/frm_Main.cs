@@ -14,13 +14,27 @@ using WolfInv.Com.XPlatformCtrlLib;
 
 namespace WCS
 {
-    public partial class frm_Main : Form
+    public partial class frm_Main : Form, IUserData,IMainFrame
     {
         public UpdateData Data;
-        public frm_Main()
+        public ToolStripMenuItem SummaryMenu;
+
+        public string strUid { get; set; }
+        public IXPanel CurrMainPanel
         {
+            get
+            {
+                return Main_Plan;
+            }
+        }
+        public frm_Main(string _uid)
+        {
+            this.strUid = _uid;
             InitializeComponent();
             //FrameSwitch.ParentForm = this;
+            //this.MainMenuStrip = this.menuStrip1;
+            //this.Icon = FrameSwitch.SystemIcon;
+            //this.Text = FrameSwitch.SystemText;
             Init();
             
             
@@ -33,15 +47,18 @@ namespace WCS
             try
             {
                 xmlmnu.Load(Application.StartupPath + @"\xml\menus.xml");
-                xmlnav.Load(Application.StartupPath + @"\xml\nav_main_main.xml");
+                //xmlnav.Load(Application.StartupPath + @"\xml\nav_main_main.xml");
             }
             catch(Exception ce)
             {
                 return null;
             }
-            MenuProcess mnuprss = new MenuProcess(xmlmnu, "mnu");
+            //MenuProcess mnuprss = new MenuProcess(xmlmnu, "mnu");
+            //List<CMenuItem> Menus = mnuprss.GenerateMenus();
+            //mnuprss = new MenuProcess(xmlnav,"nav");
+            MenuProcess mnuprss = new MenuProcess(GlobalShare.GetXmlFile(@"\xml\menus.xml"), strUid);
             List<CMenuItem> Menus = mnuprss.GenerateMenus();
-            mnuprss = new MenuProcess(xmlnav,"nav");
+            mnuprss = new MenuProcess(GlobalShare.GetXmlFile(@"\xml\nav_main_main.xml"), strUid);
             List<CMenuItem> Navigator = mnuprss.GenerateMenus();
             this.menuStrip1.Items.Clear();
             
@@ -55,15 +72,10 @@ namespace WCS
             }
 
             //初始化导航栏
-            this.treeView_nav.Nodes.Clear();
+           
             if (Navigator == null)//无法初始化菜单
                 return "02_001";
-            for (int i = 0; i < Navigator.Count; i++)
-            {
-                TreeNode mnu = new TreeNode();
-                FillNavigator(mnu, Navigator[i]);
-                this.treeView_nav.Nodes.Add(mnu);
-            }
+            
 
             //this.treeView_nav();
             return null;
@@ -74,7 +86,8 @@ namespace WCS
             if (mnu == null) mnu = new ToolStripMenuItem();
             mnu.Text = val.MnuName;
             mnu.Tag = val;
-            
+            if (val.isSummary == "1")
+                SummaryMenu = mnu;
                 
             if (val.MnuItems == null || val.MnuItems.Count == 0)
             {
@@ -86,6 +99,7 @@ namespace WCS
                 ToolStripMenuItem submnu = new ToolStripMenuItem();
                 FillMenu(submnu, val.MnuItems[i]);
                 mnu.DropDown.Items.Add(submnu);
+                
                
             }
             
@@ -108,7 +122,9 @@ namespace WCS
             ////}
             ////this.splitContainer1.Panel2.Controls.Clear();//清除所有控件
             FrameSwitch.switchToView(this.Main_Plan, mnu);
-           
+            (this.Main_Plan.CurrMainControl as frm_Model).BringToFront();
+
+
         }
 
         void FillNavigator(TreeNode mnu, CMenuItem val)
@@ -136,6 +152,11 @@ namespace WCS
             //frm.Parent = this.splitContainer1.Panel2;
             this.Icon = FrameSwitch.SystemIcon;
             this.Text = FrameSwitch.SystemText;
+            if(SummaryMenu != null)
+            {
+                mnu_Click(SummaryMenu, null);
+            }
+            
         }
 
         private void treeView_nav_AfterSelect(object sender, TreeViewEventArgs e)
@@ -164,7 +185,9 @@ namespace WCS
 
         private void statusStrip1_DoubleClick(object sender, EventArgs e)
         {
-            GlobalShare.DataCenterClientObj.RunTool();
+            //GlobalShare.DataCenterClientObj.RunTool();
+            ToolMain frm = new ToolMain();
+            frm.Show();
         }
 
 

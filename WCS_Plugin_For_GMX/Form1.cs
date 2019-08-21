@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WolfInv.Com.ExcelIOLib;
 using WolfInv.Com.JsLib;
-using jdyInterfaceLib;
+using WolfInv.Com.jdyInterfaceLib;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;

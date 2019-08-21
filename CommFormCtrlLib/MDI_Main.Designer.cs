@@ -37,7 +37,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             this.ToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.treeView_nav = new System.Windows.Forms.TreeView();
-            this.Main_Plan = new  XWinForm_Panel();
+            this.Main_Plan = new WolfInv.Com.XPlatformCtrlLib.XWinForm_Panel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -81,23 +81,23 @@ namespace WolfInv.Com.CommFormCtrlLib
             this.treeView_nav.Location = new System.Drawing.Point(0, 0);
             this.treeView_nav.Margin = new System.Windows.Forms.Padding(6);
             this.treeView_nav.Name = "treeView_nav";
-            this.treeView_nav.Size = new System.Drawing.Size(300, 776);
+            this.treeView_nav.Size = new System.Drawing.Size(150, 776);
             this.treeView_nav.TabIndex = 7;
             this.treeView_nav.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView_nav_AfterSelect);
             this.treeView_nav.DoubleClick += new System.EventHandler(this.treeView_nav_DoubleClick);
             // 
             // Main_Plan
             // 
-            (this.Main_Plan as Panel).Dock = System.Windows.Forms.DockStyle.Fill;
-            (this.Main_Plan as Panel).Location = new System.Drawing.Point(0, 0);
-            (this.Main_Plan as Panel).Name = "Main_Plan";
-            (this.Main_Plan as Panel).Size = new System.Drawing.Size(960, 776);
-            (this.Main_Plan as Panel).TabIndex = 9;
+            this.Main_Plan.CurrMainControl = null;
+            this.Main_Plan.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Main_Plan.Location = new System.Drawing.Point(0, 0);
+            this.Main_Plan.Name = "Main_Plan";
+            this.Main_Plan.Size = new System.Drawing.Size(1110, 776);
+            this.Main_Plan.TabIndex = 9;
             // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer1.Location = new System.Drawing.Point(0, 24);
             this.splitContainer1.Name = "splitContainer1";
             // 
@@ -107,9 +107,9 @@ namespace WolfInv.Com.CommFormCtrlLib
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add((this.Main_Plan as Panel));
+            this.splitContainer1.Panel2.Controls.Add(this.Main_Plan);
             this.splitContainer1.Size = new System.Drawing.Size(1264, 776);
-            this.splitContainer1.SplitterDistance = 300;
+            this.splitContainer1.SplitterDistance = 150;
             this.splitContainer1.TabIndex = 11;
             // 
             // MDI_Main
@@ -142,7 +142,7 @@ namespace WolfInv.Com.CommFormCtrlLib
         private System.Windows.Forms.ToolTip ToolTip;
         private System.Windows.Forms.MenuStrip menuStrip1;
         public System.Windows.Forms.TreeView treeView_nav;
-        public IXPanel Main_Plan;
+        public XWinForm_Panel Main_Plan;
         public System.Windows.Forms.SplitContainer splitContainer1;
     }
 }

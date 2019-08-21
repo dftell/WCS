@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Xml;
 using System.ComponentModel;
 using System.ComponentModel;
-using WolfInv.Com.JsLib;
-
+//using WolfInv.Com.JsLib;
+using WolfInv.com.BaseObjectsLib;
 namespace WolfInv.Com.ExcelIOLib
 {
     /// <summary>
     /// 标题/数据项定义
     /// 标题中数据点/位置必选1项，优先使用位置查找。
     /// </summary>
+    [Serializable]
+    [DisplayName("Excel项设置")]
+    //Editor(typeof(SerialObjectEdit<ExcelItemDefineClass>), typeof(UITypeEditor))]
     public class ExcelItemDefineClass: JsonableClass<ExcelItemDefineClass>
     {
         /// <summary>

@@ -61,7 +61,7 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         public override UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData)
         {
-            throw new NotImplementedException();
+            return null;
         }
         public override UpdateData GetUpdateData(bool JudgeValueChanged)
         {
@@ -70,7 +70,7 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         public override List<UpdateData> GetDataList(List<UpdateData> OrgList, bool OnlyCheckedItem)
         {
-            throw new NotImplementedException();
+            return new List<UpdateData>();
         }
 
     }

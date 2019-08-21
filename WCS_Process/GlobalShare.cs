@@ -49,7 +49,7 @@ namespace WolfInv.Com.WCS_Process
 
 
 
-
+        public static bool Logined = false;
 
         public static ConnectObject FileAccConnObj;
         public static Dictionary<string,DataSource> mapDataSource;
@@ -57,7 +57,7 @@ namespace WolfInv.Com.WCS_Process
         public static CITMSUser CurrUser;
         //static List<DocumentType> t_DocumentTypeList;
         public static List<DocumentType> DocumentTypeList;
-        public static List<ITType> ITTypeList;
+        //public static List<ITType> ITTypeList;
         //public static List<CMenuItem> Menus;
         //public static List<CMenuItem> Navigator;
         static Dictionary<int, DocumentType> _mapDocumentTypeList;
@@ -68,7 +68,7 @@ namespace WolfInv.Com.WCS_Process
         //
         
         public static AppInfo SystemAppInfo;
-        public static Dictionary<string, UserGlobalShare> UserAppInfos;
+        public static Dictionary<string, UserGlobalShare> UserAppInfos =new Dictionary<string, UserGlobalShare>();
         public static Dictionary<int, DocumentType> mapDocumentTypeList
         {
             get 

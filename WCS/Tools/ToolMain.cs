@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace WolfInv.Com.DataCenter
+namespace WCS
 {
     public partial class ToolMain : Form
     {
@@ -24,6 +24,12 @@ namespace WolfInv.Com.DataCenter
         private void toolStripButton_datapoints_Click(object sender, EventArgs e)
         {
             frm_Tool_ColumnDefine frm = new frm_Tool_ColumnDefine();
+            frm.Show();
+        }
+
+        private void toolStripButton_ViewDesign_Click(object sender, EventArgs e)
+        {
+            frm_Tool_ViewDesigner frm = new frm_Tool_ViewDesigner();
             frm.Show();
         }
     }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using DBAccess;
+using WolfInv.Com.AccessDataBase;
 using System.Data;
 using System.Xml;
 using XmlProcess;
@@ -23,7 +23,7 @@ namespace WolfInv.Com.WCS_Process
     {
 
 
-        DBAccess.DBAccessClass db;
+        DBAccessClass db;
         public bool SupportMutliFiles ;
         public CFileDocumentRecord FileRec;
         int mDep;
@@ -84,9 +84,9 @@ namespace WolfInv.Com.WCS_Process
 
         public void ListView(int Dep)
         {
-            LParamate[] paramArr = new LParamate[1];
-            paramArr[0] = new LParamate("@OwnDepId", "int", Dep.ToString());
-            DataSet ds = db.ExecuteDataSet("sp_ITMS_DocumentUpdateSummary", paramArr);
+            ////LParamate[] paramArr = new LParamate[1];
+            ////paramArr[0] = new LParamate("@OwnDepId", "int", Dep.ToString());
+            ////DataSet ds = db.ExecuteDataSet("sp_ITMS_DocumentUpdateSummary", paramArr);
 
         }
 

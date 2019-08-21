@@ -83,6 +83,9 @@
     <Compile Include="XWinForm_Controls.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="XWinForm_UserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MetaDataCenter\MetaDataCenter.csproj">
@@ -104,6 +107,11 @@
     <Content Include="XWebForm_UserControl.ascx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="XWinForm_UserControl.resx">
+      <DependentUpon>XWinForm_UserControl.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

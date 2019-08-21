@@ -13,11 +13,20 @@ using WolfInv.Com.XPlatformCtrlLib;
 
 namespace WolfInv.Com.CommFormCtrlLib
 {
-    public partial class MDI_Main : Form,IUserData
+    
+    public partial class MDI_Main : Form,IUserData, IMainFrame
     {
         public int childFormNumber = 0;
         string _uid;
         public string strUid { get { return _uid; } set { _uid = value; } }
+
+        public IXPanel CurrMainPanel
+        {
+            get
+            {
+                return Main_Plan;
+            }
+        }
         public MDI_Main(string uid)
         {
             _uid = uid;
@@ -27,6 +36,8 @@ namespace WolfInv.Com.CommFormCtrlLib
             this.MainMenuStrip = this.menuStrip1;
             this.Icon = FrameSwitch.SystemIcon;
             this.Text = FrameSwitch.SystemText;
+            if (this.statusStrip == null)
+                this.statusStrip = new StatusStrip();
             this.statusStrip.Items.Clear();
             foreach (string key in GlobalShare.SystemAppInfo.SystemItems.Keys)
             {
@@ -52,6 +63,8 @@ namespace WolfInv.Com.CommFormCtrlLib
             List<CMenuItem> Menus = mnuprss.GenerateMenus();
             mnuprss = new MenuProcess(GlobalShare.GetXmlFile( @"\xml\nav_main_main.xml"),strUid);
             List<CMenuItem> Navigator = mnuprss.GenerateMenus();
+            //if (this.menuStrip1 == null)
+            //    this.menuStrip1 = new MenuStrip();
             this.menuStrip1.Items.Clear();
 
             if (Menus == null)//无法初始化菜单
@@ -63,7 +76,10 @@ namespace WolfInv.Com.CommFormCtrlLib
                 FillMenu(mnu, Menus[i]);
                 this.menuStrip1.Items.Add(mnu);
             }
-
+            //if(this.treeView_nav == null)
+            //{
+            //    this.treeView_nav = new TreeView();
+            //}
             //初始化导航栏
             this.treeView_nav.Nodes.Clear();
             if (Navigator == null)//无法初始化菜单
@@ -121,6 +137,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             ////}
             ////this.splitContainer1.Panel2.Controls.Clear();//清除所有控件
             FrameSwitch.switchToView(this.Main_Plan, mnu);
+            (this.Main_Plan.CurrMainControl as frm_Model).BringToFront();
 
         }
 
@@ -154,6 +171,8 @@ namespace WolfInv.Com.CommFormCtrlLib
 
             this.Cursor = Cursors.WaitCursor;
             FrameSwitch.switchToView(this.Main_Plan, mnu);
+            if(this.Main_Plan.CurrMainControl != null)
+                (this.Main_Plan.CurrMainControl as frm_Model).BringToFront();
             this.Cursor = Cursors.Default;
         }
 
@@ -196,6 +215,9 @@ namespace WolfInv.Com.CommFormCtrlLib
             Init();
         }
 
-
+        private void MDI_Main_Load(object sender, EventArgs e)
+        {
+            
+        }
     }
 }

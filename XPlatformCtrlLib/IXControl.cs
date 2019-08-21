@@ -46,7 +46,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
     {
         void Controls_Add(IXControl ctrl);
         void Controls_Clear();
-
+        IXControl CurrMainControl { get; set; }
 
     }
 

@@ -22,7 +22,7 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         protected override void OnItemDataBound(DataGridItemEventArgs e)
         {
-            for(int i=0;i< this.Columns.Count;i++)// e.Item.Cells.Count ;i++)
+            for(int i=0;i< e.Item.Cells.Count ;i++)
             {
                 System.Web.UI.Control ctrl = e.Item.Cells[i];
                 if(ctrl  is TableCell)

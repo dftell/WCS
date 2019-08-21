@@ -47,7 +47,7 @@ namespace WCS
             XmlDocument xmldoc = GetConfigXml();
             if (xmldoc == null) return false;
             this.toolStrip1.Visible = false;
-            this.panel1.Visible = false;
+            this.panel_Title.Visible = false;
             this.panel_main.SetDock(XPlatformDockStyle.Fill);
             XmlNodeList nodes = xmldoc.SelectNodes("/root/tabs/tab");
             this.tabControl1.TabPages.Clear();

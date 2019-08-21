@@ -22,8 +22,10 @@ namespace WolfInv.Com.CommCtrlLib
         {
             _frmhandle = frmhandle;
         }
+
+        
       
-        public virtual void FillGridData(DataSet ds)
+        public virtual void FillGridData_deleted(DataSet ds)
         {
             this.Items.Clear();
             if (ds == null) return;
@@ -33,23 +35,32 @@ namespace WolfInv.Com.CommCtrlLib
                 ItemValue iv = new ItemValue();
                 iv.ItemValues = new Dictionary<string, string>();
                 GridRow gr = new GridRow();
+                UpdateData currdata = new UpdateData();
                 for (int i = 0; i < this.Columns.Count; i++)
                 {
+                    
                     GridCell gc = new GridCell();
-                    if (this.Columns[i].DataField == "") continue;
-                    if (!ds.Tables[0].Columns.Contains(this.Columns[i].DataField))//如果不存在该列
+                    if (this.Columns[i].DataField == "")
+                        continue;
+                    if (!ds.Tables[0].Columns.Contains(this.Columns[i].DataField))//如果不存在该列,一般都是datasource忘记包括了该列，锁着三者不统一所致
                     {
                         continue;
                     }
                     string strval = ds.Tables[0].Rows[r][this.Columns[i].DataField].ToString();
+                    currdata.Items.Add(this.Columns[i].DataField,new UpdateItem( this.Columns[i].DataField,strval));//数据源为数据库时，要不断地更新，通过前面进来的updatedata更新后面的引用列
                     gc.value = strval;
-                    gc.text = GetValue(strval, this.Columns[i],_frmhandle.strUid);
+                    //gc.text = GetValue(strval, this.Columns[i],_frmhandle.strUid);
+                    gc.text = this.Columns[i].getValue(_frmhandle.strUid, currdata);
                     if (!iv.ItemValues.ContainsKey(this.Columns[i].DataField))
                     {
                         iv.ItemValues.Add(this.Columns[i].DataField, gc.text);
                     }
-                    
-                    if (this.Columns[i].IsKeyValue) iv.KeyValue = gc.text;
+
+                    if (this.Columns[i].IsKeyValue)
+                    {
+                        gc.isKey = true;
+                        iv.KeyValue = gc.text;
+                    }
                     if (this.Columns[i].IsKeyText) iv.KeyText = gc.text;
                     if(gr.Items.ContainsKey(this.Columns[i].DataField))
                     {
@@ -79,6 +90,9 @@ namespace WolfInv.Com.CommCtrlLib
                 ItemValue iv = new ItemValue();
                 iv.ItemValues = new Dictionary<string, string>();
                 GridRow gr = new GridRow();
+                gr.IsImported = ds[r].IsImported;
+                gr.Updated = ds[r].Updated;
+                
                 for (int i = 0; i < this.Columns.Count; i++)
                 {
                     GridCell gc = new GridCell();
@@ -89,12 +103,17 @@ namespace WolfInv.Com.CommCtrlLib
                     }
                     string strval = ds[r].Items[this.Columns[i].DataField].value;
                     gc.value = strval;
-                    gc.text = GetValue(strval, this.Columns[i], _frmhandle.strUid);
+                    //gc.text = GetValue(strval, this.Columns[i], _frmhandle.strUid);
+                    gc.text = this.Columns[i].getValue(_frmhandle.strUid, ds[r]);
                     if (!iv.ItemValues.ContainsKey(this.Columns[i].DataField))
                     {
                         iv.ItemValues.Add(this.Columns[i].DataField, gc.text);
                     }
-
+                    if (this.Columns[i].IsKeyValue)
+                    {
+                        gc.isKey = true;
+                        iv.KeyValue = gc.text;
+                    }
                     if (this.Columns[i].IsKeyValue) iv.KeyValue = gc.text;
                     if (this.Columns[i].IsKeyText) iv.KeyText = gc.text;
                     if (gr.Items.ContainsKey(this.Columns[i].DataField))
@@ -120,14 +139,15 @@ namespace WolfInv.Com.CommCtrlLib
             for (int r = 0; r < this.Items.Count; r++)
             {
                 string[] grids = new string[this.Columns.Count];
-               
+                UpdateData currdata =  this.Items[r].ToUpdateData();
                 for (int i = 0; i < this.Columns.Count; i++)
                 {
                     if (this.Columns[i].DataField == "") continue;
 
                     if (this.Items[r].Items.ContainsKey(this.Columns[i].DataField))
                     {
-                        this.Items[r].Items[this.Columns[i].DataField].text = GetValue(this.Items[r].Items[this.Columns[i].DataField].value, this.Columns[i], _frmhandle.strUid);
+                        //this.Items[r].Items[this.Columns[i].DataField].text = GetValue(this.Items[r].Items[this.Columns[i].DataField].value, this.Columns[i], _frmhandle.strUid);
+                        this.Items[r].Items[this.Columns[i].DataField].text = this.Columns[i].getValue(_frmhandle.strUid, currdata);
                         grids[i] = this.Items[r].Items[this.Columns[i].DataField].text;
                     }
                     if (this.Columns[i].Sum)
@@ -161,6 +181,7 @@ namespace WolfInv.Com.CommCtrlLib
 
         public static string GetValue(string val, DataGridColumn dc,string uid)
         {
+            
             if (dc.DataType == "date")
             {
                 DateTime dt;
@@ -171,6 +192,14 @@ namespace WolfInv.Com.CommCtrlLib
             {
                 dc.ComboName = GlobalShare.DataPointMappings[dc.dpt.Name].ComboName;
             }
+            if(dc.DataType == "calcexpr")
+            {
+                CalcExpr ce = new CalcExpr();
+                HandleBase hb = ce.GetHandleClass(dc.Method, dc.CalcExpr);
+                val = hb.Handle();
+                
+                
+            }
             if ((dc.DataType == "combo" || dc.DataType == "datacombo") && dc.ComboName != null && dc.ComboName.Trim().Length > 0)
             {
                 DataChoice dcc = null;
@@ -179,6 +208,9 @@ namespace WolfInv.Com.CommCtrlLib
                 else
                 {
                     DataComboBox dcb = new DataComboBox(dc.ComboName,uid);
+                    dcb.TextField = dc.TextField;
+                    dcb.ValueField = dc.ValueField;
+                    dcb.ComboItemsSplitString = dc.ComboItemsSplitString;
                     List<DataChoiceItem> dcis = dcb.GetDataSource();
                     dcc = new DataChoice();
                     dcc.Options.AddRange(dcis.ToArray());
@@ -271,126 +303,6 @@ namespace WolfInv.Com.CommCtrlLib
         protected override void AddColumnItem(IDataFieldHeaderColumn ch)
         {
             (listobj.Columns as ListGrid.ListGridColumnHeaderCollection).Add(ch as ColumnHeader);
-        }
-    }
-
-    public class SubGrid : Grid
-    {
-        public SubGrid(IUserData frmhandle)
-            : base(frmhandle)
-        {
-
-        }
-        public ToolStrip ToolBar;
-        //public string ListTitle;
-        //
-        public Label Lbl_Title;
-        public List<UpdateData> GetUpdateData()
-        {
-            return GetUpdateData(true);
-        }
-        public List<UpdateData> GetUpdateData(bool checkupdated)
-        {
-            List<UpdateData> ret = new List<UpdateData>();
-            if (listobj == null || listobj.Items == null) return ret;
-            for (int i = 0; i < listobj.Items.Count; i++)
-            {
-                GridRow gr = listobj.Items[i].Tag as GridRow;
-                if (gr == null) continue;
-                if (!gr.Updated && checkupdated)
-                {
-                    continue;
-                }
-                UpdateData  subitem = new UpdateData();
-                for (int c = 0; c < this.Columns.Count; c++)
-                {
-                    if (gr.Items.ContainsKey(this.Columns[c].DataField))
-                    {
-                        UpdateItem ui = new UpdateItem();
-                        ui.datapoint = this.Columns[c].dpt;
-                        ui.value = gr.Items[this.Columns[c].DataField].value;
-                        subitem.Items.Add(this.Columns[c].dpt.Name,ui);
-                        if (this.Columns[c].IsKeyValue)
-                        {
-                            subitem.keydpt = this.Columns[c].dpt;
-                            subitem.keyvalue = gr.Items[this.Columns[c].DataField].value;
-                        }
-                    }
-                    
-                }
-                
-                ret.Add(subitem);
-            }
-            return ret;
-        }
-
-        
-
-        public GridRow GetNewRow(ref GridRow gr,UpdateData newData)
-        {
-            if(gr == null)
-                gr = new GridRow();
-            Dictionary<string, DataGridColumn> dgcs = this.MapColumns;
-            ItemValue iv = new ItemValue();
-            iv.ItemValues = new Dictionary<string, string>();
-            
-            foreach (string dpt in dgcs.Keys)
-            {
-
-                if (newData.Items.ContainsKey(dpt))
-                {
-                    if (!gr.Items.ContainsKey(dpt))//新增
-                    {
-                        GridCell gc = new GridCell();
-                        gc.value = newData.Items[dpt].value;
-                        gc.text = Grid.GetValue(newData.Items[dpt].text, dgcs[dpt], _frmhandle.strUid);
-                        iv.ItemValues.Add(dpt, gc.value);
-                        if (dgcs[dpt].IsKeyText)
-                        {
-                            iv.KeyText = gc.text;
-                        }
-                        if (dgcs[dpt].IsKeyValue)
-                        {
-                            iv.KeyValue = gc.value;
-                        }
-                        gr.Items.Add(dpt, gc);
-                    }
-                    else//更新
-                    {
-                        GridCell gc = gr.Items[dpt];
-                        gc.value = newData.Items[dpt].value;
-                        gc.text = Grid.GetValue(newData.Items[dpt].text, dgcs[dpt], _frmhandle.strUid);
-                        iv.ItemValues[dpt] = gc.value;
-                    }
-                }
-                else
-                {
-                    if (!gr.Items.ContainsKey(dpt))//新增
-                    {
-                        GridCell gc = new GridCell();
-                        gc.value = "";
-                        gc.text = "";
-                        iv.ItemValues.Add(dpt, gc.value);
-                        if (dgcs[dpt].IsKeyText)
-                        {
-                            iv.KeyText = gc.text;
-                        }
-                        if (dgcs[dpt].IsKeyValue)
-                        {
-                            iv.KeyValue = gc.value;
-                        }
-                        gr.Items.Add(dpt, gc);
-                    }
-                    else//更新
-                    {
-                        //不需要更新
-                    }
-                }
-            }
-            gr.ItemValues = iv;
-            gr.Updated = true;
-            gr.OwnerGrid = this;
-            return gr;
         }
     }
 

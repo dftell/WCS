@@ -4,6 +4,7 @@ using System.Xml;
 using XmlProcess;
 using WolfInv.Com.MetaDataCenter;
 using System.Data;
+using System.Linq;
 namespace WolfInv.Com.WCS_Process
 {
     public class DataChoice : ICloneable
@@ -120,15 +121,28 @@ namespace WolfInv.Com.WCS_Process
         }
         public static DataChoice ConvertFromDataSet(DataSet ds)
         {
-            return ConvertFromDataSet(ds, null, null);
+            return ConvertFromDataSet(ds, null, null,null);
         }
-        public static DataChoice ConvertFromDataSet(DataSet ds, string valfld, string txtfld)
+        public static DataChoice ConvertFromDataSet(DataSet ds, string valfld, string txtfld, string splitor = null)
         {
-            return ConvertFromDataSet(ds, valfld, txtfld, false);
+            return ConvertFromDataSet(ds, valfld, txtfld, false,splitor);
         }
-        public static DataChoice ConvertFromDataSet(DataSet ds, string valfld, string txtfld,bool isRowItem)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ds"></param>
+        /// <param name="valfld"></param>
+        /// <param name="txtfld"></param>
+        /// <param name="isRowItem"></param>
+        /// <returns></returns>
+        public static DataChoice ConvertFromDataSet(DataSet ds, string valfld, string txtfld,bool isRowItem, string splitor=null)
         {
-            if (ds == null) return null;
+            if (ds == null)
+                return null;
+            if (ds.Tables.Count < 1)
+                return null;
+            if (ds.Tables[0].Columns.Count < 1)
+                return null;
             DataChoice ret = new DataChoice();
             string strval = ds.Tables[0].Columns[0].ColumnName;
             string strtxt = strval;
@@ -148,6 +162,27 @@ namespace WolfInv.Com.WCS_Process
                     strtxt = ds.Tables[0].Columns[1].ColumnName;
                 }
             }
+            Dictionary<string, DataColumn> allcols = new Dictionary<string, DataColumn>();
+            for(int i=0;i<ds.Tables[0].Columns.Count;i++)
+            {
+                allcols.Add(ds.Tables[0].Columns[i].ColumnName, ds.Tables[0].Columns[i]);
+            }
+            string[] vals;
+            string[] txts;
+            if (splitor == null || splitor.Trim().Length == 0)
+            {
+                vals = new string[] { strval };
+                txts = new string[] { strtxt };
+            }
+            else
+            { 
+                vals = getSplitNames(strval, splitor);
+                txts = getSplitNames(strtxt, splitor);
+            }
+            
+
+
+
 
             for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
             {
@@ -156,26 +191,63 @@ namespace WolfInv.Com.WCS_Process
                 if (isRowItem)
                 {
                     dci = new DataRowChoiceItem();
-                    for (int c = 0; c < dr.Table.Columns.Count; c++)
-                    {
-                        UpdateItem ui = new UpdateItem(dr.Table.Columns[c].ColumnName, dr[c].ToString());
-                        if (!(dci as DataRowChoiceItem).Data.Items.ContainsKey(ui.datapoint.Name))
-                        {
-                            (dci as DataRowChoiceItem).Data.Items.Add(ui.datapoint.Name, ui);
-                        }
-                    }
+                    
                 }
                 else
                 {
                     dci = new DataChoiceItem();
                 }
-                dci.Value = dr[strval].ToString();
-                dci.Text = dr[strtxt].ToString();
+                dci.Data = new UpdateData();
+                for (int c = 0; c < dr.Table.Columns.Count; c++)
+                {
+                    UpdateItem ui = new UpdateItem(dr.Table.Columns[c].ColumnName, dr[c].ToString());
+                    if (!dci.Data.Items.ContainsKey(ui.datapoint.Name))
+                    {
+                        dci.Data.Items.Add(ui.datapoint.Name, ui);
+                    }
+                }
+                List<string> valitems = new List<string>();
+                for(int c=0;c<vals.Length;c++)
+                {
+                    if (allcols.ContainsKey(vals[c]))
+                    {
+                        valitems.Add(dr[vals[c]].ToString());
+                    }
+                    else
+                    {
+                        valitems.Add(vals[c]);
+                    }
+                    
+
+                }
+                List<string> txtitems = new List<string>();
+                for (int c = 0; c < txts.Length; c++)
+                {
+                    if (allcols.ContainsKey(txts[c]))
+                    {
+                        txtitems.Add(dr[txts[c]].ToString());
+                    }
+                    else
+                    {
+                        txtitems.Add(txts[c]);
+                    }
+                }
+                dci.Value = string.Join(splitor, valitems);
+                dci.Text = string.Join(splitor, txtitems);
+                //dci.Value = dr[strval].ToString();
+                //dci.Text = dr[strtxt].ToString();
                 if (ret.Options == null)
                     ret.Options = new List<DataChoiceItem>();
-                ret.Options.Add(dci);
+                //if(!ret.ValueItems.ContainsKey(dci.Value))
+                if(ret.Options.FindAll(a=>a.Value.Equals(dci.Value)).Count==0)
+                    ret.Options.Add(dci);
             }
             return ret;
+        }
+
+        static string[] getSplitNames(string val,string strsplit)
+        {
+            return val.Split(strsplit.ToCharArray());
         }
 
         #region ICloneable 成员
@@ -200,4 +272,6 @@ namespace WolfInv.Com.WCS_Process
 
         #endregion
     }
+
+    
 }

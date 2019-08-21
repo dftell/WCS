@@ -17,7 +17,7 @@ using System.Drawing.Printing;
 using System.Drawing.Design;
 namespace WCS
 {
-    public partial class frm_PrintPDF :frm_Model, IMutliDataInterface
+    public partial class frm_PrintPDF :frm_Model,IMutliDataInterface
     {
         public frm_PrintPDF()
         {
@@ -25,7 +25,24 @@ namespace WCS
             
         }
 
-        
+        public List<UpdateData> InjectedDatas { get; set; }
+
+        public List<UpdateData> GetDataList(List<UpdateData> OrgList, bool OnlyCheckedItem)
+        {
+            return OrgList;
+        }
+
+        public List<UpdateData> GetDataList(List<UpdateData> OrgList)
+        {
+            return OrgList;
+        }
+
+        public List<UpdateData> GetDataList(bool OnlyCheckedItem)
+        {
+            return GetDataList(null,true);
+        }
+
+
         ////List<UpdateData> _injectedatas;
         ////public List<UpdateData> InjectedDatas
         ////{

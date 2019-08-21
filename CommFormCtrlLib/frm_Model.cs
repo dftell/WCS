@@ -13,17 +13,20 @@ using System.IO;
 using WolfInv.Com.MetaDataCenter;
 using WolfInv.Com.CommCtrlLib;
 using WolfInv.Com.XPlatformCtrlLib;
+using WolfInv.Com.ExcelIOLib;
 namespace WolfInv.Com.CommFormCtrlLib
 {
-    
+
 
     //[DefaultEvent("RefreshData")]
-    public partial class frm_Model : XWinForm_UserControl, Ifrm_Model
+    public partial class frm_Model : XWinForm_UserControl, Ifrm_Model,IMainFrame
     {
+        public ListViewColumnSorter lvwColumnSorter;
         #region members
         bool _Loaded = false;
         protected bool LoadFlag { get { return _Loaded; } set { _Loaded = value; } }
         ToolBarBuilderWinForm BehFrame;
+        public CMenuItem FromMenu { get; set; }
         public IKeyForm Link;
         string _strModule = "System";
         string _strScreen = "main";
@@ -35,7 +38,7 @@ namespace WolfInv.Com.CommFormCtrlLib
         public string DetailSource { get { return _DetailSource; } set { _DetailSource = value; } }
         public string _strKey;
         XWinForm_Label tlb_Title;
-        public XWinForm_Label lb_Title { get;  }
+        public IXLabel lb_Title { get { return tlb_Title; } }
         string _uid;
         public string strUid { get { return _uid; } set { _uid = value; } }
         #region IKeyForm 成员
@@ -80,6 +83,14 @@ namespace WolfInv.Com.CommFormCtrlLib
         }
         #endregion
 
+        public IXPanel CurrMainPanel
+        {
+            get
+            {
+                return (this.TopLevelControl as IMainFrame).CurrMainPanel;
+            }
+        }
+
         public bool AllowClose
         {
             get { return false; }
@@ -88,8 +99,7 @@ namespace WolfInv.Com.CommFormCtrlLib
         #endregion
         public frm_Model()
         {
-            if(this.lb_Title == null)
-                this.lb_Title = new XWinForm_Label();
+ 
             this.panel_main = new XWinForm_Panel();
             InitializeComponent();
             
@@ -101,10 +111,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             InitializeComponent();
         }
 
-        public List<UpdateData> InjectedDatas
-        {
-            get;set;
-        }
+        
 
         public DataSet InitDataSource(string sGridSource,out string msg)
         {
@@ -180,14 +187,16 @@ namespace WolfInv.Com.CommFormCtrlLib
             }
             foreach (XmlNode node in btnNodes)
             {
+                CMenuItem mnu = new CMenuItem(strUid);
                 string strPerm = XmlUtil.GetSubNodeText(node, "@perm");
                 bool disable = false;
                 if (strPerm == "0")
                     disable = true;
-                CMenuItem mnu = new CMenuItem(strUid);
+                
                 XmlNode evtnode = node.SelectSingleNode("evt");
                 if (evtnode == null)
                 {
+                    mnu.LoadXml(node);
                     mnu.MnuName = XmlUtil.GetSubNodeText(node, ".");
                     mnu.LinkValue = XmlUtil.GetSubNodeText(node, "@onclick");
                     mnu.MnuId = XmlUtil.GetSubNodeText(node, "@id");
@@ -195,6 +204,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                 else
                 {
                     mnu = MenuProcess.GetMenu(null, evtnode, strUid);
+                    mnu.LoadXml(evtnode);
                     if (mnu.PermId == "0")
                     {
                         disable = true;
@@ -245,6 +255,10 @@ namespace WolfInv.Com.CommFormCtrlLib
         
         protected void frm_Model_Load(object sender, EventArgs e)
         {
+            if(FromMenu != null && FromMenu.linkType == LinkType.Dialog)
+            {
+                this.btn_close.Visible = false;
+            }
             InitEvent();
             //
             if(strKey != null)//防止设计器里面加载loadtoolbar()
@@ -277,7 +291,14 @@ namespace WolfInv.Com.CommFormCtrlLib
                 foreach (DataTranMapping data in this.TranData)
                 {
                     DataCondition datacond = new DataCondition();
-                    datacond.value = data.FromDataPoint;
+                    datacond.value =  data.FromDataPoint;
+                    if(this is ITranslateableInterFace)
+                    {
+                        if((this as ITranslateableInterFace).NeedUpdateData.Items.ContainsKey(data.FromDataPoint))//直接兑现
+                        {
+                            datacond.value = (this as ITranslateableInterFace).NeedUpdateData.Items[data.FromDataPoint].value;
+                        }
+                    }
                     datacond.Datapoint = new DataPoint(data.ToDataPoint);
                     conds.Add(datacond);
                 }
@@ -322,6 +343,16 @@ namespace WolfInv.Com.CommFormCtrlLib
                         ToolBar_Export();
                         break;
                     }
+                case "Sync":
+                    {
+                        ToolBar_Sync(mnu);
+                        break;
+                    }
+                case "Import":
+                    {
+                        ToolBar_Import(mnu);
+                        break;
+                    }
                 case "Refresh":
                 
                     {
@@ -356,6 +387,8 @@ namespace WolfInv.Com.CommFormCtrlLib
             }
         }
 
+
+
         protected bool SaveClose_Click()
         {
             if (!CheckData())
@@ -366,11 +399,17 @@ namespace WolfInv.Com.CommFormCtrlLib
             {
 
                 //(this.TopLevelControl as Form).Close();
-                Form frm = this.Parent as Form;
-                if(frm == null) 
-                    frm = this.TopLevelControl as Form;
-                frm.DialogResult = DialogResult.Yes;
-                frm.Close();
+                ////Form frm = this.Parent as Form;
+                ////if(frm == null) 
+                ////    frm = this.TopLevelControl as Form;
+                ////frm.DialogResult = DialogResult.Yes;
+                ////frm.Close();
+                if(this.FromMenu.linkType == LinkType.Dialog)
+                {
+                    this.TopLevelControl.Dispose();
+                    return true;
+                }
+                btn_close_Click(null, null);
 
 
             }
@@ -442,9 +481,13 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         public virtual event AddExistHandle ToolBar_NewCreate;
 
+        public virtual event ToolBarHandle ToolBar_Remove;
+
         public virtual event ToolBarHandle ToolBar_RefreshData;
 
+        public virtual event AddExistHandle ToolBar_Sync;
 
+        public virtual event AddExistHandle ToolBar_Import;
 
         public virtual event ToolBarHandle ToolBar_Export;
 
@@ -516,9 +559,52 @@ namespace WolfInv.Com.CommFormCtrlLib
                         
         }
         
+        public bool SyncData(CMenuItem mnu)
+        {
+            if (mnu.extradataclass.Trim().Length == 0 || mnu.extradataconvertconfig == null || mnu.extradatagetconfig == null || mnu.extradatatype.Trim().Length == 0)
+            {
+                MessageBox.Show("未正确配置同步参数");
+                return false;
+            }
+            WCSExtraDataClass edc = new WCSExtraDataClass(mnu.extradataassembly,mnu.extradataclass,mnu.extradatatype, mnu.extradatagetconfig);
+            XmlDocument xmldoc = null;
+            XmlDocument xmlschema = null;
+            bool succ = edc.getExtraData(ref xmldoc,ref xmlschema);
+            if(!succ)
+            {
+                MessageBox.Show("获取外部数据失败");
+                return false;
+            }
+            return true;
+                
+        }
+
+
+        public XmlDocument getExtraData(CMenuItem mnu)
+        {
+            if (mnu.extradataclass.Trim().Length == 0 || mnu.extradataconvertconfig == null || mnu.extradatagetconfig == null || mnu.extradataassembly.Trim().Length == 0)
+            {
+                MessageBox.Show("未正确配置同步参数");
+                return null;
+            }
+            WCSExtraDataClass edc = new WCSExtraDataClass(mnu.extradataassembly, mnu.extradataclass, mnu.extradatatype, mnu.extradatagetconfig);
+            XmlDocument xmldoc = null;
+            XmlDocument xmlschema = null;
+            bool succ = edc.getExtraData(ref xmldoc,ref xmlschema);
+            if (!succ)
+            {
+                MessageBox.Show("获取外部数据失败");
+                return null;
+            }
+            return xmldoc;
+        }
+
+        
+
+
         public virtual bool Save()
         {
-            throw new Exception("The method or operation is not implemented.");
+            return true;
         }
         protected virtual XmlDocument GetConfigXml()
         {
@@ -554,7 +640,168 @@ namespace WolfInv.Com.CommFormCtrlLib
             ToolBar_RefreshData += new ToolBarHandle(RefreshData_Click);
             ToolBar_OtherEvent += new AddExistHandle(ToolBar_OtherEvent_Click);
             ToolBar_ExportTo += new AddExistHandle(frm_Model_ToolBar_ExportTo);
+            ToolBar_Import += new AddExistHandle(Frm_Model_ToolBar_Import);
         }
+
+        private void Frm_Model_ToolBar_Import(CMenuItem mnu)
+        {
+
+            ImportData(mnu);
+
+
+        }
+
+        protected void ImportData(CMenuItem mnu)
+        {
+            if (mnu.extradatagetconfig == null)
+            {
+                this.Cursor = Cursors.Default;
+                MessageBox.Show("导入Excel文件配置错误！");
+                return;
+            }
+            DataComboBox.ClearRunningTimeDataSource();
+            OpenExcelSheetDialog ofd = new OpenExcelSheetDialog();
+            DialogResult res = ofd.ShowDialog(this);
+            this.Cursor = Cursors.WaitCursor;
+            if ( res == DialogResult.OK)
+            {
+                
+                XmlUtil.AddAttribute(mnu.extradatagetconfig, "excelpath", ofd.ExcelFileName);
+                XmlUtil.AddAttribute(mnu.extradatagetconfig, "excelsheet", ofd.SheetName);
+                WCSExtraDataAdapter wa = new WCSExtraDataAdapter(mnu.extradataconvertconfig);
+                string msg = null;
+                DataSet ds = wa.getData(mnu.extradataassembly, mnu.extradataclass, mnu.extradatagetconfig, mnu.extradatatype, ref msg);
+                if (ds == null)
+                {
+                    this.Cursor = Cursors.Default;
+                    MessageBox.Show("导入数据错误！");
+                    return;
+                }
+                List<DataControlItem> attCols = new List<DataControlItem>();
+                if(mnu.attatchinfo!=null)
+                {
+                    XmlNodeList attlist = mnu.attatchinfo.SelectNodes("./cols/f");
+                    foreach(XmlNode anode in attlist)
+                    {
+                        DataControlItem dp = new DataControlItem();
+                        dp.LoadXml(anode);
+                        attCols.Add(dp);
+                    }
+                }
+                List<UpdateData> InjectData = DataSource.DataSet2UpdateData(ds,GridSource, this.strUid);
+                if(this is ITranslateableInterFace)
+                {
+                    for(int i=0;i< InjectData.Count;i++)
+                    {
+                        UpdateData ud = InjectData[i];
+                        ud.ReqType = DataRequestType.Add;
+                        ud.IsImported = true;
+                        ud.Updated = true;
+                        for(int j=0;j<attCols.Count;j++)
+                        {
+                            string attname = attCols[j].Name;
+                            string val = attCols[j].getValue(this.strUid, ud);
+                            ud.Items[attname].value=val;
+                        }
+                        //InjectData.Add(ud);
+                    }
+                    //this.NeedUpdateData = ud;
+                }
+                CMenuItem newMenu = this.FromMenu;
+                UpdateData mydata = null;
+                FrameSwitch.switchToView(this.Parent as XWinForm_Panel,this,newMenu,ref mydata, InjectData);
+                this.Cursor = Cursors.Default;
+                MessageBox.Show("导入成功！");
+            }
+            this.Cursor = Cursors.Default;
+        }
+
+        protected void lv_CloumnClick(ListView listView1,ColumnClickEventArgs e)
+        {
+            // Determine if clicked column is already the column that is being sorted.
+            if (lvwColumnSorter == null)
+                lvwColumnSorter = new ListViewColumnSorter();
+            if (e.Column == lvwColumnSorter.SortColumn)
+            {
+                // Reverse the current sort direction for this column.
+                if (lvwColumnSorter.Order == SortOrder.Ascending)
+                {
+                    lvwColumnSorter.Order = SortOrder.Descending;
+                }
+                else
+                {
+                    lvwColumnSorter.Order = SortOrder.Ascending;
+                }
+            }
+            else
+            {
+                // Set the column number that is to be sorted; default to ascending.
+                lvwColumnSorter.SortColumn = e.Column;
+                lvwColumnSorter.Order = SortOrder.Ascending;
+            }
+
+            // Perform the sort with these new sort options.
+            //this.listView1.Columns
+
+            listView1.ListViewItemSorter = lvwColumnSorter;
+            listView1.Sort();
+            if (listView1.Items.Count > 0)
+            {
+                listView1.EnsureVisible(0);
+                listView1.Items[0].Selected = true;
+            }
+        }
+
+        protected virtual void FillGridData(DataSet ds)
+        {
+
+        }
+
+        protected void InitToolBarStrips(XmlNode cmbNode, ToolStrip trip, EventHandler e)
+        {
+            //ToolStripLabel lb = new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode,"@title") );
+            //ToolBar.Items.Add(lb);
+            XmlNode node = cmbNode.SelectSingleNode("toolbar");
+            if (node == null) return;
+            trip.Items.Clear();
+            trip.RightToLeft = XmlUtil.GetSubNodeText(cmbNode, "@RightToLeft") == "1" ? RightToLeft.Yes : RightToLeft.No;
+            InitButtons(node, trip.Items,e);
+        }
+
+        void InitButtons(XmlNode node, ToolStripItemCollection tsic, EventHandler e)
+        {
+            XmlNodeList nodelist = node.SelectNodes("button");
+            foreach (XmlNode bnode in nodelist)
+            {
+
+                ToolStripItem btn = null;
+                bool isDdb = false;
+                if (bnode.SelectNodes("button").Count > 0)
+                {
+                    btn = new ToolStripDropDownButton();
+                    isDdb = true;
+                }
+                else
+                {
+                    btn = new ToolStripButton();
+                    btn.Click += new EventHandler(e);
+                }
+                string sPerm = XmlUtil.GetSubNodeText(bnode, "@perm");
+
+                CMenuItem mnu = MenuProcess.GetMenu(null, bnode, strUid);
+                mnu.LoadXml(bnode);
+                btn.Name = mnu.MnuId;
+                btn.Text = mnu.MnuName;
+                btn.Tag = mnu;
+                btn.Enabled = !(sPerm == "0");
+                tsic.Add(btn);
+                if (isDdb)
+                {
+                    InitButtons(bnode, (btn as ToolStripDropDownButton).DropDownItems,e);
+                }
+            }
+        }
+
 
         public virtual void frm_Model_ToolBar_ExportTo(CMenuItem mnu)
         {
@@ -602,29 +849,12 @@ namespace WolfInv.Com.CommFormCtrlLib
         public string strRefKey { get; set; }
         public string strRefRowId { get; set; }
         public List<DataTranMapping> RefData { get; set; }
-        IXLabel Ifrm_Model.lb_Title { get; set; }
+        //IXLabel Ifrm_Model.lb_Title { get; }
         IKeyForm ILink.Link { get; set; }
 
         #endregion
 
-        #region IMutliDataInterface 成员
-
-        public virtual List<UpdateData> GetDataList(List<UpdateData> OrgList, bool OnlyCheckedItem) 
-        {
-            return new List<UpdateData>();
-        }
-
-        public List<UpdateData> GetDataList(List<UpdateData> OrgList)
-        {
-            return GetDataList(OrgList, false);
-        }
-
-        public List<UpdateData> GetDataList(bool OnlyCheckedItem)
-        {
-            return GetDataList(null, OnlyCheckedItem);
-        }
-
-        #endregion
+        
 
         private void panel1_DoubleClick(object sender, EventArgs e)
         {
@@ -637,7 +867,12 @@ grid:{5}
 detail:{6}
 class:{7}";
             msg = string.Format(msg, strModule, strScreen, strTarget, strKey, strRowId, GridSource, DetailSource,this.GetType());
-            MessageBox.Show(msg);
+            ////this.Dock = this.Dock == DockStyle.Fill ?DockStyle.None: DockStyle.Fill;
+            ////if (this.Dock != DockStyle.Fill)
+            ////    this.BorderStyle = BorderStyle.Fixed3D;
+            ////else
+            ////    this.BorderStyle = BorderStyle.None;
+            //MessageBox.Show(msg);
         }
 
         public DataSet InitDataSource(string sGridSource, List<DataCondition> dc, out string msg)
@@ -647,159 +882,14 @@ class:{7}";
 
         private void btn_close_Click(object sender, EventArgs e)
         {
+            if(this.FromMenu!= null)
+            {
+                this.panel_main.CurrMainControl = null;
+                if(FrameSwitch.AllModules.ContainsKey(this.FromMenu.MnuId))
+                    FrameSwitch.AllModules.Remove(this.FromMenu.MnuId);
+            }
             this.Dispose();
             
         }
-    }
-
-    public class ToolBarBuilderWinForm : BaseToolBarBuild
-    {
-        frm_Model frm;
-        public ToolBarBuilderWinForm(IFrame ifrm,ITag itoolbar)
-            : base(ifrm,itoolbar)
-        {
-            frm = ifrm as frm_Model;
-            toolbarbld = new ToolBarBuilderItemForWin(ifrm, itoolbar);
-        }
-
-
-    }
-    
-    public class ToolBarBuilderItemForWin : ToolBarItemBuilder 
-    {
-        ToolBarStrip toolStrip1;
-        frm_Model frmmdl;
-        public ToolBarBuilderItemForWin(IFrame frm,ITag toolbar):base(frm,toolbar)
-        {
-            toolStrip1 = toolbar as ToolBarStrip;
-            frmmdl = base.frmObj as frm_Model;
-        }
-
-        public override void InitToolBar(bool LeftToRight)
-        {
-            toolStrip1.Items.Clear();
-            if (LeftToRight)
-            {
-                this.toolStrip1.RightToLeft = RightToLeft.Yes;
-            }
-            
-        }
-
-        public override ITag AddToolBarItem(CMenuItem mnu, ToolBarItemType type, EventHandler del)
-        {
-            ToolBarStripItem ret = null;
-            switch(type)
-            {
-                case ToolBarItemType.Button:
-                default:
-                    {
-                        ToolBarStripButton tsi = new ToolBarStripButton();
-                        tsi.Text = mnu.MnuName;
-                        tsi.Tag = mnu;
-                        tsi.Click += del;
-                        ret = tsi;
-                        break;
-                    }
-            }
-            this.toolStrip1.Items.Add(ret);
-            return ret;
-        }
-        public override ITag AddToolBarItem(string lbl, ToolBarItemType type, EventHandler del)
-        {
-            return AddToolBarItem("", null, lbl, type, del);
-        }
-        public override ITag AddToolBarItem(string id,XmlNode backxml, string lbl, ToolBarItemType type, EventHandler del)
-        {
-
-            ToolBarStripItem ret = null;
-            ret.Name = id;
-            switch (type)
-            {
-                case ToolBarItemType.Separator:
-                    {
-                        
-                        if (this.toolStrip1.Items.Count > 0)
-                        {
-                            ret = new ToolBarStripSeparator();
-                        }
-                        
-                        break;
-                    }
-                case ToolBarItemType.Label:
-                    {
-                        this.toolStrip1.Items.Add(ret = new ToolBarStripLabel());
-                        
-                        ret.Text = lbl;
-                        break;
-                    }
-                case ToolBarItemType.Button:
-                    {
-                        ToolBarStripButton searchbtn = new ToolBarStripButton();
-                        (frmmdl.TopLevelControl as Form).AcceptButton = searchbtn as IButtonControl;
-                        searchbtn.Text = lbl;
-                        //this.toolStrip1.Items.Add(searchbtn);
-                        searchbtn.Click += del;
-                        ret = searchbtn;
-                        break;
-                    }
-                case ToolBarItemType.Combox:
-                    {
-                        ToolBarStripComobox combo = new ToolBarStripComobox();
-                        combo.Text = lbl;
-                        //this.toolStrip1.Items.Add(combo);
-                        ret = combo;
-                        break;
-                    }
-                case ToolBarItemType.TextBox:
-                    {
-                        ToolStripTextBoxD ssearchbox = new ToolStripTextBoxD();
-                        ret = ssearchbox;
-                        break;
-                    }
-            }
-            this.toolStrip1.Items.Add(ret);
- 
-            return ret;
-        }
-  
-        public override ITag AddToolBarItem(XmlNode xml, ToolBarItemType type, string itemid, params EventHandler[] del)
-        {
-            return base.AddToolBarItem(xml, type, itemid, del);
-        }
-        
-    }
-
-    public abstract class WinFormHandle : BaseFormHandle 
-    {
-        protected WinFormHandle()
-            : base()
-        {
-        }
-
-        protected WinFormHandle(string id) : base(id) { }
-
-        public override DataSet InitDataSource(string sGridSource, out string msg)
-        {
-            msg = null;
-            if (sGridSource == null || sGridSource.Trim().Length == 0)
-            {
-                msg = string.Format("数据源为空");
-                return null; ;
-            }
-            return DataSource.InitDataSource(GridSource, InitBaseConditions(), strUid, out msg);
-
-        }
-
-        ////public override DataSet InitDataSource(string sGridSource, List<DataCondition> dc,string id, out string msg)
-        ////{
-        ////    msg = null;
-        ////    if (sGridSource == null || sGridSource.Trim().Length == 0)
-        ////    {
-        ////        msg = string.Format("数据源为空");
-        ////        return null; ;
-        ////    }
-        ////    return DataSource.InitDataSource(GridSource, InitBaseConditions(), strUid, out msg);
-
-        ////}
     }
 }

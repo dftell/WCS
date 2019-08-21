@@ -15,40 +15,19 @@ using WolfInv.Com.CommCtrlLib;
 using System.Xml.Xsl;
 using System.Xml.XPath;
 using WolfInv.Com.XPlatformCtrlLib;
-
+using System.Linq;
 namespace WCS
 {
-    public partial class frm_MainSubFrame : frm_Model, ISaveableInterFace
+    public partial class frm_MainSubFrame : frm_Model, ISaveableInterFace,IMutliDataInterface
     {
         
 
         #region ITranslateableInterFace 成员
-        UpdateData _data;
-        List<DataTranMapping> _trandata;
+        
 
-        public UpdateData NeedUpdateData
-        {
-            get
-            {
-                return _data;
-            }
-            set
-            {
-                _data = value;
-            }
-        }
+        
 
-        public List<DataTranMapping> TranData
-        {
-            get
-            {
-                return _trandata;
-            }
-            set
-            {
-                _trandata = value;
-            }
-        }
+        
 
         //List<DataTranMapping> ITranslateableInterFace.RefData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
@@ -95,26 +74,43 @@ namespace WCS
 
             if (GridObj.Lbl_Title != null)
                 GridObj.Lbl_Title.Text = XmlUtil.GetSubNodeText(cmbNode, "@title");
-            //ToolStripLabel lb = new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode,"@title") );
-            //ToolBar.Items.Add(lb);
-            XmlNode node = cmbNode.SelectSingleNode("toolbar");
-            if (node == null) return;
-            GridObj.ToolBar.Items.Clear();
-            GridObj.ToolBar.RightToLeft = XmlUtil.GetSubNodeText(node, "@RightToLeft") == "1" ? RightToLeft.Yes : RightToLeft.No;
-            XmlNodeList nodelist = node.SelectNodes("button");
-            foreach (XmlNode bnode in nodelist)
-            {
-                string sPerm = XmlUtil.GetSubNodeText(bnode, "@perm");
-                ToolStripButton btn = new ToolStripButton();
-                CMenuItem mnu = MenuProcess.GetMenu(null, bnode,strUid);
-                btn.Name = mnu.MnuId;
-                btn.Text = mnu.MnuName;
-                btn.Tag = mnu;
-                btn.Enabled = !(sPerm == "0");
-                btn.Click += new EventHandler(SubGrid_btn_Click);
-                GridObj.ToolBar.Items.Add(btn);
-            }
+
+
+            InitToolBarStrips(cmbNode,GridObj.ToolBar,SubGrid_btn_Click);
         }
+
+
+        public List<UpdateData> InjectedDatas
+        {
+            get; set;
+        }
+
+        #region IMutliDataInterface 成员
+
+        public virtual List<UpdateData> GetDataList(List<UpdateData> OrgList, bool OnlyCheckedItem)
+        {
+            if (OrgList == null)
+                OrgList = new List<UpdateData>();
+            for (int i = 0; i < listView1.Items.Count; i++)
+            {
+                if (OnlyCheckedItem && !listView1.Items[i].Checked) continue;
+                GridRow row = listView1.Items[i].Tag as GridRow;
+                OrgList.Add(row.ToUpdateData());
+            }
+            return OrgList;
+        }
+
+        public List<UpdateData> GetDataList(List<UpdateData> OrgList)
+        {
+            return GetDataList(OrgList, false);
+        }
+
+        public List<UpdateData> GetDataList(bool OnlyCheckedItem)
+        {
+            return GetDataList(null, OnlyCheckedItem);
+        }
+
+        #endregion
 
         void InitEditPanelDefaultValue()
         {
@@ -163,6 +159,10 @@ namespace WCS
                     return;
                 }
                 FillGridData(ds);
+                if(InjectedDatas!=null)
+                {
+                    FillGridData(InjectedDatas);
+                }
      
             }
             else
@@ -265,10 +265,10 @@ namespace WCS
         
         public override bool Save()
         {
-            return SaveData();
+            return SaveData(DataRequestType.Update);
         }
 
-        public  bool SaveData()
+        public  bool SaveData(DataRequestType type=DataRequestType.Update)
         {
             if (PanelObj == null)
                 PanelObj = this.tableLayoutPanel1.Tag as EditPanel;
@@ -282,13 +282,17 @@ namespace WCS
             dcond.Datapoint = new DataPoint(this.strKey);
             dcond.value = this.strRowId;
             conds.Add(dcond);
-            DataRequestType type = DataRequestType.Update;
+            //DataRequestType type = DataRequestType.Update;
             if (this.strRowId == null || this.strRowId == "")
             {
                 type = DataRequestType.Add;
             }
-            DataSource grid_source = GlobalShare.mapDataSource[this.GridSource];
-            ds.SubSource = grid_source;
+            if (GlobalShare.mapDataSource.ContainsKey(this.GridSource))
+            {
+                DataSource grid_source = GlobalShare.mapDataSource[this.GridSource];
+                ds.SubSource = grid_source;
+            }
+            //updata.SubItems.Where(a=>a.ReqType)
             string msg = GlobalShare.DataCenterClientObj.UpdateDataList(ds, dcond, updata, type);
             if (msg != null)
             {
@@ -366,15 +370,15 @@ namespace WCS
         ////    //strRowId 
         ////}
 
-        protected void FillGridData(DataSet ds)
+        protected override void FillGridData(DataSet ds)
         {
 
             GridData = ds;
             if (GridObj == null)
                 GridObj = this.listView1.Tag as SubGrid;
             if (GridObj == null) return;
-            GridObj.FillGridData(ds);
-            this.label_buttom.Text = string.Format("合计：{0} 条件记录", lvis.Count.ToString());
+            GridObj.FillGridData(DataSource.DataSet2UpdateData(ds, this.GridSource, strUid));
+            this.label_buttom.Text = string.Format("合计：{0} 条件记录", ds.Tables[0].Rows.Count.ToString());
             this.listView1.Refresh();
         }
 
@@ -385,7 +389,7 @@ namespace WCS
                 GridObj = this.listView1.Tag as SubGrid;
             if (GridObj == null) return;
             GridObj.FillGridData(ds);
-            this.label_buttom.Text = string.Format("合计：{0} 条件记录", lvis.Count.ToString());
+            this.label_buttom.Text = string.Format("合计：{0} 条件记录", ds.Count.ToString());
             this.listView1.Refresh();
         }
 
@@ -402,6 +406,8 @@ namespace WCS
                     }
                 case "RemoveAll":
                     {
+                        RemoveAllSubItem();
+                        
                         break;
                     }
                 case "AddNew":
@@ -414,6 +420,11 @@ namespace WCS
                         //AddExist(mnu);
                         AddExist_Click(mnu);
                         //OnAddExit(mnu);
+                        break;
+                    }
+                case "Import":
+                    {
+                        ImportData(mnu);
                         break;
                     }
                 default:
@@ -440,7 +451,14 @@ namespace WCS
             GridObj.FillListView();
             return ;
         }
-
+        void RemoveAllSubItem()
+        {
+            foreach( ListViewItem  lvi in this.listView1.Items)
+            {
+                lvi.Checked = true;
+            }
+            RemoveSubItem();
+        }
         void RemoveSubItem()
         {
             bool DirDel = false;
@@ -455,14 +473,59 @@ namespace WCS
                 MessageBox.Show("为执行删除操作，至少需选择一行！");
                 return;
             }
+            if(MessageBox.Show("确定要删除记录","删除确认",MessageBoxButtons.YesNo)== DialogResult.No)
+            {
+                return;
+            }
             for (int i = this.listView1.CheckedIndices.Count - 1;i>=0 ; i--)
             {
-                GridRow gi = this.listView1.Items[this.listView1.CheckedIndices[i]].Tag as GridRow;
-                if (gi == null) continue;
-                GridObj.Items.Remove(gi);
+                int chkid = this.listView1.CheckedIndices[i];
+                ListViewItem lvi = this.listView1.Items[chkid];
+                GridRow gi = lvi.Tag as GridRow;
+                if (gi == null)
+                    continue;
+                bool NewItem = false;
+                if (gi.IsImported)
+                {
+                    NewItem = true;
+                }
+                var keys = gi.Items.Where(a => a.Value.isKey);//手工增加的经ds加载关键字列有iskey标记
                 
+                if (keys.Count() > 0)
+                {
+                    if(keys.First().Value.value == null||keys.First().Value.value.Trim().Length == 0)//关键字为空
+                    {
+                        NewItem = true;//为新建项，直接删除
+                    }
+                }
+                if (DirDel|| NewItem) //如果还没保存，直接删除
+                {
+
+                    lvi.Checked = false;
+                    this.listView1.Items.RemoveAt(chkid);
+                    GridObj.Items.Remove(gi);//删掉内存，保存时直接保存整个主从
+                }
+                else
+                {
+                   
+                    gi.Updated = true;
+                    gi.Removed = true;
+                }
+
+                //gi.Items.Select(a=>a.Value)
             }
-            GridObj.FillListView();
+            if (DirDel)
+                return;
+            if (this.listView1.CheckedItems.Count == 0)
+                return;
+            if (this.SaveData(DataRequestType.Delete))//如果
+            {
+                this.frm_MainSubFrame_Load(null, null);
+            }
+            else
+            {
+                return;
+            }
         }
 
         private void listView1_DoubleClick(object sender, EventArgs e)
@@ -500,7 +563,7 @@ namespace WCS
             return GetUpdateData(CheckValueChanged, true);
         }
 
-        public override UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData)
+        public override UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData=true)
         {
             
             UpdateData updata = new UpdateData();
@@ -569,10 +632,47 @@ namespace WCS
             }
             
         }
-        
 
+        private void listView1_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            this.lv_CloumnClick(sender as ListView, e);
+        }
 
+        private void frm_MainSubFrame_DockChanged(object sender, EventArgs e)
+        {
+            
+        }
 
+        private void splitContainer_detail_DockChanged(object sender, EventArgs e)
+        {
+            
+            
+        }
+
+        private void toolStrip_subtitle_DockChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void splitContainer_detail_Panel2_Resize(object sender, EventArgs e)
+        {
+            int allheight = this.splitContainer_detail.Panel2.Height;
+            int allwidth = this.splitContainer_detail.Panel2.Width;
+
+            int left = panel_Title.Left;
+
+            this.panel_subtoolbar.Left = left;
+            this.panel_subtoolbar.Top = this.panel_Title.Height +this.panel_Title.Top + 2;
+            this.panel_subtoolbar.Width = allwidth - 1;
+            this.panel_subtoolbar.Height = allheight - this.panel_Title.Height;
+            this.toolStrip1.Top = 1;
+            this.toolStrip1.Left = left;
+            this.listView1.Top = this.toolStrip1.Height + 5;
+            this.listView1.Left = left;
+            this.listView1.Width = allwidth ;
+            this.listView1.Height = this.panel_subtoolbar.Height- toolStrip1.Height-6;
+            this.listView1.Scrollable = true;
+        }
     }
 
  }

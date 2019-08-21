@@ -30,6 +30,10 @@ namespace WolfInv.Com.CommFormCtrlLib
         public string TargetField;
         public AutoResponseEventArgs(string targetfld)
         {
+            if (TargetField == null && targetfld == null)
+                return;
+            if(targetfld!= TargetField)
+                return;
             TargetField = targetfld;
         }
     }
@@ -157,138 +161,6 @@ namespace WolfInv.Com.CommFormCtrlLib
         protected void OnTextChanged(EventArgs e)
         {
             this.TextChanged(new AutoResponseEventArgs(this.TargetField));
-        }
-    }
-
-    public class DataComboBox : ComboBox, ITranslateableInterFace,IUserData 
-    {
-        //public Panel Owner;
-        string _uid;
-        public string strUid 
-        { 
-            get 
-            {
-                if (_uid == null)
-                {
-                    Control parent = this.Parent;
-                    while (parent != null)
-                    {
-                        if (parent is IUserData)
-                        {
-                            _uid = (parent as IUserData).strUid;
-                            if (_uid != null)
-                            {
-                                break;
-                            }
-                        }
-                        parent = parent.Parent;
-                    }
-                }
-                if (_uid == null)
-                    throw new Exception("用户ID不能为空");
-                return _uid; 
-            } 
-            set { _uid = value; } }
-        public string DataSourceName;
-        public string ValField;
-        public string TxtField;
-        public DataComboBox(string DataName,string uid)
-        {
-            DataSourceName = DataName;
-            _uid = uid;
-        }
-
-        #region ITranslateableInterFace 成员
-        UpdateData _data;
-        List<DataTranMapping> _maps;
-
-        public UpdateData NeedUpdateData
-        {
-            get
-            {
-                return _data;
-            }
-            set
-            {
-                _data = value;
-            }
-        }
-
-        public List<DataTranMapping> TranData
-        {
-            get
-            {
-                return _maps;
-            }
-            set
-            {
-                _maps = value;
-            }
-        }
-
-        public List<DataTranMapping> RefData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public UpdateData GetCurrFrameData()
-        {
-            return null;
-        }
-
-        #endregion
-
-        public List<DataChoiceItem> GetDataSource()
-        {
-            if (this.DataSourceName == null || DataSourceName.Trim().Length == 0)
-                return null;
-            List<DataCondition> conds = new List<DataCondition>();
-            if (this.TranData != null)
-            {
-                for (int i = 0; i < this.TranData.Count; i++)
-                {
-                    if (this.NeedUpdateData.Items.ContainsKey(TranData[i].ToDataPoint))
-                    {
-                        string strval = this.NeedUpdateData.Items[this.TranData[i].ToDataPoint].value;
-                        if (strval == null || strval.Trim().Length == 0)
-                        {
-                            continue;
-                        }
-                        DataCondition cond = new DataCondition();
-                        cond.Datapoint = new DataPoint(TranData[i].ToDataPoint);
-                        cond.value = strval;
-                        cond.Logic = ConditionLogic.And;
-                        conds.Add(cond);
-                    }
-                }
-            }
-            string msg = null;
-            DataSet ds = WolfInv.Com.WCS_Process.DataSource.InitDataSource(this.DataSourceName, conds,strUid,out msg);
-            if (msg != null || ds == null)
-            {
-                MessageBox.Show(string.Format("控件{0}无法获得数据！错误：{1}", this.Name,msg));
-                return null;
-            }
-            DataChoice dc = DataChoice.ConvertFromDataSet(ds, ValField, TxtField,true);
-            if (dc == null)
-            {
-                MessageBox.Show(string.Format("无法转换数据选择项{0}", this.Name));
-                return null;
-            }
-            //DataChoice dcc = GlobalShare.GetGlobalChoice(strUid, DataSourceName);
-            if (!GlobalShare.UserAppInfos[strUid].DataChoices.ContainsKey(this.DataSourceName))//不断增加新的datachoice
-            {
-                GlobalShare.UserAppInfos[strUid].DataChoices.Add(this.DataSourceName, dc);
-            }
-            return dc.Options;
-        }
-
-        public void ChangeDataSource()
-        {
-
-            this.DataSource = GetDataSource();
-            if (this.DataSource == null) return;
-            this.ValueMember = "Value";
-            this.DisplayMember = "Text";
-            this.RefreshItems();
-            this.SelectedIndex = -1;
         }
     }
 

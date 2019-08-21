@@ -13,7 +13,7 @@ using WolfInv.Com.MetaDataCenter;
 using WolfInv.Com.XPlatformCtrlLib;
 namespace WolfInv.Com.CommCtrlLib
 {
-    public partial class Dlg_CommModel : Form, IKeyForm, ITranslateableInterFace,IUserData ,IKeyTransable,ITag 
+    public partial class Dlg_CommModel : Form, IKeyForm, ITranslateableInterFace,IUserData ,IKeyTransable,ITag ,ILink
     {
         public bool MultiSelect;
         public IKeyForm Link;
@@ -86,6 +86,9 @@ namespace WolfInv.Com.CommCtrlLib
         public string strRefKey { get; set; }
         public string strRefRowId { get; set; }
         public List<DataTranMapping> RefData { get; set; }
+        public List<UpdateData> InjectedDatas { get; set; }
+        public CMenuItem FromMenu { get; set; }
+        IKeyForm ILink.Link { get;set; }
 
         public UpdateData GetCurrFrameData()
         {
@@ -156,7 +159,7 @@ namespace WolfInv.Com.CommCtrlLib
             if (GridObj == null)
                 GridObj = this.listView1.Tag as Grid;
             if (GridObj == null) return;
-            GridObj.FillGridData(ds);
+            GridObj.FillGridData(DataSource.DataSet2UpdateData(ds,this.GridSource,strUid));
             this.lbl_count.Text = string.Format("合计：{0} 条件记录", this.listView1.Items.Count.ToString());
             //this.listView1.Refresh();
         }

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace jdyInterfaceLib
+namespace WolfInv.Com.jdyInterfaceLib
 {
     public class AccessTokenClass : JdyRequestClass
     {

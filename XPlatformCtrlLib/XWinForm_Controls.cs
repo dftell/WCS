@@ -9,40 +9,12 @@ using System.Drawing;
 
 namespace WolfInv.Com.XPlatformCtrlLib
 {
-    
+
 
     public class XWinForm_Control : Control, IXControl
     {
         public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
 
-    }
-
-    public class XWinForm_UserControl : UserControl, IXUserControl
-    {
-        public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
-
-        
-
-        public void Controls_Add(IXControl ctrl)
-        {
-            Control c = ctrl as Control;
-            this.Controls.Add(c);
-        }
-
-        public void Controls_Clear()
-        {
-            this.Controls.Clear();
-        }
-
-        public void SetDock(XPlatformDockStyle dock)
-        {
-            Dock = (DockStyle)dock;
-        }
-
-        public void ToTopLevel()
-        {
-            BringToFront();
-        }
     }
     
     public class XWinForm_Form : Form, IXForm
@@ -59,7 +31,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
         {
             this.Controls.Clear();
         }
-
+        public IXControl CurrMainControl { get; set; }
         public void InitForm(CMenuItem mnu,Icon icon)
         {
             if (Height == 0 || Width == 0)
@@ -124,7 +96,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
         {
             this.Controls.Add(ctrl as Control);
         }
-
+        public IXControl CurrMainControl { get; set; }
         public void Controls_Clear()
         {
             this.Controls.Clear();

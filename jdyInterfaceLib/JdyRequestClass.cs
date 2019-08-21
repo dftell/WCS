@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using WolfInv.Com.AccessWebLib;
 using WolfInv.Com.JsLib;
 
-namespace jdyInterfaceLib
+namespace WolfInv.Com.jdyInterfaceLib
 {
     public abstract class JdyModuleProcessClass : JdyJsonClass
     {
@@ -128,6 +129,16 @@ namespace jdyInterfaceLib
         public string getJsonPath(string name)
         {
             string strPath = string.Format("{0}Json\\{1}.json", AppDomain.CurrentDomain.BaseDirectory, name);
+            if (File.Exists(strPath))
+            {
+                return strPath;
+            }
+            return null;
+        }
+
+        public string getFilePath(string name,string folder="json",string type=".json")
+        {
+            string strPath = string.Format("{0}{2}\\{1}{3}", AppDomain.CurrentDomain.BaseDirectory, name,folder,type);
             if (File.Exists(strPath))
             {
                 return strPath;

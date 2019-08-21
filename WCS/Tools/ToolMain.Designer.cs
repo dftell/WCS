@@ -1,4 +1,4 @@
-﻿namespace WolfInv.Com.DataCenter
+﻿namespace WCS
 {
     partial class ToolMain
     {
@@ -31,8 +31,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ToolMain));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton_DataSource = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton_datapoints = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripButton_datapoints = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton_ViewDesign = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
@@ -42,6 +42,7 @@
             // 
             // toolStrip1
             // 
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton_DataSource,
             this.toolStripSeparator1,
@@ -52,7 +53,8 @@
             this.toolStripButton_FrameDesign});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(622, 25);
+            this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 0, 2, 0);
+            this.toolStrip1.Size = new System.Drawing.Size(1244, 38);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -62,9 +64,14 @@
             this.toolStripButton_DataSource.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton_DataSource.Image")));
             this.toolStripButton_DataSource.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton_DataSource.Name = "toolStripButton_DataSource";
-            this.toolStripButton_DataSource.Size = new System.Drawing.Size(69, 22);
+            this.toolStripButton_DataSource.Size = new System.Drawing.Size(138, 35);
             this.toolStripButton_DataSource.Text = "数据源测试";
             this.toolStripButton_DataSource.Click += new System.EventHandler(this.toolStripButton_DataSource_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 38);
             // 
             // toolStripButton_datapoints
             // 
@@ -72,19 +79,14 @@
             this.toolStripButton_datapoints.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton_datapoints.Image")));
             this.toolStripButton_datapoints.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton_datapoints.Name = "toolStripButton_datapoints";
-            this.toolStripButton_datapoints.Size = new System.Drawing.Size(69, 22);
+            this.toolStripButton_datapoints.Size = new System.Drawing.Size(138, 35);
             this.toolStripButton_datapoints.Text = "数据点维护";
             this.toolStripButton_datapoints.Click += new System.EventHandler(this.toolStripButton_datapoints_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 38);
             // 
             // toolStripButton_ViewDesign
             // 
@@ -92,13 +94,14 @@
             this.toolStripButton_ViewDesign.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton_ViewDesign.Image")));
             this.toolStripButton_ViewDesign.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton_ViewDesign.Name = "toolStripButton_ViewDesign";
-            this.toolStripButton_ViewDesign.Size = new System.Drawing.Size(57, 22);
+            this.toolStripButton_ViewDesign.Size = new System.Drawing.Size(114, 35);
             this.toolStripButton_ViewDesign.Text = "视图设计";
+            this.toolStripButton_ViewDesign.Click += new System.EventHandler(this.toolStripButton_ViewDesign_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 38);
             // 
             // toolStripButton_FrameDesign
             // 
@@ -106,15 +109,16 @@
             this.toolStripButton_FrameDesign.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton_FrameDesign.Image")));
             this.toolStripButton_FrameDesign.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton_FrameDesign.Name = "toolStripButton_FrameDesign";
-            this.toolStripButton_FrameDesign.Size = new System.Drawing.Size(57, 22);
+            this.toolStripButton_FrameDesign.Size = new System.Drawing.Size(114, 35);
             this.toolStripButton_FrameDesign.Text = "页面设计";
             // 
             // ToolMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(622, 340);
+            this.ClientSize = new System.Drawing.Size(1244, 680);
             this.Controls.Add(this.toolStrip1);
+            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.Name = "ToolMain";
             this.Text = "IFrame 开发工具";
             this.toolStrip1.ResumeLayout(false);

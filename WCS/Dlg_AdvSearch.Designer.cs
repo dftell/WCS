@@ -37,14 +37,14 @@ namespace WCS
             this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader7 = new System.Windows.Forms.ColumnHeader();
-            this.panel1.SuspendLayout();
+            this.panel_Title.SuspendLayout();
             (this.panel_main as Panel).SuspendLayout();
             this.panel_bottom.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
-            this.panel1.Size = new System.Drawing.Size(717, 21);
+            this.panel_Title.Size = new System.Drawing.Size(717, 21);
             // 
             // panel_main
             // 
@@ -108,8 +108,8 @@ namespace WCS
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "Dlg_AdvSearch";
             this.Size = new System.Drawing.Size(717, 305);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.panel_Title.ResumeLayout(false);
+            this.panel_Title.PerformLayout();
             (this.panel_main as Panel).ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();

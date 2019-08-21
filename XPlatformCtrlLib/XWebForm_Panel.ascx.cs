@@ -20,7 +20,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
                      
 
         }
-        
+        public IXControl CurrMainControl { get; set; }
         public void Controls_Add(IXControl ctrl)
         {
             this.Controls.Add(ctrl as Control);

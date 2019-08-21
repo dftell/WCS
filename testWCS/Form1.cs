@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WolfInv.Com.ExcelIOLib;
+using WolfInv.Com.JsLib;
 using System.IO;
 namespace testWCS
 {
@@ -75,12 +76,28 @@ namespace testWCS
             this.Cursor = Cursors.Default;
             if (ret.Succ)
             {
-                MessageBox.Show(ret.Result.OuterXml);
+                MessageBox.Show(ret.ReData.Tables[0].Rows.Count.ToString());
             }
             else
             {
                 MessageBox.Show(ret.Message);
             }
+        }
+
+        private void txt_SavePath_TextChanged(object sender, EventArgs e)
+        {
+            Form1_Load(null, null);
+        }
+
+        private void txt_SavePath_DoubleClick(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "json文件|*.json;*.js;";
+            ofd.Multiselect = false;
+            DialogResult rs = ofd.ShowDialog();
+            if (rs == DialogResult.Cancel)
+                return;
+            this.txt_SavePath.Text = ofd.FileName;
         }
     }
 }

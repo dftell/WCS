@@ -11,6 +11,7 @@ using WolfInv.Com.MetaDataCenter;
 using XmlProcess;
 using WolfInv.Com.CommFormCtrlLib;
 using WolfInv.Com.CommCtrlLib;
+using WolfInv.com.BaseObjectsLib;
 namespace WCS
 {
     public partial class frm_EditView : Form,IUserData
@@ -38,8 +39,10 @@ namespace WCS
 
         private void frm_EditView_Load(object sender, EventArgs e)
         {
-            if (ds == null) ds = this.Tag as DataSource;
-            if (ds == null) return;
+            if (ds == null)
+                ds = this.Tag as DataSource;
+            if (ds == null)
+                return;
             DataPoints = GlobalShare.DataCenterClientObj.GetViewDataPointList(ds);
             this.comboBox_datasources.Tag = DataPoints;
             this.comboBox_datasources.Items.Clear();
@@ -62,12 +65,12 @@ namespace WCS
                 DataPoints = this.comboBox_datasources.Tag as Dictionary<string, List<DataPoint>>;
             if (DataPoints == null) return;
             this.label_tag.Tag = DataPoints[comboBox_datasources.Text];
-            srclist = InitList(DataPoints[comboBox_datasources.Text]);
+            srclist = InitList(DataPoints[comboBox_datasources.Text],this.dstlist);
             RefreshGrid(srclist, this.listView_src);
         }
 
        
-        Dictionary<string,DataPoint> InitList(List<DataPoint> dps)
+        Dictionary<string,DataPoint> InitList(List<DataPoint> dps,Dictionary<string, ViewItem> dstdps)
         {
             Dictionary<string, DataPoint> ret = new Dictionary<string, DataPoint>();
             for (int i = 0; i < dps.Count; i++)
@@ -76,6 +79,8 @@ namespace WCS
                 {
                     continue;
                 }
+                if (dstdps.ContainsKey(dps[i].Name))//目标中有的不再加入
+                    continue;
                 DataPoint dp = GlobalShare.DataPointMappings[dps[i].Name];
                 if (ret.ContainsKey(dp.Name)) continue;
                 ret.Add(dp.Name, dp);
@@ -191,7 +196,8 @@ namespace WCS
                 ViewItem vi = this.listView_dist.Items[i].Tag as ViewItem;
                 vi.ToXml(node);
             }
-            xmldoc.Save(strFilePath);
+            xmldoc.Save(string.Format("{0}{1}",AppDomain.CurrentDomain.BaseDirectory,strFilePath));
+            
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
@@ -209,5 +215,23 @@ namespace WCS
         string _uid;
         public string strUid { get { return _uid; } set { _uid = value; } }
         #endregion
+
+        private void btn_setting_Click(object sender, EventArgs e)
+        {
+            if(this.listView_dist.SelectedItems.Count!=1)
+            {
+                return;
+            }
+            ViewItem vi = this.listView_dist.SelectedItems[0].Tag as ViewItem;
+            SerialableObjectEditor<ViewItem> so = new SerialableObjectEditor<ViewItem>();
+            so.FillObject(vi);
+            DialogResult rs = so.ShowDialog();
+            if (rs == DialogResult.OK)
+            {
+                this.dstlist[vi.Name] = so.SelectedObject;
+            }
+            RefreshGrid(this.dstlist, this.listView_dist);
+
+        }
     }
 }

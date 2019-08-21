@@ -1,97 +1,26 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 using XmlProcess;
-using System.Data;
-using System.IO;
 namespace WolfInv.Com.MetaDataCenter
 {
-    public class DataPoint:IXml
+    public interface ICalcExpreable
     {
-        public string Name;
-        public string DataType;
-        public string Text;
-        public int Width;
-        public string ComboName;
-
-        public DataPoint()
-        {
-        }
-
-        public DataPoint(string pointname)
-        {
-            this.Name = pointname;
-        }
-
-        public static Dictionary<string, DataPoint> InitMapping(XmlDocument xmldoc)
-        {
-            if (xmldoc == null) return null;
-            Dictionary<string, DataPoint> DataPointMappings = new Dictionary<string, DataPoint>();
-
-            //string strDpmPath = string.Format("{0}\\xml\\dataidmapping.xml", strAppPath);
-
-            //    XmlDocument xmldoc = new XmlDocument();
-            
-                ////try
-                ////{
-                ////    xmldoc.Load(strDpmPath);
-                ////}
-                ////catch (Exception ce)
-                ////{
-                ////    throw new Exception("can't init the DataIdMapping File!");
-                ////}
-                XmlNodeList nodes = xmldoc.SelectNodes("/flds/f");
-                DataPointMappings = new Dictionary<string, DataPoint>();
-                foreach (XmlNode node in nodes)
-                {
-                    DataPoint dp = new DataPoint();
-                    dp.LoadXml(node);
-                    ////dp.Name = XmlUtil.GetSubNodeText(node, "@i");
-                    ////dp.DataType = XmlUtil.GetSubNodeText(node, "@type");
-                    if (!DataPointMappings.ContainsKey(dp.Name))
-                    {
-                        DataPointMappings.Add(dp.Name, dp);
-                    }
-                }
-                return DataPointMappings;
-        }
-
-        public void LoadXml(XmlNode node)
-        {
-            Name = XmlUtil.GetSubNodeText(node, "@i");
-            DataType = XmlUtil.GetSubNodeText(node, "@type");
-            Text = XmlUtil.GetSubNodeText(node, "@udlbl");
-            string strWidth = XmlUtil.GetSubNodeText(node, "@width");
-            int.TryParse(strWidth, out Width);
-            ComboName = XmlUtil.GetSubNodeText(node, "@combo");
-
-        }
-
-         public XmlNode ToXml(XmlNode parent)
-        {
-            XmlDocument xmldoc;
-            if (parent == null)
-            {
-                xmldoc = new XmlDocument();
-                xmldoc.Load("root");
-                parent = xmldoc.SelectSingleNode("root");
-            }
-            xmldoc = parent.OwnerDocument;
-            XmlNode node = XmlUtil.AddSubNode(parent, "f", true);
-            XmlUtil.AddAttribute(node, "i", Name);
-             if(Text != null && Text !="")
-                XmlUtil.AddAttribute(node, "udlbl", Text);
-            if(ComboName != null && ComboName != "")
-                XmlUtil.AddAttribute(node, "combo", ComboName);
-            if(Width > 0)
-                XmlUtil.AddAttribute(node, "width", Width.ToString());
-            XmlUtil.AddAttribute(node, "type", DataType);
-            return node;
-        }
-
-        
-        
+        /// <summary>
+        /// 可计算列
+        /// </summary>
+        string Method { get; set; }
+        string CalcExpr { get; set; }
+    }
+    public interface IDataSourceable
+    {
+        string DataSourceName { get; set; }
+        string ValueField { get; set; }
+        string TextField { get; set; }
+        /// <summary>
+        /// combo 复杂组合多项分割字符串
+        /// </summary>
+        string ComboItemsSplitString { get; set; }
     }
 
     public enum DataRequestType
@@ -101,7 +30,8 @@ namespace WolfInv.Com.MetaDataCenter
         Update,
         Delete,
         Import,
-        BatchUpdate
+        BatchUpdate,
+        RemoveItem
     }
 
     public class DataRequest
@@ -447,6 +377,7 @@ namespace WolfInv.Com.MetaDataCenter
     {
         public string _Text;
         public string _Value;
+        public UpdateData Data { get; set; }
         public string Text
         {
             get { return _Text; }
@@ -471,231 +402,11 @@ namespace WolfInv.Com.MetaDataCenter
 
     public class DataRowChoiceItem : DataChoiceItem
     {
-        public UpdateData Data;
+        
         public DataRowChoiceItem()
         {
             Data = new UpdateData();
         }
-    }
-
-    public class UpdateData:ICloneable,IXml
-    {
-        public Dictionary<string, UpdateItem> Items = new Dictionary<string, UpdateItem>();
-        public List<UpdateData> SubItems = new List<UpdateData>();
-        public DataPoint keydpt;
-        public string keyvalue;
-        public bool Updated;
-        public DataSet Dataset;
-        public DataRequestType ReqType;
-        public UpdateData()
-        {
-
-        }
-
-        public UpdateData(XmlNode node)
-        {
-            LoadXml(node);
-        }
-
-        public void LoadXml(XmlNode node)
-        {
-            if (node == null) return;
-            this.keydpt  = new DataPoint(XmlUtil.GetSubNodeText(node, "@key"));
-            this.keyvalue = XmlUtil.GetSubNodeText(node, "@val");
-            this.ReqType = DataRequestType.Update;
-            switch (XmlUtil.GetSubNodeText(node, "@type"))
-            {
-                case "Add":
-                    {
-                        ReqType = DataRequestType.Add;
-                        break;
-                    }
-                case "Delete":
-                    {
-                        ReqType = DataRequestType.Delete;
-                        break;
-                    }
-                case "BatchUpdate":
-                    {
-                        ReqType = DataRequestType.BatchUpdate ;
-                        break ;
-                    }
-                default :
-                    {
-                        break;
-                    }
-            }
-            XmlNodeList nodes = node.SelectNodes("./i");
-            this.Items = new Dictionary<string, UpdateItem>();
-            foreach(XmlNode nd in nodes)
-            {
-                UpdateItem ui = new UpdateItem(nd);
-                this.Items.Add(ui.datapoint.Name,ui);
-            }
-            this.SubItems = new List<UpdateData>();
-            XmlNodeList subnode = node.SelectNodes("./subdata/data");
-            for (int i = 0; i < subnode.Count; i++)
-            {
-                UpdateData subdata = new UpdateData(subnode[i]);
-                this.SubItems.Add(subdata);
-            }
-            XmlNode datasetnode = node.SelectSingleNode("./DataSet");
-            if (datasetnode != null)
-            {
-                this.Dataset = new DataSet();
-              
-                StringReader sr = new StringReader(datasetnode.InnerXml);
-                this.Dataset.ReadXml(sr, XmlReadMode.ReadSchema);
-
-                sr.Close();
-            }
-        }
-
-        public XmlNode ToXml(XmlNode parent)
-        {
-            XmlDocument xmldoc;
-            if (parent == null)
-            {
-                xmldoc = new XmlDocument();
-                xmldoc.LoadXml("<data/>");
-                parent = xmldoc.SelectSingleNode("data");
-            }
-            //xmldoc = parent.OwnerDocument;
-            XmlUtil.AddAttribute(parent, "key", this.keydpt == null?"":this.keydpt.Name);
-            XmlUtil.AddAttribute(parent, "val", this.keyvalue);
-            XmlUtil.AddAttribute(parent, "type", this.ReqType.ToString());
-            //XmlNode node = XmlUtil.AddSubNode(parent, "data", true);
-            foreach (UpdateItem ui in this.Items.Values)
-            {
-                ui.ToXml(parent);
-            }
-            if (this.SubItems != null && this.SubItems.Count > 0)
-            {
-                XmlNode node = XmlUtil.AddSubNode(parent, "subdata", false);
-                for (int i = 0; i < this.SubItems.Count; i++)
-                {
-                    XmlNode subNode = node.OwnerDocument.CreateElement("data");// XmlUtil.AddSubNode(node, "data");
-                    node.AppendChild(subNode);
-                    this.SubItems[i].ToXml(subNode);
-                }
-            }
-            if (this.Dataset != null)
-            {
-                MemoryStream strm = new MemoryStream();
-                ////XmlTextWriter writer = new XmlTextWriter(strm,Encoding.UTF8);
-                ////writer.Formatting = Formatting.Indented;
-                ////writer.Indentation = 4;
-                ////writer.IndentChar = ' ';
-                ////writer.WriteStartDocument();
-                ////this.Dataset.WriteXml(writer,XmlWriteMode.WriteSchema);
-                ////writer.Flush();
-
-               StreamWriter sw = new StreamWriter(strm); 
-             
-               // 用DataSet的WriteXml方法把DataSet写入内存流时，缺少XML文档的声明行，必须先加上 
-               sw.WriteLine(@"<?xml version=""1.0"" standalone=""yes""?>");
-               this.Dataset.WriteXml(sw, XmlWriteMode.WriteSchema);
-               sw.Flush(); 
-             
-
-                string xmlstr = Encoding.UTF8.GetString(strm.GetBuffer());
-                XmlDocument tmp = new XmlDocument();
-
-                tmp.LoadXml(xmlstr);
-
-                strm.Close();
-                sw.Close();
-                XmlNode node  = XmlUtil.AddSubNode (parent,"DataSet");
-                node.AppendChild(parent.OwnerDocument.ImportNode(tmp.SelectSingleNode("NewDataSet"),true));
-                
-            }
-            return parent;
-        }
-
-        #region ICloneable 成员
-
-        public object Clone()
-        {
-            UpdateData ret = new UpdateData();
-            ret.LoadXml(this.ToXml(null));
-            return ret;
-            //throw new Exception("The method or operation is not implemented.");
-        }
-
-        #endregion
-    }
-
-    public class UpdateItem:IXml
-    {
-        public DataPoint datapoint;
-        public string value;
-        public string text;
-        public bool Validate = true;//表示该数据点是否需要修改
-        /// <summary>
-        /// 生成xml节点
-        /// </summary>
-        /// <param name="parent">指定父节点</param>
-        /// <returns></returns>
-        public XmlNode ToXml(XmlNode parent)
-        {
-            XmlDocument xmldoc;
-            if (parent == null)
-            {
-                xmldoc = new XmlDocument();
-                xmldoc.Load("root");
-                parent = xmldoc.SelectSingleNode("root");
-            }
-            xmldoc = parent.OwnerDocument;
-            XmlNode node = XmlUtil.AddSubNode(parent, "i", true);
-            XmlUtil.AddAttribute(node, "f", datapoint.Name);
-            XmlUtil.AddAttribute(node, "v", value);
-            return node;
-        }
-
-        public UpdateItem()
-        {
-        }
-
-        public UpdateItem(XmlNode node)
-        {
-            LoadXml(node);
-        }
-
-        public UpdateItem(string DataPoint, string val)
-        {
-            datapoint = new DataPoint(DataPoint);
-            value = val;
-        }
-
-        public void LoadXml(XmlNode node)
-        {
-            datapoint = new DataPoint(XmlUtil.GetSubNodeText(node, "@f"));
-            value = XmlUtil.GetSubNodeText(node, "@v");
-        }
-    }
-
-    public class ItemValue:ICloneable 
-    {
-        public Dictionary<string, string> ItemValues;
-        public string KeyValue;
-        public string KeyText;
-
-        #region ICloneable 成员
-
-        public object Clone()
-        {
-            ItemValue ret = new ItemValue();
-            ret.ItemValues = new Dictionary<string, string>();
-            ret.KeyText = this.KeyText;
-            ret.KeyValue = this.KeyValue;
-            foreach (string key in this.ItemValues.Keys)
-            {
-                ret.ItemValues.Add(key, this.ItemValues[key]);
-            }
-            return ret;
-        }
-
-        #endregion
     }
 
     /// <summary>

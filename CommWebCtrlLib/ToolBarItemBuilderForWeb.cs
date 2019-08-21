@@ -104,8 +104,16 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         public override ITag AddToolBarItem(XmlNode xml, ToolBarItemType type, string itemid, params EventHandler[] del)
         {
-            return base.AddToolBarItem(xml, type, itemid, del);
+            string lbl = xml.SelectSingleNode(itemid).Value;
+            ITag ret = AddToolBarItem(lbl, type, del[0]);
+            return ret;
         }
-     
+
+        public override ITag AddToolBarItem(string id, XmlNode backxml, string lbl, ToolBarItemType type, EventHandler del)
+        {
+            ITag ret = AddToolBarItem(lbl, type, del);
+            
+            return ret;
+        }
     }
 }

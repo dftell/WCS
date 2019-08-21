@@ -1,5 +1,5 @@
 ﻿using System;
-using WebKit;
+//using WebKit;
 
 namespace WCS
 {
@@ -40,14 +40,13 @@ namespace WCS
             this.btn_enter = new System.Windows.Forms.Button();
             this.btn_out = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.webKitBrowser1 = new WebKit.WebKitBrowser();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(322, 284);
+            this.label1.Location = new System.Drawing.Point(154, 193);
             this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(82, 24);
@@ -56,16 +55,17 @@ namespace WCS
             // 
             // txt_user
             // 
-            this.txt_user.Location = new System.Drawing.Point(416, 278);
+            this.txt_user.Location = new System.Drawing.Point(248, 187);
             this.txt_user.Margin = new System.Windows.Forms.Padding(6);
             this.txt_user.Name = "txt_user";
             this.txt_user.Size = new System.Drawing.Size(240, 35);
             this.txt_user.TabIndex = 1;
+            this.txt_user.Text = "gmxgd";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(322, 368);
+            this.label2.Location = new System.Drawing.Point(154, 277);
             this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(58, 24);
@@ -74,12 +74,13 @@ namespace WCS
             // 
             // txt_pwd
             // 
-            this.txt_pwd.Location = new System.Drawing.Point(416, 362);
+            this.txt_pwd.Location = new System.Drawing.Point(248, 271);
             this.txt_pwd.Margin = new System.Windows.Forms.Padding(6);
             this.txt_pwd.Name = "txt_pwd";
             this.txt_pwd.PasswordChar = '*';
             this.txt_pwd.Size = new System.Drawing.Size(240, 35);
             this.txt_pwd.TabIndex = 3;
+            this.txt_pwd.Text = "cnhx20190218";
             // 
             // Lbl_SystemName
             // 
@@ -88,14 +89,14 @@ namespace WCS
             this.Lbl_SystemName.Location = new System.Drawing.Point(0, 0);
             this.Lbl_SystemName.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.Lbl_SystemName.Name = "Lbl_SystemName";
-            this.Lbl_SystemName.Size = new System.Drawing.Size(996, 68);
+            this.Lbl_SystemName.Size = new System.Drawing.Size(638, 68);
             this.Lbl_SystemName.TabIndex = 4;
             this.Lbl_SystemName.Text = "XXX系统";
             this.Lbl_SystemName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btn_enter
             // 
-            this.btn_enter.Location = new System.Drawing.Point(384, 470);
+            this.btn_enter.Location = new System.Drawing.Point(216, 379);
             this.btn_enter.Margin = new System.Windows.Forms.Padding(6);
             this.btn_enter.Name = "btn_enter";
             this.btn_enter.Size = new System.Drawing.Size(110, 38);
@@ -107,7 +108,7 @@ namespace WCS
             // btn_out
             // 
             this.btn_out.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btn_out.Location = new System.Drawing.Point(494, 470);
+            this.btn_out.Location = new System.Drawing.Point(326, 379);
             this.btn_out.Margin = new System.Windows.Forms.Padding(6);
             this.btn_out.Name = "btn_out";
             this.btn_out.Size = new System.Drawing.Size(110, 38);
@@ -118,27 +119,13 @@ namespace WCS
             // 
             // panel1
             // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.Controls.Add(this.Lbl_SystemName);
             this.panel1.Location = new System.Drawing.Point(12, 84);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(996, 68);
+            this.panel1.Size = new System.Drawing.Size(638, 68);
             this.panel1.TabIndex = 7;
-            // 
-            // webKitBrowser1
-            // 
-            this.webKitBrowser1.AutoScroll = true;
-            this.webKitBrowser1.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
-            this.webKitBrowser1.BackColor = System.Drawing.Color.White;
-            this.webKitBrowser1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.webKitBrowser1.Location = new System.Drawing.Point(0, 0);
-            this.webKitBrowser1.Name = "webKitBrowser1";
-            this.webKitBrowser1.Size = new System.Drawing.Size(1592, 1264);
-            this.webKitBrowser1.TabIndex = 8;
-            this.webKitBrowser1.Url = null;
-            this.webKitBrowser1.Visible = false;
-            this.webKitBrowser1.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webKitBrowser1_DocumentCompleted);
-            this.webKitBrowser1.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.webKitBrowser1_Navigated);
-            this.webKitBrowser1.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webKitBrowser1_Navigating);
             // 
             // Form1
             // 
@@ -146,8 +133,7 @@ namespace WCS
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btn_out;
-            this.ClientSize = new System.Drawing.Size(1592, 1264);
-            this.Controls.Add(this.webKitBrowser1);
+            this.ClientSize = new System.Drawing.Size(662, 471);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.btn_out);
             this.Controls.Add(this.btn_enter);
@@ -181,7 +167,7 @@ namespace WCS
         private System.Windows.Forms.Button btn_enter;
         private System.Windows.Forms.Button btn_out;
         private System.Windows.Forms.Panel panel1;
-        private WebKitBrowser webKitBrowser1;
+        //private WebKitBrowser webKitBrowser1;
     }
 }
 

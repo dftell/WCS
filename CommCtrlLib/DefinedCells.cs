@@ -133,12 +133,13 @@ namespace WolfInv.Com.CommCtrlLib
     ////    }
     ////}
 
-    public class BaseDataComboBox : ComboBox, ITranslateableInterFace
+    public class BaseDataComboBox : ComboBox, ITranslateableInterFace,IDataSourceable
     {
 
-        public string DataSourceName;
-        public string ValField;
-        public string TxtField;
+        public string DataSourceName { get; set; }
+        public string ValueField { get; set; }
+        public string TextField { get; set; }
+        public string ComboItemsSplitString { get; set; }
         public BaseDataComboBox(string DataName)
         {
             DataSourceName = DataName;
@@ -172,6 +173,8 @@ namespace WolfInv.Com.CommCtrlLib
                 _maps = value;
             }
         }
+
+        public List<UpdateData> InjectedDatas { get; set; }
 
         public UpdateData GetCurrFrameData()
         {
@@ -213,7 +216,7 @@ namespace WolfInv.Com.CommCtrlLib
                 MessageBox.Show(string.Format("控件{0}无法获得数据！", this.Name));
                 return null;
             }
-            DataChoice dc = DataChoice.ConvertFromDataSet(ds, ValField, TxtField);
+            DataChoice dc = DataChoice.ConvertFromDataSet(ds, ValueField, TextField, ComboItemsSplitString);
             if (dc == null)
             {
                 MessageBox.Show(string.Format("无法转换数据选择项{0}", this.Name));

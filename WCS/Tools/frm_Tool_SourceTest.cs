@@ -8,7 +8,9 @@ using System.Windows.Forms;
 using System.Xml;
 using WolfInv.Com.MetaDataCenter;
 using System.IO;
-namespace WolfInv.Com.DataCenter
+using WolfInv.Com.DataCenter;
+
+namespace WCS
 {
     public partial class frm_Tool_SourceTest : Form
     {

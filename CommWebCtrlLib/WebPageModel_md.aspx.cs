@@ -101,7 +101,7 @@ namespace WolfInv.Com.CommWebCtrlLib
             //Init_Compenent();
 
         }
-
+        public IXControl CurrMainControl { get; set; }
         protected override void OnInit(EventArgs e)
         {
             base.OnInit(e);
@@ -437,6 +437,11 @@ namespace WolfInv.Com.CommWebCtrlLib
                         ToolBar_NewCreate(mnu);
                         break;
                     }
+                case "Remove":
+                    {
+                        ToolBar_Remove();
+                        break;
+                    }
                 case "ExportExcel":
                     {
                         ToolBar_Export();
@@ -565,7 +570,7 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         public virtual event ToolBarHandle ToolBar_RefreshData;
 
-
+        public virtual event ToolBarHandle ToolBar_Remove;
 
         public virtual event ToolBarHandle ToolBar_Export;
 
@@ -734,6 +739,8 @@ namespace WolfInv.Com.CommWebCtrlLib
                 return PlatformControlType.Web;
             }
         }
+
+        public CMenuItem FromMenu { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         #endregion
 

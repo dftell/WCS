@@ -1,27 +1,27 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-
+using Xilium.CefGlue.WindowsForms;
 namespace WolfInv.Com.CommCtrlLib
 {
     public class WebForm : SubForm
     {
         public string id;
-        public WebBrowser wb;
+        public CefWebBrowser wb;
         string _url;
         public WebForm(string strid, string url)
         {
             id = strid;
             _url = url;
             Init();
-            if (url.ToLower().StartsWith("http"))
-            {
-                wb.Url = new Uri(url);
-            }
-            else
-            {
-                wb.Url = new Uri(string.Format("http://oa.cfzq.com{0}", url));
-            }
+            //if (url.ToLower().StartsWith("http"))
+            //{
+            wb.StartUrl = url;
+            //}
+            //else
+            //{
+            //    wb.Url = new Uri(string.Format("http://oa.cfzq.com{0}", url));
+        //}
 
             //this.MdiParent = FrameSwitch.ParentForm;
         }
@@ -30,12 +30,13 @@ namespace WolfInv.Com.CommCtrlLib
         {
             Width = 1024;
             Height = 600;
+
             StartPosition = FormStartPosition.CenterParent;
             if (wb == null)
             {
-                wb = new WebBrowser();
+                wb = new CefWebBrowser();
             }
-            wb.NewWindow += new CancelEventHandler(wb_NewWindow);
+            //wb.NewWindow += new CancelEventHandler(wb_NewWindow);
             //wb.Navigating += new WebBrowserNavigatingEventHandler(wb_Navigating);
             wb.Dock = DockStyle.Fill;
             Controls.Add(wb);
@@ -77,7 +78,7 @@ namespace WolfInv.Com.CommCtrlLib
             {
 
                 // frm = new WebForm((sender as WebBrowser).StatusText,  (sender as WebBrowser).StatusText);
-                frm = new WebForm(this.wb.StatusText.ToString(), this.wb.StatusText.ToString());
+                //frm = new WebForm(this.wb.StatusText.ToString(), this.wb.StatusText.ToString());
             }
             //frm.MdiParent = FrameSwitch.ParentForm;
             frm.Focus();

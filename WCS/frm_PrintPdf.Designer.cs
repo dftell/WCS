@@ -31,7 +31,7 @@ namespace WCS
         private void InitializeComponent()
         {
             this.webBrowser1 = new System.Windows.Forms.WebBrowser();
-            this.panel1.SuspendLayout();
+            this.panel_Title.SuspendLayout();
             (this.panel_main as Panel).SuspendLayout();
             this.panel_bottom.SuspendLayout();
             this.SuspendLayout();
@@ -55,8 +55,8 @@ namespace WCS
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "frm_PrintPDF";
             this.Load += new System.EventHandler(this.frm_PrintPDF_Load);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.panel_Title.ResumeLayout(false);
+            this.panel_Title.PerformLayout();
             (this.panel_main as Panel).ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();

@@ -1,15 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Drawing;
-using System.Data;
 using System.Reflection;
 using System.Text;
 using WolfInv.Com.MetaDataCenter;
 using System.Windows.Forms;
-using WolfInv.Com.WCS_Process;
 using WolfInv.Com.XPlatformCtrlLib;
 namespace WolfInv.Com.CommCtrlLib
 {
@@ -142,125 +139,6 @@ namespace WolfInv.Com.CommCtrlLib
         }
 
 
-    }
-
-    public class AutoCalcTextItem : TextBox
-    {
-        public string TargetField;
-
-        public event AutoCalcEventHandler TextChanged;
-
-        protected override void OnTextChanged(EventArgs e)
-        {
-            this.TextChanged(new AutoResponseEventArgs(this.TargetField));
-        }
-    }
-
-    public class DataComboBox : ComboBox, ITranslateableInterFace
-    {
-
-        public string DataSourceName;
-        public string ValField;
-        public string TxtField;
-        public string UId;
-        public DataComboBox(string DataName,string uid)
-        {
-            DataSourceName = DataName;
-            UId = uid;
-
-        }
-
-        #region ITranslateableInterFace 成员
-        UpdateData _data;
-        List<DataTranMapping> _maps;
-
-        public UpdateData NeedUpdateData
-        {
-            get
-            {
-                return _data;
-            }
-            set
-            {
-                _data = value;
-            }
-        }
-
-        public List<DataTranMapping> TranData
-        {
-            get
-            {
-                return _maps;
-            }
-            set
-            {
-                _maps = value;
-            }
-        }
-
-        public UpdateData GetCurrFrameData()
-        {
-            return null;
-        }
-
-        #endregion
-
-
-
-        public List<DataChoiceItem> GetDataSource()
-        {
-            if (this.DataSourceName == null || DataSourceName.Trim().Length == 0)
-                return null;
-            List<DataCondition> conds = new List<DataCondition>();
-            if (this.TranData != null)
-            {
-                for (int i = 0; i < this.TranData.Count; i++)
-                {
-                    if (this.NeedUpdateData.Items.ContainsKey(TranData[i].ToDataPoint))
-                    {
-                        string strval = this.NeedUpdateData.Items[this.TranData[i].ToDataPoint].value;
-                        if (strval == null || strval.Trim().Length == 0)
-                        {
-                            continue;
-                        }
-                        DataCondition cond = new DataCondition();
-                        cond.Datapoint = new DataPoint(TranData[i].ToDataPoint);
-                        cond.value = strval;
-                        cond.Logic = ConditionLogic.And;
-                        conds.Add(cond);
-                    }
-                }
-            }
-            string msg = null;
-            DataSet ds = WCS_Process.DataSource.InitDataSource(this.DataSourceName, conds,this.Name,out msg);
-            if (ds == null)
-            {
-                MessageBox.Show(string.Format("控件{0}无法获得数据！[{1}]", this.Name,msg));
-                return null;
-            }
-            DataChoice dc = DataChoice.ConvertFromDataSet(ds, ValField, TxtField);
-            if (dc == null)
-            {
-                MessageBox.Show(string.Format("无法转换数据选择项{0}", this.Name));
-                return null;
-            }
-            if (!GlobalShare.DataChoices.ContainsKey(this.DataSourceName))//不断增加新的datachoice
-            {
-                GlobalShare.DataChoices.Add(this.DataSourceName, dc);
-            }
-            return dc.Options;
-        }
-
-        public void ChangeDataSource()
-        {
-
-            this.DataSource = GetDataSource();
-            if (this.DataSource == null) return;
-            this.ValueMember = "Value";
-            this.DisplayMember = "Text";
-            this.RefreshItems();
-            this.SelectedIndex = -1;
-        }
     }
 
     

@@ -174,130 +174,13 @@ namespace WolfInv.Com.CommCtrlLib
         protected abstract void AddColumnItem(IDataFieldHeaderColumn ch);
     }
 
-    public class GridRow
-    {
-        public Dictionary<string, GridCell> Items = new Dictionary<string, GridCell>();
-        public ItemValue ItemValues;
-        public bool Updated;
-        public BaseGrid OwnerGrid;
-        /// <summary>
-        /// 该变量用于外部数据
-        /// </summary>
-        public UpdateData ExtraSourceData;
-
-        public UpdateData ToUpdateData()
-        {
-            UpdateData data = new UpdateData();
-            return ToUpdateData(ref data);
-        }
-
-        public UpdateData ToUpdateData(ref UpdateData OrgData)
-        {
-            if (OrgData == null)
-            {
-                OrgData = new UpdateData();
-            }
-            UpdateData ret = OrgData;
-            foreach (string strkey in this.Items.Keys)
-            {
-                UpdateItem ui = new UpdateItem(strkey, this.Items[strkey].value);
-                ret.Items.Add(strkey, ui);
-            }
-            return ret;
-        }
-    }
-
     public class GridCell
     {
         public string value;
         public string text;
         public bool Updated;
+        public bool isKey;
 
-    }
-
-    public class DataGridColumn : ViewItem,IXml
-    {
-        public BaseGrid Owner;
-        ////public string Text;
-        public DataGridColumn(BaseGrid grid)
-        {
-            Owner = grid;
-        }
-        public string DataField
-        {
-            get { return this.dpt.Name; }
-            set { this.dpt = new DataPoint(value); }
-        }
-        public bool Hide
-        {
-            get { return !this.Visable; }
-            set { this.Visable = value; }
-        }
-        ////public int Width;
-        ////public bool Hide;
-        ////public int Index;
-        ////public bool IsKeyValue;
-        ////public bool IsKeyText;
-    }
-
-    public class ViewItem : DataPoint,IXml
-    {
-        public DataPoint dpt;
-        public bool Visable = true;
-        public bool IsKeyValue;
-        public bool IsKeyText;
-        public int Index;
-        public bool Sum;
-        public bool Perm = true;
-
-        public virtual void LoadXml(XmlNode node)
-        {
-            //base.LoadXml(node);
-            this.Name = XmlUtil.GetSubNodeText(node, "@i");
-            this.Text = XmlUtil.GetSubNodeText(node, "@text");
-            if (this.Text == "")
-            {
-                this.Text = XmlUtil.GetSubNodeText(node, "@udlbl");
-            }
-            int.TryParse(XmlUtil.GetSubNodeText(node, "@width"), out this.Width);
-            this.DataType = XmlUtil.GetSubNodeText(node, "@type");
-            this.ComboName = XmlUtil.GetSubNodeText(node, "@combo");
-            this.Visable = !(XmlUtil.GetSubNodeText(node, "@hide") == "1");
-            this.IsKeyText = XmlUtil.GetSubNodeText(node, "@keytext") == "1";
-            this.IsKeyValue = XmlUtil.GetSubNodeText(node, "@keyvalue") == "1";
-            this.Sum = XmlUtil.GetSubNodeText(node, "@sum") == "1";
-            string strIdx = XmlUtil.GetSubNodeText(node, "@index");
-            Perm = !(XmlUtil.GetSubNodeText(node, "@perm") == "0");
-            if (strIdx == "")
-            {
-                //this.Index = int.Parse(node.SelectSingleNode("position(.)").Value);
-            }
-            else
-            {
-                int.TryParse(strIdx, out this.Index);
-            }
-        }
-
-        public void GetItem(DataPoint dp)
-        {
-            dpt = dp;
-            this.Name = dp.Name;
-            this.Text = dp.Text;
-            this.Width = dp.Width;
-            this.ComboName = dp.ComboName;
-            this.DataType = dp.DataType;
-        }
-    }
-
-    public class CellViewItem : ViewItem
-    {
-        public bool multiline;
-        public int height;
-        public override void LoadXml(XmlNode node)
-        {
-            base.LoadXml(node);
-            this.dpt = new DataPoint(XmlUtil.GetSubNodeText(node, "@f"));
-        }
     }
 
   

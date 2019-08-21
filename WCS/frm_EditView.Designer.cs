@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_EditView));
             this.listView_src = new System.Windows.Forms.ListView();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.btn_Cancle = new System.Windows.Forms.Button();
             this.btn_Save = new System.Windows.Forms.Button();
             this.comboBox_datasources = new System.Windows.Forms.ComboBox();
@@ -42,7 +42,11 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.listView_dist = new System.Windows.Forms.ListView();
-            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.btn_MoveTop = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.label6 = new System.Windows.Forms.Label();
@@ -55,10 +59,6 @@
             this.btn_setting = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
-            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
             this.SuspendLayout();
             // 
             // listView_src
@@ -66,9 +66,10 @@
             this.listView_src.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1});
             this.listView_src.FullRowSelect = true;
-            this.listView_src.Location = new System.Drawing.Point(12, 136);
+            this.listView_src.Location = new System.Drawing.Point(24, 272);
+            this.listView_src.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.listView_src.Name = "listView_src";
-            this.listView_src.Size = new System.Drawing.Size(405, 109);
+            this.listView_src.Size = new System.Drawing.Size(806, 214);
             this.listView_src.TabIndex = 0;
             this.listView_src.UseCompatibleStateImageBehavior = false;
             this.listView_src.View = System.Windows.Forms.View.Details;
@@ -80,9 +81,10 @@
             // 
             // btn_Cancle
             // 
-            this.btn_Cancle.Location = new System.Drawing.Point(423, 466);
+            this.btn_Cancle.Location = new System.Drawing.Point(846, 932);
+            this.btn_Cancle.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btn_Cancle.Name = "btn_Cancle";
-            this.btn_Cancle.Size = new System.Drawing.Size(72, 22);
+            this.btn_Cancle.Size = new System.Drawing.Size(144, 44);
             this.btn_Cancle.TabIndex = 1;
             this.btn_Cancle.Text = "取消";
             this.btn_Cancle.UseVisualStyleBackColor = true;
@@ -90,9 +92,10 @@
             // 
             // btn_Save
             // 
-            this.btn_Save.Location = new System.Drawing.Point(347, 466);
+            this.btn_Save.Location = new System.Drawing.Point(694, 932);
+            this.btn_Save.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btn_Save.Name = "btn_Save";
-            this.btn_Save.Size = new System.Drawing.Size(72, 22);
+            this.btn_Save.Size = new System.Drawing.Size(144, 44);
             this.btn_Save.TabIndex = 2;
             this.btn_Save.Text = "保存";
             this.btn_Save.UseVisualStyleBackColor = true;
@@ -102,35 +105,39 @@
             // 
             this.comboBox_datasources.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_datasources.FormattingEnabled = true;
-            this.comboBox_datasources.Location = new System.Drawing.Point(59, 37);
+            this.comboBox_datasources.Location = new System.Drawing.Point(118, 74);
+            this.comboBox_datasources.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.comboBox_datasources.Name = "comboBox_datasources";
-            this.comboBox_datasources.Size = new System.Drawing.Size(358, 20);
+            this.comboBox_datasources.Size = new System.Drawing.Size(712, 32);
             this.comboBox_datasources.TabIndex = 3;
             this.comboBox_datasources.SelectedIndexChanged += new System.EventHandler(this.comboBox_datasources_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 40);
+            this.label1.Location = new System.Drawing.Point(24, 80);
+            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(41, 12);
+            this.label1.Size = new System.Drawing.Size(82, 24);
             this.label1.TabIndex = 4;
             this.label1.Text = "数据源";
             // 
             // comboBox2
             // 
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(59, 64);
+            this.comboBox2.Location = new System.Drawing.Point(118, 128);
+            this.comboBox2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(358, 20);
+            this.comboBox2.Size = new System.Drawing.Size(712, 32);
             this.comboBox2.TabIndex = 5;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 67);
+            this.label2.Location = new System.Drawing.Point(24, 134);
+            this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(29, 12);
+            this.label2.Size = new System.Drawing.Size(58, 24);
             this.label2.TabIndex = 6;
             this.label2.Text = "分类";
             // 
@@ -138,9 +145,10 @@
             // 
             this.label_tag.AutoSize = true;
             this.label_tag.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label_tag.Location = new System.Drawing.Point(9, 12);
+            this.label_tag.Location = new System.Drawing.Point(18, 24);
+            this.label_tag.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label_tag.Name = "label_tag";
-            this.label_tag.Size = new System.Drawing.Size(83, 12);
+            this.label_tag.Size = new System.Drawing.Size(160, 24);
             this.label_tag.TabIndex = 7;
             this.label_tag.Text = "可用数据列表";
             // 
@@ -148,18 +156,20 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label4.Location = new System.Drawing.Point(12, 97);
+            this.label4.Location = new System.Drawing.Point(24, 194);
+            this.label4.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(70, 12);
+            this.label4.Size = new System.Drawing.Size(135, 24);
             this.label4.TabIndex = 8;
             this.label4.Text = "有效数据点";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 117);
+            this.label5.Location = new System.Drawing.Point(24, 234);
+            this.label5.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(77, 12);
+            this.label5.Size = new System.Drawing.Size(154, 24);
             this.label5.TabIndex = 9;
             this.label5.Text = "共计数据点：";
             // 
@@ -172,9 +182,10 @@
             this.columnHeader5,
             this.columnHeader6});
             this.listView_dist.FullRowSelect = true;
-            this.listView_dist.Location = new System.Drawing.Point(14, 316);
+            this.listView_dist.Location = new System.Drawing.Point(28, 632);
+            this.listView_dist.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.listView_dist.Name = "listView_dist";
-            this.listView_dist.Size = new System.Drawing.Size(405, 110);
+            this.listView_dist.Size = new System.Drawing.Size(806, 216);
             this.listView_dist.TabIndex = 10;
             this.listView_dist.UseCompatibleStateImageBehavior = false;
             this.listView_dist.View = System.Windows.Forms.View.Details;
@@ -184,13 +195,34 @@
             this.columnHeader2.Text = "名称";
             this.columnHeader2.Width = 96;
             // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "宽度";
+            this.columnHeader3.Width = 96;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "关键值";
+            this.columnHeader4.Width = 96;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "关键文本";
+            this.columnHeader5.Width = 72;
+            // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "可视";
+            this.columnHeader6.Width = 96;
+            // 
             // btn_MoveTop
             // 
             this.btn_MoveTop.ImageIndex = 0;
             this.btn_MoveTop.ImageList = this.imageList1;
-            this.btn_MoveTop.Location = new System.Drawing.Point(423, 316);
+            this.btn_MoveTop.Location = new System.Drawing.Point(846, 632);
+            this.btn_MoveTop.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btn_MoveTop.Name = "btn_MoveTop";
-            this.btn_MoveTop.Size = new System.Drawing.Size(72, 22);
+            this.btn_MoveTop.Size = new System.Drawing.Size(144, 44);
             this.btn_MoveTop.TabIndex = 11;
             this.btn_MoveTop.UseVisualStyleBackColor = true;
             // 
@@ -206,9 +238,10 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(15, 293);
+            this.label6.Location = new System.Drawing.Point(30, 586);
+            this.label6.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(77, 12);
+            this.label6.Size = new System.Drawing.Size(154, 24);
             this.label6.TabIndex = 16;
             this.label6.Text = "共计数据点：";
             // 
@@ -216,17 +249,19 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label7.Location = new System.Drawing.Point(15, 273);
+            this.label7.Location = new System.Drawing.Point(30, 546);
+            this.label7.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(70, 12);
+            this.label7.Size = new System.Drawing.Size(135, 24);
             this.label7.TabIndex = 15;
             this.label7.Text = "选择数据点";
             // 
             // btn_Add
             // 
-            this.btn_Add.Location = new System.Drawing.Point(197, 251);
+            this.btn_Add.Location = new System.Drawing.Point(394, 502);
+            this.btn_Add.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btn_Add.Name = "btn_Add";
-            this.btn_Add.Size = new System.Drawing.Size(108, 22);
+            this.btn_Add.Size = new System.Drawing.Size(216, 44);
             this.btn_Add.TabIndex = 17;
             this.btn_Add.Text = "添加";
             this.btn_Add.UseVisualStyleBackColor = true;
@@ -234,9 +269,10 @@
             // 
             // btn_AddAll
             // 
-            this.btn_AddAll.Location = new System.Drawing.Point(311, 251);
+            this.btn_AddAll.Location = new System.Drawing.Point(622, 502);
+            this.btn_AddAll.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btn_AddAll.Name = "btn_AddAll";
-            this.btn_AddAll.Size = new System.Drawing.Size(106, 22);
+            this.btn_AddAll.Size = new System.Drawing.Size(212, 44);
             this.btn_AddAll.TabIndex = 18;
             this.btn_AddAll.Text = "全部添加";
             this.btn_AddAll.UseVisualStyleBackColor = true;
@@ -246,9 +282,10 @@
             // 
             this.btn_MoveUp.ImageIndex = 1;
             this.btn_MoveUp.ImageList = this.imageList1;
-            this.btn_MoveUp.Location = new System.Drawing.Point(423, 344);
+            this.btn_MoveUp.Location = new System.Drawing.Point(846, 688);
+            this.btn_MoveUp.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btn_MoveUp.Name = "btn_MoveUp";
-            this.btn_MoveUp.Size = new System.Drawing.Size(72, 22);
+            this.btn_MoveUp.Size = new System.Drawing.Size(144, 44);
             this.btn_MoveUp.TabIndex = 19;
             this.btn_MoveUp.UseVisualStyleBackColor = true;
             // 
@@ -256,9 +293,10 @@
             // 
             this.btn_MoveDown.ImageIndex = 2;
             this.btn_MoveDown.ImageList = this.imageList1;
-            this.btn_MoveDown.Location = new System.Drawing.Point(423, 372);
+            this.btn_MoveDown.Location = new System.Drawing.Point(846, 744);
+            this.btn_MoveDown.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btn_MoveDown.Name = "btn_MoveDown";
-            this.btn_MoveDown.Size = new System.Drawing.Size(72, 22);
+            this.btn_MoveDown.Size = new System.Drawing.Size(144, 44);
             this.btn_MoveDown.TabIndex = 20;
             this.btn_MoveDown.UseVisualStyleBackColor = true;
             // 
@@ -266,61 +304,49 @@
             // 
             this.btn_MoveButtom.ImageIndex = 3;
             this.btn_MoveButtom.ImageList = this.imageList1;
-            this.btn_MoveButtom.Location = new System.Drawing.Point(423, 400);
+            this.btn_MoveButtom.Location = new System.Drawing.Point(846, 800);
+            this.btn_MoveButtom.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btn_MoveButtom.Name = "btn_MoveButtom";
-            this.btn_MoveButtom.Size = new System.Drawing.Size(72, 22);
+            this.btn_MoveButtom.Size = new System.Drawing.Size(144, 44);
             this.btn_MoveButtom.TabIndex = 21;
             this.btn_MoveButtom.UseVisualStyleBackColor = true;
             // 
             // btn_setting
             // 
-            this.btn_setting.Location = new System.Drawing.Point(83, 432);
+            this.btn_setting.Location = new System.Drawing.Point(166, 864);
+            this.btn_setting.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btn_setting.Name = "btn_setting";
-            this.btn_setting.Size = new System.Drawing.Size(108, 22);
+            this.btn_setting.Size = new System.Drawing.Size(216, 44);
             this.btn_setting.TabIndex = 22;
             this.btn_setting.Text = "设置";
             this.btn_setting.UseVisualStyleBackColor = true;
+            this.btn_setting.Click += new System.EventHandler(this.btn_setting_Click);
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(311, 432);
+            this.button3.Location = new System.Drawing.Point(622, 864);
+            this.button3.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(108, 22);
+            this.button3.Size = new System.Drawing.Size(216, 44);
             this.button3.TabIndex = 23;
             this.button3.Text = "全部删除";
             this.button3.UseVisualStyleBackColor = true;
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(197, 432);
+            this.button4.Location = new System.Drawing.Point(394, 864);
+            this.button4.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(108, 22);
+            this.button4.Size = new System.Drawing.Size(216, 44);
             this.button4.TabIndex = 24;
             this.button4.Text = "删除";
             this.button4.UseVisualStyleBackColor = true;
             // 
-            // columnHeader3
-            // 
-            this.columnHeader3.Text = "宽度";
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "关键值";
-            // 
-            // columnHeader5
-            // 
-            this.columnHeader5.Text = "关键文本";
-            this.columnHeader5.Width = 72;
-            // 
-            // columnHeader6
-            // 
-            this.columnHeader6.Text = "可视";
-            // 
             // frm_EditView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(507, 500);
+            this.ClientSize = new System.Drawing.Size(1014, 1000);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.btn_setting);
@@ -343,6 +369,7 @@
             this.Controls.Add(this.btn_Save);
             this.Controls.Add(this.btn_Cancle);
             this.Controls.Add(this.listView_src);
+            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.Name = "frm_EditView";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frm_EditView";

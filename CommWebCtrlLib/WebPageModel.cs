@@ -2,6 +2,7 @@
 using System.Data;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Web.UI.HtmlControls;
 using System.Drawing;
 using WolfInv.Com.CommCtrlLib;
 using WolfInv.Com.MetaDataCenter;
@@ -15,6 +16,8 @@ namespace WolfInv.Com.CommWebCtrlLib
         {
             get; set;
         }
+
+        
         object _Tag;
         string _strModule ="system";
         string _strScreen = "main";
@@ -76,6 +79,20 @@ namespace WolfInv.Com.CommWebCtrlLib
         ////    Init_Compenent();
         ////}
 
+        public override ControlCollection Controls
+        {
+            get
+            {
+                Control ctrl = this.FindControl("form1");
+                if (ctrl == null)
+                {
+                    return base.Controls;
+                }
+                return ctrl.Controls;
+            }
+        }
+
+        
 
         protected virtual void InitPage()
         {
@@ -95,13 +112,15 @@ namespace WolfInv.Com.CommWebCtrlLib
             this.BehHandleObject.DataFrm = this;
             behobj = this.BehHandleObject as WebPageFormHandle;
             ToolBarBuildForWeb tbf = new ToolBarBuildForWeb(behobj, this.toolbarstrip);
-            //tbf.LoadToolBar();
+            tbf.LoadToolBar();
+            this.PageTitle.Text = this.BehHandleObject.Title;
             //this.BehHandleObject = new WebPageFormHandle();
         }
 
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            Init_Compenent();
             if (!this.IsPostBack)
             {
                 
@@ -114,6 +133,7 @@ namespace WolfInv.Com.CommWebCtrlLib
             
             toolbarstrip = new ToolBarStrip();
             MainFrame = new Table();
+            
             MainFrame.ID = "MainFrame";
             MainFrame.Width = new Unit(100, UnitType.Percentage);
             MainFrame.Height = new Unit(100, UnitType.Percentage);
@@ -166,7 +186,7 @@ namespace WolfInv.Com.CommWebCtrlLib
             MainFrame.Rows.Add(TrToolBar);
             MainFrame.Rows.Add(TrMiddle);
             MainFrame.Rows.Add(TrBottom);
-            this.Controls.Add(MainFrame);
+            //Controls.Add(MainFrame);
         }
 
         public UpdateData GetCurrFrameData()

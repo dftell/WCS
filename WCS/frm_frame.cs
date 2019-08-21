@@ -27,39 +27,7 @@ namespace WCS
 {
     public partial class frm_frame : frm_Model, ISaveableInterFace
     {
-        #region ITranslateableInterFace ≥…‘±
-        UpdateData _data;
-        List<DataTranMapping> _trandata;
 
-        public UpdateData NeedUpdateData
-        {
-            get
-            {
-                return _data;
-            }
-            set
-            {
-                _data = value;
-            }
-        }
-
-        public List<DataTranMapping> TranData
-        {
-            get
-            {
-                return _trandata;
-                //throw new Exception("The method or operation is not implemented.");
-            }
-            set
-            {
-                _trandata = value;
-                //throw new Exception("The method or operation is not implemented.");
-            }
-        }
-
-        //List<DataTranMapping> ITranslateableInterFace.RefData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        #endregion
 
 
 
@@ -134,7 +102,7 @@ namespace WCS
             return SaveData();
         }
 
-        public bool SaveData()
+        public bool SaveData(DataRequestType type= DataRequestType.Update)
         {
             if (PanelObj == null)
                 PanelObj = this.tableLayoutPanel1.Tag as EditPanel;
@@ -151,7 +119,7 @@ namespace WCS
             dcond.Datapoint = new DataPoint(this.strKey);
             dcond.value = this.strRowId;
             conds.Add(dcond);
-            DataRequestType type = DataRequestType.Update;
+            //DataRequestType type = DataRequestType.Update;
             if (this.strRowId == null || this.strRowId == "")
             {
                 type = DataRequestType.Add;

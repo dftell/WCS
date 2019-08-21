@@ -39,9 +39,6 @@
     <Reference Include="CommFormCtrlLib">
       <HintPath>E:\技术资料\DebugPath\CommFormCtrlLib.dll</HintPath>
     </Reference>
-    <Reference Include="DBAccess">
-      <HintPath>P:\WCS\DBAccess.dll</HintPath>
-    </Reference>
     <Reference Include="Pechkin, Version=0.5.8.2, Culture=neutral, processorArchitecture=x86">
       <HintPath>..\packages\CPechkin.0.0.09.12\lib\net20\Pechkin.dll</HintPath>
     </Reference>
@@ -71,11 +68,13 @@
   <ItemGroup>
     <Compile Include="AccessWeb.cs" />
     <Compile Include="AppInfo.cs" />
-    <Compile Include="AutoDataCenter.cs" />
     <Compile Include="CDepartment.cs" />
-    <Compile Include="CITEquitment.cs" />
+    <Compile Include="ClientDataInterface.cs" />
     <Compile Include="CSupport.cs" />
+    <Compile Include="DataCenterClient.cs" />
     <Compile Include="DataChoice.cs" />
+    <Compile Include="DataInterface.cs" />
+    <Compile Include="DataSource.cs" />
     <Compile Include="DocumentRecord.cs" />
     <Compile Include="FileRecordProcess.cs" />
     <Compile Include="GlobalShare.cs" />
@@ -85,6 +84,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemKeyItem.cs" />
     <Compile Include="UserGlobalShare.cs" />
+    <Compile Include="WCSExtraDataInterface.cs" />
+    <Compile Include="WebDataInterface.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -107,6 +108,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AccessDataBase\AccessDataBase.csproj">
+      <Project>{a8ff39f8-4d1f-46d9-98f3-71aa8e171a94}</Project>
+      <Name>AccessDataBase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataAccessCenter\DataAccessCenter.csproj">
       <Project>{5a8ded8e-b55a-469e-a1eb-dd9d91a04f38}</Project>
       <Name>DataAccessCenter</Name>

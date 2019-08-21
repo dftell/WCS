@@ -56,7 +56,9 @@
   <ItemGroup>
     <Compile Include="JavaScriptClass.cs" />
     <Compile Include="JsonableClass.cs" />
+    <Compile Include="JsonDataSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XML_JSON.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

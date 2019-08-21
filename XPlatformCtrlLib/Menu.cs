@@ -19,10 +19,13 @@ namespace WolfInv.Com.XPlatformCtrlLib
         string PermId { get; set; }
 
     }
+
+    
+
     /// <summary>
     /// 菜单逻辑类
     /// </summary>
-    public class CMenuItem : ICloneable,IUserData,IXml,IPermmsionControl
+    public class CMenuItem : ICloneable,IUserData,IXml,IPermmsionControl,iExtraData
     {
         string Uid;
         public string strUid { get { return Uid; } set { Uid = value; } }
@@ -39,12 +42,32 @@ namespace WolfInv.Com.XPlatformCtrlLib
         public string Params;
         public string Key;
         public string Title;
+        public string LinkUrl;
+        public string isSummary;
         public bool ReplaceMenu;
         public string FixField;
         CMenuItem _defaultSubItem;
         public bool Expand;
         public int WWidth = 900;
         public int WHeight = 720;
+
+        //实现了 WCSExtraDataInterface的外部数据接口类
+        public bool isextradata { get; set; }
+        public string extradataassembly { get; set; }
+        public string extradataclass { get; set; }
+        //转换功能用
+        public XmlNode extradataconvertconfig { get; set; }
+
+        //外部数据用
+        public XmlNode extradatagetconfig { get; set; }
+
+        //外部数据类型
+        public string extradatatype { get; set; }
+
+        //导入类型附加数据
+        public XmlNode attatchinfo { get; set; }
+
+
         public List<CMenuItem> MnuItems = new List<CMenuItem>();
         public List<DataTranMapping> CopyTranDatas()
         {
@@ -112,6 +135,15 @@ namespace WolfInv.Com.XPlatformCtrlLib
             {
                 WHeight = 720;
             }
+            this.isextradata = XmlUtil.GetSubNodeText(node, "@isextradata")=="1";
+            this.extradataassembly = XmlUtil.GetSubNodeText(node, "@extradataassembly");
+            this.extradataclass = XmlUtil.GetSubNodeText(node, "@extradataclass");
+            this.extradataconvertconfig = node.SelectSingleNode("extradataconvertconfig");
+            this.extradatagetconfig = node.SelectSingleNode("extradatagetconfig");
+            this.extradatatype = XmlUtil.GetSubNodeText(node, "@extradatatype");
+
+            this.attatchinfo = node.SelectSingleNode("attatchinfo");
+
             XmlNodeList mapnodes = node.SelectNodes("./Maps/Map");
             if (mapnodes.Count != 0)
             {
@@ -195,6 +227,8 @@ namespace WolfInv.Com.XPlatformCtrlLib
             if (this.Screen != null && this.Screen != "") { XmlUtil.AddAttribute(node, "screen", this.Screen); }
             if (this.Target != null && this.Target != "") { XmlUtil.AddAttribute(node, "target", this.Target); }
             if (this.Title != null && this.Title != "") { XmlUtil.AddAttribute(node, "title", this.Title); }
+            if (this.LinkUrl != null && this.LinkUrl != "") { XmlUtil.AddAttribute(node, "linkurl", this.LinkUrl); }
+            if (this.isSummary != null && this.LinkUrl != "") { XmlUtil.AddAttribute(node, "issummary", this.isSummary); }
             if (this.Key != null && this.Key != "") { XmlUtil.AddAttribute(node, "key", this.Key); }
             if (this.FixField != null && this.FixField != "") { XmlUtil.AddAttribute(node, "fixfield", this.Key); }
             if (this.LinkValue != null && this.LinkValue != "") { XmlUtil.AddAttribute(node, "classname", this.LinkValue); }
@@ -529,6 +563,8 @@ namespace WolfInv.Com.XPlatformCtrlLib
             mnu.Screen = XmlUtil.GetSubNodeText(node, "@screen");
             mnu.Target = XmlUtil.GetSubNodeText(node, "@target");
             mnu.Title = XmlUtil.GetSubNodeText(node, "@title");
+            mnu.LinkUrl = XmlUtil.GetSubNodeText(node, "@linkurl");
+            mnu.isSummary = XmlUtil.GetSubNodeText(node, "@issummary");
             mnu.Key = XmlUtil.GetSubNodeText(node, "@key");
             mnu.PermId = XmlUtil.GetSubNodeText(node, "@perm");
             mnu.FixField = XmlUtil.GetSubNodeText(node, "@fixfield");
@@ -542,6 +578,13 @@ namespace WolfInv.Com.XPlatformCtrlLib
             {
                 mnu.WHeight = 720;
             }
+            mnu.isextradata = XmlUtil.GetSubNodeText(node, "@isextradata")=="1";
+            mnu.extradataassembly = XmlUtil.GetSubNodeText(node, "@extradataassembly");
+            mnu.extradataclass = XmlUtil.GetSubNodeText(node, "@extradataclass");
+            mnu.extradataconvertconfig = node.SelectSingleNode("extradataconvertconfig");
+            mnu.extradatagetconfig = node.SelectSingleNode("extradatagetconfig");
+            mnu.extradatatype = XmlUtil.GetSubNodeText(node, "@extradatatype");
+            mnu.attatchinfo = node.SelectSingleNode("attatchinfo");
             XmlNodeList mapnodes = node.SelectNodes("./Maps/Map");
             if (mapnodes.Count != 0)
             {

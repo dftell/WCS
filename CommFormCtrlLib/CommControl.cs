@@ -89,6 +89,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                         {
                             ListViewItem lviX = listviewX.ListView.Items[listviewX.Index];
                             ListViewItem lviY = listviewY.ListView.Items[listviewY.Index];
+                            compareResult = ObjectCompare.Compare(listviewX.SubItems[ColumnToSort].Text, listviewY.SubItems[ColumnToSort].Text);
                             break;
                         }
                     case "int":

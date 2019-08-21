@@ -21,6 +21,8 @@ namespace WolfInv.Com.XPlatformCtrlLib
     {
         public PlatformControlType ControlType { get { return PlatformControlType.WinForm; } }
 
+        public IXControl CurrMainControl { get; set; }
+
         public void Controls_Add(IXControl ctrl)
         {
             Control c = ctrl as Control;

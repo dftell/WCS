@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
+//using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -9,9 +9,10 @@ using System.Xml;
 using XmlProcess;
 using WolfInv.Com.MetaDataCenter;
 using Microsoft.VisualBasic;
-using AccessDataBase;
+using WolfInv.Com.AccessDataBase;
+using WolfInv.Com.DataCenter;
 
-namespace WolfInv.Com.DataCenter
+namespace WCS
 {
     public partial class frm_Tool_ColumnDefine : Form
     {
@@ -44,7 +45,15 @@ namespace WolfInv.Com.DataCenter
             }
             Clipboard.Clear();
             Clipboard.SetText(xmldoc.InnerXml);
-            SaveFile(xmldoc);
+            //SaveFile(xmldoc);
+            Form frm = new Form();
+            frm.Size = new Size(800, 600);
+            TextBox tb = new TextBox();
+            tb.Multiline = true;
+            tb.Text = xmldoc.OuterXml;
+            tb.Dock = DockStyle.Fill;
+            frm.Controls.Add(tb);
+            frm.ShowDialog(this);
         }
 
         void SaveFile(XmlDocument xmldoc)
@@ -121,7 +130,15 @@ namespace WolfInv.Com.DataCenter
             }
             Clipboard.Clear();
             Clipboard.SetText(xmldoc.InnerXml);
-            SaveFile(xmldoc);
+            Form frm = new Form();
+            frm.Size = new Size(800, 600);
+            TextBox tb = new TextBox();
+            tb.Multiline = true;
+            tb.Text = xmldoc.OuterXml;
+            tb.Dock = DockStyle.Fill;
+            frm.Controls.Add(tb);
+            frm.ShowDialog(this);
+            //SaveFile(xmldoc);
         }
 
         private void frm_Tool_ColumnDefine_Load(object sender, EventArgs e)
@@ -133,7 +150,7 @@ namespace WolfInv.Com.DataCenter
             string sql = "select * from vw_comm_getAllTableViews";
             string sqltab = "select * from  vw_Comm_getAllColumns where TableName in ({0}) order by TableName,colid";
             db.Connect();
-            DataSet ds = null;
+            System.Data.DataSet ds = null;
             string msg = db.GetResult(sql,ref ds);
             if (msg != null)
             {
@@ -174,7 +191,7 @@ namespace WolfInv.Com.DataCenter
             for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
             {
                  
-                DataRow dr = ds.Tables[0].Rows[i];
+                System.Data.DataRow dr = ds.Tables[0].Rows[i];
                 DataColumn dc = new DataColumn();
                 dc.Table = dr["TableName"].ToString();
                 dc.Column = dr["ColumnName"].ToString();

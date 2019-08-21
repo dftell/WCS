@@ -23,6 +23,8 @@ namespace WolfInv.Com.WCS_Process
         public string PermDataSource;
         public string PermUserPoint;
         public string LoginUrl;
+        public string EntryUrl;
+        public bool NoNeedLeftTreeView;
         public UpdateData UserInfo = new UpdateData();
         public Dictionary<string, SystemKeyItem> SystemItems = new Dictionary<string, SystemKeyItem>();
         public Dictionary<string, SystemKeyItem> StatusItems = new Dictionary<string, SystemKeyItem>();
@@ -34,6 +36,8 @@ namespace WolfInv.Com.WCS_Process
             this.IconPath = XmlUtil.GetSubNodeText(node, "@icon");
             this.DataSource = XmlUtil.GetSubNodeText(node, "@datasouce");
             this.LoginUrl = XmlUtil.GetSubNodeText(node, "@loginurl");
+            this.EntryUrl = XmlUtil.GetSubNodeText(node, "@entryurl");
+            this.NoNeedLeftTreeView= (XmlUtil.GetSubNodeText(node, "@NoNeedLefTreeView") =="1");
             //this.AssemName = GlobalShare.MainAssem.FullName;
             XmlNodeList nodes = node.SelectNodes("UserInfos/f");
             foreach (XmlNode infonode in nodes)

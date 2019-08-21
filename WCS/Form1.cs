@@ -8,12 +8,17 @@ using System.Windows.Forms;
 using WolfInv.Com.CommCtrlLib;
 using WolfInv.Com.CommFormCtrlLib;
 using WolfInv.Com.WCS_Process;
-using WebKit;
-using WebKit.JSCore;
+using WolfInv.Com.JsLib;
+using System.Linq;
 
 
 using WolfInv.Com.XPlatformCtrlLib;
 using System.Net;
+using Xilium.CefGlue;
+using Newtonsoft.Json.Linq;
+using Xilium.CefGlue.WindowsForms;
+using WolfInv.Com.AccessWebLib;
+using System.Text.RegularExpressions;
 //using Microsoft.Toolkit.Win32.UI.Controls.WinForms;
 namespace WCS
 {
@@ -36,11 +41,7 @@ namespace WCS
             //this.Controls.Add(webView1);
         }
 
-        private void WebView1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-        {
-
-        }
-
+        
 
 
         private void btn_out_Click(object sender, EventArgs e)
@@ -50,19 +51,23 @@ namespace WCS
 
         private void btn_enter_Click(object sender, EventArgs e)
         {
-            
+            this.btn_enter.Enabled = false;
             
             
             CITMSUser user = new CITMSUser();
             Cursor = Cursors.WaitCursor;
             bool loginwithpwd = true;
+            user.LoginName = this.txt_user.Text.Trim();
+            user.Password = this.txt_pwd.Text.Trim();
             if (GlobalShare.SystemAppInfo.LoginUrl != null && GlobalShare.SystemAppInfo.LoginUrl.Length > 0)
             {
                 loginwithpwd = false;
+                
             }
+            string err = user.Login(this.txt_user.Text, this.txt_pwd.Text, loginwithpwd);
             if (loginwithpwd)//非web登录
             {
-                string err = user.Login(this.txt_user.Text, this.txt_pwd.Text, loginwithpwd);
+                
                 Cursor = Cursors.Default;
                 if (err != null)
                 {
@@ -73,29 +78,69 @@ namespace WCS
             else
             {
                 string strurl = GlobalShare.SystemAppInfo.LoginUrl;
-                string reurl = GetRedirectUrl(strurl);
-                //this.webKitBrowser1.Navigate(GlobalShare.SystemAppInfo.LoginUrl);
-                webKitBrowser1.AllowNavigation = true;
-                webKitBrowser1.Url = new Uri(strurl);
-                this.webKitBrowser1.Visible = true;
-                this.webKitBrowser1.BringToFront();
+                //string reurl = GetRedirectUrl(strurl);
+                string url = string.Format(strurl, txt_user.Text, txt_pwd.Text);
+                //CefWebBrowser webctrl11 = new CefWebBrowser();
+                
+                
+                string html = AccessWebServerClass.GetData(url);
+                if(html == null)
+                {
+                    this.btn_enter.Enabled = true;
+                    MessageBox.Show(string.Format("服务器返回异常值！{0}", "返回对象为空。"));
+                    return;
+                }
+                Regex reg = new Regex(@"\((.*?)\)");
+                string strjson = null;
+                if (!reg.IsMatch(html))
+                {
+                    this.btn_enter.Enabled = true;
+                    MessageBox.Show(string.Format("服务器返回异常值！{0}",html));
+                    return;
+                }
+                MatchCollection m = reg.Matches(html);
+                if (m.Count > 0)
+                {
+                    strjson = m[0].Value;
+                }
+                strjson = strjson.Substring(1, strjson.Length - 2);
+                JObject retOjb = XML_JSON.ToJsonObj(strjson);
+                if(retOjb == null || retOjb["msg"] == null || retOjb["msg"].Value<string>()!="OK")
+                {
+                    this.btn_enter.Enabled = true;
+                    MessageBox.Show(string.Format("密码错误:{0}",retOjb["msg"].Value<string>()));
+                    return;
+                }
+                user.UserId = retOjb["data"]["userId"].Value<int>();
+                
                 Application.DoEvents();
+                //System.Threading.Thread.Sleep(3 * 1000);
+                
+                //GlobalShare.UserAppInfos = new System.Collections.Generic.Dictionary<string, UserGlobalShare>();
+                //GlobalShare.UserAppInfos.Add(user.LoginName, new UserGlobalShare(user.LoginName));
+                //GlobalShare.UserAppInfos.Values.First().CurrUser = user;
+                this.Hide();
+                //Form frm = new frm_Main();
+                //wfrm.WindowState = FormWindowState.Maximized;
+                Form frm1 = null;
+                if (GlobalShare.SystemAppInfo.NoNeedLeftTreeView)
+                    frm1 = new frm_Main(user.LoginName);
+                else
+                    frm1 = new MDI_Main(this.txt_user.Text);
+                frm1.ShowDialog(this);
+
+                //wfrm.Show();
+
+                this.Close();
                 return;
             }
-            Form frm = new MDI_Main(user.LoginName);
+            MDI_Main frm = new MDI_Main(this.txt_user.Text);
             FrameSwitch.ParentForm = frm;
             if (!loginwithpwd)
             {
-                IXPanel container = (frm as MDI_Main).Main_Plan;
-                (frm as MDI_Main).splitContainer1.SplitterDistance = 0;
-                string url = user.OtherLogin(GlobalShare.SystemAppInfo.LoginUrl,this.txt_user.Text, this.txt_pwd.Text, false);
-                ////WebForm wfrm = new WebForm("oa1", url);
-                ////wfrm.wb.Refresh();
-                CMenuItem mnu = new CMenuItem("Main");
-                mnu.linkType = LinkType.WebPage;
-                mnu.LinkValue = url;
-                //FrameSwitch.ShowWebForms.Add("oa1", wfrm);
-                FrameSwitch.switchToView(container, null, mnu);
+                
+                //GlobalShare.DefaultUserInfo;
+                
             }
 
             //string mailurl = string.Format("http://mail.cfzq.com/lks/mail/{0}.nsf", this.txt_user.Text.Trim());
@@ -109,6 +154,30 @@ namespace WCS
             //wfrm.Show();
             
             this.Close();
+        }
+
+      
+
+        private sealed class SourceVisitor : CefStringVisitor
+        {
+            private readonly Action<string> _callback;
+
+            public SourceVisitor(Action<string> callback)
+            {
+                _callback = callback;
+            }
+
+            protected override void Visit(string value)
+            {
+                _callback(value);
+            }
+
+            public string ReadText()
+            {
+                string res = null;
+                Visit(res);
+                return res;
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -138,7 +207,7 @@ namespace WCS
             }
             if(GlobalShare.SystemAppInfo.LoginUrl!=null)
             {
-                this.Cursor = Cursors.WaitCursor;
+                //this.Cursor = Cursors.WaitCursor;
                 //webKitBrowser1.Navigate(GlobalShare.SystemAppInfo.LoginUrl);
                 //webKitBrowser1.Url = new Uri(GlobalShare.SystemAppInfo.LoginUrl);
             }
@@ -171,20 +240,6 @@ namespace WCS
             //webView1.StringByEvaluatingJavaScriptFromString(scriptEl);
         }
 
-        [System.Runtime.InteropServices.ComVisibleAttribute(true)]
-        class myClass
-        {
-            private WebKitBrowser webKitBrowser;
-            public myClass(WebKitBrowser webkit)
-            {
-                this.webKitBrowser = webkit;
-            }
-            public void Say(string msg)
-            {
-                webKitBrowser.Navigate(msg);
-            }
-        }
-        //ScriptLoaded = true;
     
         
         string getScriptText(string module,string scriptName)
@@ -210,27 +265,8 @@ namespace WCS
             return null; ;
         }
 
-        private void webKitBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-        {
-            if(e!= null)
-            {
-                WebKitBrowser wb = (sender as WebKitBrowser);
-            }
-        }
 
-        private void webKitBrowser1_Navigating(object sender, WebBrowserNavigatingEventArgs e)
-        {
-            string url = e.Url.OriginalString;
-            if(e.Cancel == true)
-            {
-                return;
-            }
-        }
-
-        private void webKitBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
-        {
-            string url = e.Url.OriginalString;
-        }
+       
 
         /// <summary>
         /// 获取页面重定向url

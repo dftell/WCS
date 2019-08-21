@@ -30,10 +30,10 @@
         {
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btn_Import = new System.Windows.Forms.Button();
             this.txt_SavePath = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.btn_Save = new System.Windows.Forms.Button();
-            this.btn_Import = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -59,6 +59,17 @@
             this.panel1.Size = new System.Drawing.Size(1298, 63);
             this.panel1.TabIndex = 2;
             // 
+            // btn_Import
+            // 
+            this.btn_Import.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_Import.Location = new System.Drawing.Point(1150, 3);
+            this.btn_Import.Name = "btn_Import";
+            this.btn_Import.Size = new System.Drawing.Size(136, 57);
+            this.btn_Import.TabIndex = 5;
+            this.btn_Import.Text = "导入";
+            this.btn_Import.UseVisualStyleBackColor = true;
+            this.btn_Import.Click += new System.EventHandler(this.btn_Import_Click);
+            // 
             // txt_SavePath
             // 
             this.txt_SavePath.Location = new System.Drawing.Point(132, 16);
@@ -66,6 +77,8 @@
             this.txt_SavePath.Size = new System.Drawing.Size(851, 35);
             this.txt_SavePath.TabIndex = 4;
             this.txt_SavePath.Text = "p:\\\\ExcelDefined.js";
+            this.txt_SavePath.TextChanged += new System.EventHandler(this.txt_SavePath_TextChanged);
+            this.txt_SavePath.DoubleClick += new System.EventHandler(this.txt_SavePath_DoubleClick);
             // 
             // label1
             // 
@@ -86,17 +99,6 @@
             this.btn_Save.Text = "保存";
             this.btn_Save.UseVisualStyleBackColor = true;
             this.btn_Save.Click += new System.EventHandler(this.btn_Save_Click);
-            // 
-            // btn_Import
-            // 
-            this.btn_Import.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_Import.Location = new System.Drawing.Point(1150, 3);
-            this.btn_Import.Name = "btn_Import";
-            this.btn_Import.Size = new System.Drawing.Size(136, 57);
-            this.btn_Import.TabIndex = 5;
-            this.btn_Import.Text = "导入";
-            this.btn_Import.UseVisualStyleBackColor = true;
-            this.btn_Import.Click += new System.EventHandler(this.btn_Import_Click);
             // 
             // Form1
             // 

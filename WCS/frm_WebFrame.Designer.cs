@@ -30,14 +30,14 @@
         private void InitializeComponent()
         {
             this.wb_main = new System.Windows.Forms.WebBrowser();
-            this.panel1.SuspendLayout();
+            this.panel_Title.SuspendLayout();
             (this.panel_main as Panel).SuspendLayout();
             this.panel_bottom.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
-            this.panel1.Size = new System.Drawing.Size(1273, 42);
+            this.panel_Title.Size = new System.Drawing.Size(1273, 42);
             // 
             // panel_main
             // 
@@ -59,8 +59,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "frm_WebFrame";
             this.Size = new System.Drawing.Size(1273, 902);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.panel_Title.ResumeLayout(false);
+            this.panel_Title.PerformLayout();
             (this.panel_main as Panel).ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();

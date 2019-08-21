@@ -20,6 +20,10 @@ namespace WolfInv.Com.ExcelIOLib
         public ExcelDefineReader(ExcelSheetDefineClass define)
         {
             gbdef = define;
+            if(define.QuickTitleList!=null&& define.QuickTitleList.Trim().Length>0)
+            {
+                gbdef = new ExcelSheetDefineClass(define.QuickTitleList, define.QuickTitleRefList, define.TitleBaseIndex, define.ItemsBaseIndex, define.DataDirect);
+            }
         }
 
         public ReadResult GetResult(string strFileName)
@@ -32,7 +36,7 @@ namespace WolfInv.Com.ExcelIOLib
             Microsoft.Office.Interop.Excel.Application excel;// = new Application(); 
             _Workbook xBk;
             excel = new ApplicationClass();
-                      
+            excel.DisplayAlerts = false;
             excel.Visible = false;
             excel.UserControl = true;
             Workbook wb = null;
@@ -44,6 +48,8 @@ namespace WolfInv.Com.ExcelIOLib
             }
             catch(Exception ce)
             {
+                
+                excel = null;
                 ret.Message = ce.Message;
                 return ret;
             }
@@ -51,47 +57,75 @@ namespace WolfInv.Com.ExcelIOLib
             Worksheet MainWs = null;// (Worksheet)wb.Worksheets.get_Item(1);//默认是第一个
             if(wb.Worksheets.Count == 0)
             {
+                excel.Quit();
+                ExcelCommLib.Kill(excel);
+                excel = null;
                 ret.Message = "Excel内容为空！";
                 return ret;
             }
-            if(gbdef.SheetNameRule != null && gbdef.SheetNameRule.Trim().Length>0)//如果指定了规则，
+            if (gbdef.SheetName != null && gbdef.SheetName.Trim().Length > 0)
             {
-                Regex regTr = new Regex(gbdef.SheetNameRule);
-                int MatchCnt=0;
-                for (int i=0;i< wb.Worksheets.Count;i++)
+                for (int i = 0; i < wb.Worksheets.Count; i++)
                 {
-                    Worksheet st = (Worksheet)wb.Worksheets[i+1];
-                    MatchCollection mcs = regTr.Matches(st.Name);
-                    if (mcs.Count == 0)
-                        continue;
-                    MatchCnt++;
-                    MainWs = st;
-                    gbdef.SheetName = st.Name;
-                    break;//默认第一个匹配的
+                    Worksheet st = (Worksheet)wb.Worksheets[i + 1];
+                    if (st.Name == gbdef.SheetName)
+                    {
+                        MainWs = st;
+                        break;
+                    }
                 }
-                if(MatchCnt == 0)
-                {
-                    ret.Message = "未找到满足条件的Excel表单名";
-                    return ret;
-                }
-                
             }
             else
             {
-                MainWs = wb.Worksheets[1] as Worksheet;
-                gbdef.SheetName = MainWs.Name;
+                if (gbdef.SheetNameRule != null && gbdef.SheetNameRule.Trim().Length > 0)//如果指定了规则，
+                {
+                    Regex regTr = new Regex(gbdef.SheetNameRule);
+                    int MatchCnt = 0;
+                    for (int i = 0; i < wb.Worksheets.Count; i++)
+                    {
+                        Worksheet st = (Worksheet)wb.Worksheets[i + 1];
+                        MatchCollection mcs = regTr.Matches(st.Name);
+                        if (mcs.Count == 0)
+                            continue;
+                        MatchCnt++;
+                        MainWs = st;
+                        gbdef.SheetName = st.Name;
+                        break;//默认第一个匹配的
+                    }
+                    if (MatchCnt == 0)
+                    {
+                        excel.Quit();
+                        excel = null;
+                        ret.Message = "未找到满足条件的Excel表单名";
+                        return ret;
+                    }
+
+                }
+                else
+                {
+                    MainWs = wb.Worksheets[1] as Worksheet;
+                    gbdef.SheetName = MainWs.Name;
+                }
             }
             XmlNode node = res.SelectSingleNode("root/MainData");
             string msg = null;
             this.AllPoints.Clear();
             if(!GetTitleInfo(MainWs, gbdef,out msg))
             {
+                
                 ret.Message = string.Format("{0}获取数据错误:{1}", MainWs.Name, msg);
+                excel.Quit();
+                ExcelCommLib.Kill(excel);
+                excel = null;
                 return ret;
             }
             if(!GetDataInfo(MainWs, gbdef, node,ref ret.ReData,out msg))
             {
+               
                 ret.Message = string.Format("{0}获取数据错误:{1}", MainWs.Name, msg);
+                excel.Quit();
+                ExcelCommLib.Kill(excel);
+                excel = null;
                 return ret;
             }
             if(gbdef.DataType == DataMode.GroupAndDetail || gbdef.DataType == DataMode.MainAndSubList)
@@ -101,6 +135,9 @@ namespace WolfInv.Com.ExcelIOLib
                 {
                     if(gbdef.SubSheetDefine == null)
                     {
+                        excel.Quit();
+                        ExcelCommLib.Kill(excel);
+                        excel = null;
                         ret.Message = "未设置子表定义";
                         return ret;
                     }
@@ -119,11 +156,17 @@ namespace WolfInv.Com.ExcelIOLib
                         }
                         if( !GetTitleInfo(st, gbdef.SubSheetDefine,out msg))
                         {
+                            excel.Quit();
+                            ExcelCommLib.Kill(excel);
+                            excel = null;
                             ret.Message = string.Format("{0}获取数据错误:{1}", st.Name, msg);
                             return ret;
                         }
                         if(!GetDataInfo(st, gbdef.SubSheetDefine, node,ref ret.ReData,out msg))
                         {
+                            excel.Quit();
+                            ExcelCommLib.Kill(excel);
+                            excel = null;
                             ret.Message = string.Format("{0}获取数据错误:{1}",st.Name,msg);
                             return ret;
                         }
@@ -133,7 +176,11 @@ namespace WolfInv.Com.ExcelIOLib
                     }
                     if (MatchCnt == 0)
                     {
+                        excel.Quit();
+                        ExcelCommLib.Kill(excel);
+                        excel = null;
                         ret.Message = "未找到满足匹配条件的Excel子表单名";
+
                         return ret;
                     }
                 }
@@ -144,6 +191,9 @@ namespace WolfInv.Com.ExcelIOLib
             }
 
             ret.Succ = true;
+            excel.Quit();
+            ExcelCommLib.Kill(excel);
+            excel = null;
             return ret;
         }
 

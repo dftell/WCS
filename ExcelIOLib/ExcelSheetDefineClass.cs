@@ -6,11 +6,13 @@ using System.Xml;
 using System.Web.Script.Serialization;
 using System.ComponentModel;
 using System;
+using System.ComponentModel;
+using System.Drawing.Design;
+using WolfInv.com.BaseObjectsLib;
 using WolfInv.Com.JsLib;
-
 namespace WolfInv.Com.ExcelIOLib
 {
-    public class ExcelSheetDefineClass:JsonableClass<ExcelSheetDefineClass>
+    public class ExcelSheetDefineClass: WolfInv.Com.JsLib.JsonableClass<ExcelSheetDefineClass>
     {
         #region 全局设置
         [DescriptionAttribute("满足正则表达式的主表"),
@@ -76,13 +78,15 @@ namespace WolfInv.Com.ExcelIOLib
         [DescriptionAttribute("子表定义"),
         DisplayName("子表定义"),
         CategoryAttribute("子表设置")]
+        [Editor(typeof(SerialObjectEdit<ExcelSheetDefineClass>), typeof(UITypeEditor))]
         public ExcelSheetDefineClass SubSheetDefine { get; set; }
         #endregion
 
         #region 标题设置
         [DescriptionAttribute("标题开始位置索引"),
         DisplayName("标题开始位置索引"),
-        CategoryAttribute("标题设置")]
+        CategoryAttribute("标题设置"),
+            DefaultValue(1)]
         /// <summary>
         /// 标题开始位置索引
         /// </summary>
@@ -90,6 +94,7 @@ namespace WolfInv.Com.ExcelIOLib
 
         [DescriptionAttribute("标题占用单位数"),
         DisplayName("标题占用单位数"),
+            DefaultValue(1),
         CategoryAttribute("标题设置")]
         /// <summary>
         /// 标题占用单位数
@@ -130,7 +135,7 @@ namespace WolfInv.Com.ExcelIOLib
         #region 数据项设置
         [DescriptionAttribute("数据项开始位置"),
         DisplayName("数据项开始位置"),
-        CategoryAttribute("数据项设置")]
+        CategoryAttribute("数据项设置"),DefaultValue(2)]
         /// <summary>
         /// 数据项开始位置
         /// </summary>
@@ -138,7 +143,8 @@ namespace WolfInv.Com.ExcelIOLib
 
         [DescriptionAttribute("单项记录使用行/列数量"),
         DisplayName("单项记录使用单位数量"),
-        CategoryAttribute("数据项设置")]
+        CategoryAttribute("数据项设置"),
+            DefaultValue(1)]
         /// <summary>
         /// 单项记录使用行/列数量
         /// </summary>

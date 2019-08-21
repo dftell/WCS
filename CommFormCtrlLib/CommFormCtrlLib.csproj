@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{421E2FD1-0262-40AB-AB04-AF75110EC844}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>WolfInv.Com.CommFormCtrlLib</RootNamespace>
     <AssemblyName>WolfInv.Com.CommFormCtrlLib</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,7 +54,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommControl.cs" />
+    <Compile Include="DataComboPenelCell.cs" />
+    <Compile Include="EditCell.cs" />
     <Compile Include="EditPanel.cs" />
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormActionHandle.cs" />
     <Compile Include="frm_Model.cs">
       <SubType>UserControl</SubType>
@@ -65,17 +73,21 @@
     <Compile Include="MDI_Main.Designer.cs">
       <DependentUpon>MDI_Main.cs</DependentUpon>
     </Compile>
-    <Compile Include="Menu.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="PanelCell.cs" />
+    <Compile Include="PanelRow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResponseFieldClass.cs" />
     <Compile Include="SelectItemControl.cs" />
+    <Compile Include="SelectPenelCell.cs" />
     <Compile Include="test.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="ToolBarBuilderItemForWin.cs" />
+    <Compile Include="ToolBarBuilderWinForm.cs" />
     <Compile Include="ToolBarStrip.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WinFormHandle.cs" />
     <EmbeddedResource Include="frm_Model.resx">
       <DependentUpon>frm_Model.cs</DependentUpon>
     </EmbeddedResource>
@@ -110,6 +122,10 @@
     <ProjectReference Include="..\CommCtrlLib\CommCtrlLib.csproj">
       <Project>{09988d88-46ba-4f25-af54-c4ae877a1e34}</Project>
       <Name>CommCtrlLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ExcelIOLib\ExcelIOLib.csproj">
+      <Project>{6549159a-eb48-4ed8-9490-ff3d261e0180}</Project>
+      <Name>ExcelIOLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\MetaDataCenter\MetaDataCenter.csproj">
       <Project>{19f4307a-b863-4529-bffa-c6c95bebdfb8}</Project>

@@ -15,15 +15,15 @@ namespace WolfInv.Com.WCS_Process
         public string Saler;
         public string CellPhone;
         public string Remark;
-        public List<CProdTypeRelax> ProdTypes;
+        //public List<CProdTypeRelax> ProdTypes;
     }
 
-    public class CProdTypeRelax
-    {
-        public ITType ProdType;
-        public int Level;
-        public bool IsKey;
-    }
+    ////public class CProdTypeRelax
+    ////{
+    ////    public ITType ProdType;
+    ////    public int Level;
+    ////    public bool IsKey;
+    ////}
 
   
 }

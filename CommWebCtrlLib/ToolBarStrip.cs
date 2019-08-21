@@ -50,7 +50,7 @@ namespace WolfInv.Com.CommWebCtrlLib
         public ToolBarStripItemCollection(Control owner):base(owner)
         {
             Container = owner as ToolBarStrip;
-            Container.Controls.Clear();
+            //Container.Controls.Clear();
         }
 
         public void Add(ToolBarStripItem child)

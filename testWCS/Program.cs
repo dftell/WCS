@@ -1,4 +1,4 @@
-﻿using jdyInterfaceLib;
+﻿using WolfInv.Com.jdyInterfaceLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace testWCS
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new form2());
+            Application.Run(new Form3());
         }
     }
 }
