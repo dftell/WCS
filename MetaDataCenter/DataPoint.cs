@@ -3,28 +3,13 @@ using System.Xml;
 using XmlProcess;
 namespace WolfInv.Com.MetaDataCenter
 {
-    public class DataPoint:IXml,ICalcExpreable,IDataSourceable
+    public class DataPoint:IXml
     {
         public string Name { get; set; }
         public string DataType { get; set; }
         public string Text { get; set; }
-        public string RefPoint { get; set; }
-        public int Width { get; set; }
         public string ComboName { get; set; }
-
-        public string DataSourceName { get; set; }
-        public string ValueField { get; set; }
-        public string TextField { get; set; }
-        /// <summary>
-        /// combo 复杂组合多项分割字符串
-        /// </summary>
-        public string ComboItemsSplitString { get; set; }
-
-        /// <summary>
-        /// 可计算列
-        /// </summary>
-        public string Method { get; set; }
-        public string CalcExpr { get; set; }
+        public int Width { get; set; }
         public DataPoint()
         {
         }
@@ -77,16 +62,10 @@ namespace WolfInv.Com.MetaDataCenter
             int.TryParse(strWidth, out twidth);
             Width = twidth;
             ComboName = XmlUtil.GetSubNodeText(node, "@combo");
-            DataSourceName = XmlUtil.GetSubNodeText(node, "@datasource");
-            ValueField = XmlUtil.GetSubNodeText(node, "@valmember");
-            TextField = XmlUtil.GetSubNodeText(node, "@txtmember");
-            ComboItemsSplitString = XmlUtil.GetSubNodeText(node, "@membersplitor");
-            CalcExpr = XmlUtil.GetSubNodeText(node, "@expr");
-            Method = XmlUtil.GetSubNodeText(node, "@method");
-            RefPoint = XmlUtil.GetSubNodeText(node, "@ref");
+            
         }
 
-         public XmlNode ToXml(XmlNode parent)
+         public virtual XmlNode ToXml(XmlNode parent)
         {
             XmlDocument xmldoc;
             if (parent == null)

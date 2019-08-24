@@ -338,6 +338,10 @@
       <Project>{1b2fe61a-c3d7-439f-a2e7-82fbcfd23ad1}</Project>
       <Name>HtmlExp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\jdyInterfaceLib\jdyInterfaceLib.csproj">
+      <Project>{b3a819b9-888c-4883-9ad4-9d112afbe9bf}</Project>
+      <Name>jdyInterfaceLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\JsLib\JsLib.csproj">
       <Project>{6fd3afa7-69ed-468f-972a-e58feadaba12}</Project>
       <Name>JsLib</Name>

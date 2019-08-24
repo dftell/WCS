@@ -125,6 +125,7 @@ namespace WolfInv.Com.ExcelIOLib
                 this.Dispose();
                 DlgRes = dr;
                 this.Close();
+                return;
             }
             this.Cursor = Cursors.WaitCursor;
             readAllSheets(openFileDialog1.FileName);

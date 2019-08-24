@@ -5,13 +5,14 @@ using System.Web.UI.WebControls;
 using System.Collections;
 using WolfInv.Com.CommCtrlLib;
 using WolfInv.Com.XPlatformCtrlLib;
+using WolfInv.Com.MetaDataCenter;
 
 namespace WolfInv.Com.CommWebCtrlLib
 {
     public class WebListGrid:DataGrid,ICalcGrid
     {
         
-        public bool AllowSum = false;
+
 
         public WebListGrid():base()
         {
@@ -70,7 +71,7 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         #region ICalcGrid ³ÉÔ±
         bool _AllowSum;
-        bool ICalcGrid.AllowSum
+        public bool AllowSum
         {
             get
             {
@@ -111,6 +112,11 @@ namespace WolfInv.Com.CommWebCtrlLib
             }
            
         }
+
+        public bool AllowGroup { get; set; }
+        public string GroupBy { get; set; }
+        bool ICalc.AllowSum { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string SumItems { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         #endregion
     }

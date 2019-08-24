@@ -1,149 +1,42 @@
 {
-    "SubSheetName": null,
-    "DataType": 1,
-    "DataDirect": 0,
-    "TitleBaseIndex": 2,
-    "TitleUseUnits": 1,
-    "ItemsBaseIndex": 3,
-    "ItemUseUnits": 1,
-    "CrossBaseIndex": 0,
-    "TitleList": [
-        {
-            "IsTitleItem": true,
-            "PointName": "RecPoint",
-            "TitleName": "地点",
-            "Position": 0,
-            "Index": 0,
-            "Value": null,
-            "CalcRule": null,
-            "AllowNull": null,
-            "IsKey": null
-        },
-        {
-            "IsTitleItem": true,
-            "PointName": "RecAddress",
-            "TitleName": "具体位置",
-            "Position": 0,
-            "Index": 0,
-            "Value": null,
-            "CalcRule": null,
-            "AllowNull": null,
-            "IsKey": null
-        },
-        {
-            "IsTitleItem": true,
-            "PointName": "RecFloor",
-            "TitleName": "送货楼层",
-            "Position": 0,
-            "Index": 0,
-            "Value": null,
-            "CalcRule": null,
-            "AllowNull": null,
-            "IsKey": null
+    "Schema": {
+        "Table": [
+            {
+                "@MainKey": "number",
+                "@MainRef": "sheetnumber",
+                "@Name": "items"
+            },
+            { "@Name": "entries" }
+        ]
+    },
+    "items": {
+        "date": "2019-08-23",
+        "creator": "gmxgd",
+        "checker": "gmxgd",
+        "totalQty": "2771803",
+        "SSB07": "2019-08-23",
+        "checkStatus": "1",
+        "SSB10": "1",
+        "number": "",
+        "entries": {
+            "SSD01": "",
+            "SSD02": "",
+            "productNumber": "0003",
+            "productname": "飞碟炒面 （铁板牛肉味）",
+            "PRD04": "123g/碗，单位：碗",
+            "TMK03": "",
+            "SSD04": "129609327892386544",
+            "price": "4.89",
+            "qty": "100",
+            "SSD10": "0037",
+            "CTA05": "",
+            "SSD11": "489",
+            "SSD12": "",
+            "discRate": "1.00",
+            "remark": "0",
+            "location": "",
+            "STG02": "",
+            "number": ""
         }
-    ],
-    "SheetNameRule": "送货计划",
-    "SubSheetNameRule": "*\\.*\\-*\\.*",
-    "CrossDataUseUnits": 0,
-    "CrossItemNames": null,
-    "SheetName": null,
-    "GlobalDataPoint": null,
-    "GlobalDataPointValue": null,
-    "SubSheetDefine": {
-        "SubSheetName": null,
-        "DataType": 3,
-        "DataDirect": 0,
-        "TitleBaseIndex": 2,
-        "TitleUseUnits": 1,
-        "ItemsBaseIndex": 3,
-        "ItemUseUnits": 1,
-        "CrossBaseIndex": 8,
-        "TitleList": [
-            {
-                "IsTitleItem": true,
-                "PointName": "MID",
-                "TitleName": "序号",
-                "Position": 0,
-                "Index": 0,
-                "Value": null,
-                "CalcRule": null,
-                "AllowNull": null,
-                "IsKey": null
-            },
-            {
-                "IsTitleItem": true,
-                "PointName": "MType",
-                "TitleName": "类别",
-                "Position": 0,
-                "Index": 0,
-                "Value": null,
-                "CalcRule": null,
-                "AllowNull": null,
-                "IsKey": null
-            },
-            {
-                "IsTitleItem": true,
-                "PointName": "MName",
-                "TitleName": "物料名称",
-                "Position": 0,
-                "Index": 0,
-                "Value": null,
-                "CalcRule": null,
-                "AllowNull": null,
-                "IsKey": null
-            },
-            {
-                "IsTitleItem": true,
-                "PointName": "MMark",
-                "TitleName": "品牌",
-                "Position": 0,
-                "Index": 0,
-                "Value": null,
-                "CalcRule": null,
-                "AllowNull": null,
-                "IsKey": null
-            },
-            {
-                "IsTitleItem": true,
-                "PointName": "MSize",
-                "TitleName": "规格型号",
-                "Position": 0,
-                "Index": 0,
-                "Value": null,
-                "CalcRule": null,
-                "AllowNull": null,
-                "IsKey": null
-            },
-            {
-                "IsTitleItem": true,
-                "PointName": "MMinUnit",
-                "TitleName": "最小单位",
-                "Position": 0,
-                "Index": 0,
-                "Value": null,
-                "CalcRule": null,
-                "AllowNull": null,
-                "IsKey": null
-            },
-            {
-                "IsTitleItem": true,
-                "PointName": "MUnit",
-                "TitleName": "单位",
-                "Position": 0,
-                "Index": 0,
-                "Value": null,
-                "CalcRule": null,
-                "AllowNull": null,
-                "IsKey": null
-            }
-        ],
-        "SheetNameRule": "",
-        "SubSheetNameRule": "",
-        "CrossDataUseUnits": 1,
-        "CrossItemNames": "RecPoint",
-        "SheetName": null,
-        "GlobalDataPoint": null,
-        "GlobalDataPointValue": null,
-        "SubSheetDefine": null
     }
 }

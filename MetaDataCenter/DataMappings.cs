@@ -11,12 +11,13 @@ namespace WolfInv.Com.MetaDataCenter
 
     public class DataTranMapping
     {
-        public string FromDataPoint;
+        public DataPoint FromDataPoint;
         public string ToDataPoint;
 
         public void LoadXml(XmlNode node)
         {
-            FromDataPoint = XmlUtil.GetSubNodeText(node, "@from");
+            FromDataPoint = new DataPoint(XmlUtil.GetSubNodeText(node, "@from"));
+            FromDataPoint.Text = XmlUtil.GetSubNodeText(node, "@fromvalue");
             ToDataPoint = XmlUtil.GetSubNodeText(node, "@to");
         }
 
@@ -31,7 +32,7 @@ namespace WolfInv.Com.MetaDataCenter
             }
 
             XmlNode node = XmlUtil.AddSubNode(parent, "Map");
-            XmlUtil.AddAttribute(node, "from", this.FromDataPoint);
+            XmlUtil.AddAttribute(node, "from", this.FromDataPoint.Name);
             XmlUtil.AddAttribute(node, "to", this.ToDataPoint);
             return node;
         }

@@ -36,7 +36,7 @@ namespace WCS
             //this.Icon = FrameSwitch.SystemIcon;
             //this.Text = FrameSwitch.SystemText;
             Init();
-            
+            this.Main_Plan.InForm = true;
             
         }
         string Init()

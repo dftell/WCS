@@ -353,7 +353,7 @@ namespace WolfInv.Com.CommFormCtrlLib
 
 
 
-        public EditPanel Fill(XmlNode node)
+        public EditPanel Fill(XmlNode node,UpdateData ud)
         {
             int height = 0;
             if (int.TryParse(XmlUtil.GetSubNodeText(node, "@height"), out height))

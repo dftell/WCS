@@ -22,7 +22,7 @@ namespace WCS
         public frm_PrintPDF()
         {
             InitializeComponent();
-            
+            this.panel_main.InForm = true;
         }
 
         public List<UpdateData> InjectedDatas { get; set; }
@@ -51,10 +51,13 @@ namespace WCS
         ////}
         private void frm_PrintPDF_Load(object sender, EventArgs e)
         {
+            
             Application.DoEvents();
+            if (InjectedDatas.Count == 0)
+                return;
             string msg = null;
             XmlDocument xmldoc = new XmlDocument();
-            this.BringToFront();
+            //this.BringToFront();
             string[] strImports = this.DetailSource.Split(':');
             if (strImports.Length > 1 && strImports[0] == "Import")//
             {
@@ -98,6 +101,12 @@ namespace WCS
                     InjectedDatas.ForEach(
                         a =>
                         {
+                            if(a.AllowGroup)
+                            {
+                                UpdateData grpdata = a.getGroupData(a.AllowGroup, a.GroupBy, a.SumItems, true);
+                                grpdata.ToXml(root);
+                                return;
+                            }
                             XmlNode node = a.ToXml(root);
 
                         }
@@ -107,7 +116,7 @@ namespace WCS
             }
             //this.Refresh();
             //for test
-            xmldoc = GlobalShare.GetXmlFile("Tools/test.xml");
+            //xmldoc = GlobalShare.GetXmlFile("Tools/test.xml");
             if(xmldoc == null)
             {
                 MessageBox.Show("数据为空！");

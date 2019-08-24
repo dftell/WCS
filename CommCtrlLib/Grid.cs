@@ -10,14 +10,20 @@ using WolfInv.Com.MetaDataCenter;
 using System.Data;
 using System.IO;
 using WolfInv.Com.CommCtrlLib;
+using System.Linq;
+
 namespace WolfInv.Com.CommCtrlLib
 {
-
+    
     public class Grid : BaseGrid
     {
 
+
         protected ListGrid listobj;
         protected IUserData _frmhandle = null;
+
+     
+
         public Grid(IUserData frmhandle):base(frmhandle)
         {
             _frmhandle = frmhandle;
@@ -88,6 +94,7 @@ namespace WolfInv.Com.CommCtrlLib
             for (int r = 0; r < ds.Count; r++)
             {
                 ItemValue iv = new ItemValue();
+                
                 iv.ItemValues = new Dictionary<string, string>();
                 GridRow gr = new GridRow();
                 gr.IsImported = ds[r].IsImported;
@@ -102,6 +109,7 @@ namespace WolfInv.Com.CommCtrlLib
                         continue;
                     }
                     string strval = ds[r].Items[this.Columns[i].DataField].value;
+                    gc.OwnerColumn = this.Columns[i];
                     gc.value = strval;
                     //gc.text = GetValue(strval, this.Columns[i], _frmhandle.strUid);
                     gc.text = this.Columns[i].getValue(_frmhandle.strUid, ds[r]);
@@ -136,16 +144,25 @@ namespace WolfInv.Com.CommCtrlLib
         {
             List<ListGridItem> lvis = new List<ListGridItem>();
             string[] intgrids = new string[this.Columns.Count];
+            string[] grparr = null;
+            if(listobj.AllowGroup && listobj.GroupBy!= null&& listobj.GroupBy.Trim().Length>0)
+            {
+                grparr = listobj.GroupBy.Split(',');
+            }
+
+            Dictionary<string, ListViewGroup> allgroup = new Dictionary<string, ListViewGroup>();  
             for (int r = 0; r < this.Items.Count; r++)
             {
                 string[] grids = new string[this.Columns.Count];
                 UpdateData currdata =  this.Items[r].ToUpdateData();
+                
                 for (int i = 0; i < this.Columns.Count; i++)
                 {
                     if (this.Columns[i].DataField == "") continue;
 
                     if (this.Items[r].Items.ContainsKey(this.Columns[i].DataField))
                     {
+                        this.Items[r].Items[this.Columns[i].DataField].OwnerColumn = this.Columns[i];
                         //this.Items[r].Items[this.Columns[i].DataField].text = GetValue(this.Items[r].Items[this.Columns[i].DataField].value, this.Columns[i], _frmhandle.strUid);
                         this.Items[r].Items[this.Columns[i].DataField].text = this.Columns[i].getValue(_frmhandle.strUid, currdata);
                         grids[i] = this.Items[r].Items[this.Columns[i].DataField].text;
@@ -162,19 +179,60 @@ namespace WolfInv.Com.CommCtrlLib
                     }
                 }
                 ListGridItem lvi = new ListGridItem(grids);
+                List<string> strGrp = new List<string>();
+                if (listobj.AllowGroup && grparr != null)
+                {
+
+                    grparr.ToList().ForEach(a => {
+                        if(this.Items[r].Items.ContainsKey(a))
+                        {
+                            strGrp.Add(this.Items[r].Items[a].text);
+                        }
+                        else
+                        {
+                            strGrp.Add(a);
+                        }
+                    });
+                    string name = string.Join(",", strGrp);
+                    if(!allgroup.ContainsKey(name))
+                    {
+                        allgroup.Add(name, new ListViewGroup(name));
+                    }
+                    allgroup[name].Items.Add(lvi);
+                    
+                }
+
                 lvi.Tag = this.Items[r];
                 lvis.Add(lvi);
             }
-            
 
             listobj.Items.Clear();
             listobj.Items.AddRange(lvis.ToArray());
+            if(listobj.AllowGroup && grparr != null)
+            {
+                listobj.Groups.AddRange(allgroup.Values.ToArray());   
+            }
             if (listobj.AllowSum && lvis.Count > 0)
             {
                 intgrids[0] = "ºÏ¼Æ£º";
+                int col = 0;
+                this.Columns.ForEach(a=> {
+                    if(a.Sum)
+                    {
+
+                        intgrids[col] = this.Items.Sum(row => {
+                            float val = 0;
+                            float.TryParse(row.Items[a.DataField].value,out val);
+                            return val;
+                        }).ToString();
+                        
+                    }
+                    col++;
+                });
                 SumListGridItem lgi = new SumListGridItem(intgrids);
                 listobj.Items.Add(lgi);
             }
+            
         }
 
         

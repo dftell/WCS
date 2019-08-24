@@ -51,21 +51,21 @@ namespace WolfInv.Com.CommCtrlLib
         }
             
 
-        public static bool switchToView(IXPanel container, CMenuItem mnu)
+        public static bool switchToView(IXContainerControl container, CMenuItem mnu)
         {
             return switchToView(container, null, mnu);
         }
 
-        public static bool switchToView(IXPanel container, IKeyForm Link, CMenuItem mnu)
+        public static bool switchToView(IXContainerControl container, IKeyForm Link, CMenuItem mnu)
         {
             UpdateData data = null;
             return switchToView(container, Link, mnu, ref data);
         }
-        public static bool switchToView(IXPanel container, IKeyForm Link, CMenuItem mnu, ref UpdateData data)
+        public static bool switchToView(IXContainerControl container, IKeyForm Link, CMenuItem mnu, ref UpdateData data)
         {
             return switchToView(container, Link, mnu, ref data, null);
         }
-        public static bool switchToView(IXPanel container, IKeyForm Link, CMenuItem mnu, ref UpdateData data, List<UpdateData> injectedatas)
+        public static bool switchToView(IXContainerControl container, IKeyForm Link, CMenuItem mnu, ref UpdateData data, List<UpdateData> injectedatas)
         {
             if (mnu == null) return false;
             if (mnu.LinkValue == null || mnu.LinkValue.Trim().Length == 0)
@@ -136,7 +136,8 @@ namespace WolfInv.Com.CommCtrlLib
                 FillTranData(Link, objInst as ITranslateableInterFace, ref mnu, ref data);
                 (objInst as ITranslateableInterFace).NeedUpdateData = data;
             }
-            objInst.TranData = mnu.TranDataMapping;//菜单数据下传
+            objInst.TranData = mnu.TranDataMapping;
+            //菜单数据下传
                                                    //if (objInst.InjectedDatas == null)
                                                    //{
                                                    //    objInst.InjectedDatas = new List<UpdateData>();
@@ -160,133 +161,29 @@ namespace WolfInv.Com.CommCtrlLib
             {
                 case LinkType.WebPage://winform专用
                     {
-                        if (container == null)
-                            break;
-                        //container.Controls.Clear();
-
-                        //container.Controls.Clear();//清除所有控件
                         
-                        if (mnu.Params == null || mnu.Params.Trim().Length == 0)
-                        {
-                            object obj = Activator.CreateInstance(tFrm, null);
-                            objInst = obj as Ifrm_Model;
-                        }
-                        else
-                        {
-                            objInst = Activator.CreateInstance(tFrm, mnu.Params) as Ifrm_Model;
-                        }
-                        if (objInst == null)
-                        {
-                            return false;
-                        }
-                        objInst.FromMenu = mnu;
-                        objInst.strUid = mnu.strUid;
-                        objInst.SetDock(XPlatformDockStyle.Fill);
-                        if (objInst.lb_Title != null)
-                            objInst.lb_Title.Text = mnu.MnuName;
-                        objInst.GridSource = mnu.GridSource;
-                        objInst.DetailSource = mnu.DetailSrouce;
-                        objInst.strKey = mnu.Key;
-                        if (mnu.Module.Trim().Length > 0)
-                            objInst.strModule = mnu.Module;
-                        if (mnu.Screen.Trim().Length > 0)
-                            objInst.strScreen = mnu.Screen;
-                        if (mnu.Target.Trim().Length > 0)
-                            objInst.strTarget = mnu.Target;
-                        objInst.strKey = mnu.Key;
-                        objInst.Link = Link;
-                        if (objInst is IMutliDataInterface)
-                        {
-                            (objInst as IMutliDataInterface).InjectedDatas = injectedatas;
-                        }
-                        if (objInst is ITranslateableInterFace && (Link is IKeyForm || Link == null))
-                        {
-                            FillTranData(Link, objInst as ITranslateableInterFace,ref mnu, ref data);
-                        }
-                        objInst.TranData = mnu.TranDataMapping;//菜单数据下传
-                        if (container != null)
-                        {
-                            container.Controls_Add(objInst);
-                            objInst.ToTopLevel();
-                            
-                        }
-
-                        //container.Controls.Add(objInst);
-                        ////////////SubForm frm = new SubForm();
-                        ////////////frm.Controls.Add(objInst);
-                        //////////////frm.MdiParent = ParentForm;
-                        ////////////frm.Width = 800;
-                        ////////////frm.Height = 600;
-                        ////////////frm.FormBorderStyle = FormBorderStyle.FixedSingle;
-                        ////////////frm.Dock = DockStyle.Fill;
-                        ////////////frm.StartPosition = FormStartPosition.CenterParent;
-                        ////////////frm.Opacity = 0.5;
-                        ////////////frm.Show();
-                        //////////////container.Controls.Add(objInst);
-
-                        //objInst.Focus();
-                        container.CurrMainControl = objInst;
-                        if(!AllModules.ContainsKey(mnu.MnuId))
-                        {
-                            AllModules.Add(mnu.MnuId, objInst);
-                        }
                         break;
                     }
                 case LinkType.Dialog:
                     {
-
-                        if (mnu.Params == null || mnu.Params.Trim().Length == 0)
+                        if(container is IXPanel) //容器是ixpanel 并且
                         {
-                            objInst = Activator.CreateInstance(tFrm, null) as Ifrm_Model;
+                            if((container as IXPanel).InForm)//容器是在最外层main/mdi_main
+                            {
+                               
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
-                        else
+                        else//如果是form
                         {
-                            objInst = Activator.CreateInstance(tFrm, mnu.Params) as Ifrm_Model;
+                            //自加载
+                            break;
                         }
-                        if (objInst == null)
-                        {
-                            return false;
-                        }
-                        objInst.strUid = mnu.strUid;
-                        objInst.FromMenu = mnu;
-                        if (objInst.ControlType == PlatformControlType.WinForm )
-                        {
-                            (objInst as System.Windows.Forms.Control).Dock = DockStyle.Fill;
-                        }
-                        else
-                        {
-
-                        }
-                        
-                        objInst.lb_Title.Text = mnu.MnuName;
-                        objInst.GridSource = mnu.GridSource;
-                        objInst.DetailSource = mnu.DetailSrouce;
-                        objInst.SetDock(XPlatformDockStyle.Fill);
-                        if (mnu.Module.Trim().Length > 0)
-                            objInst.strModule = mnu.Module;
-                        if (mnu.Screen.Trim().Length > 0)
-                            objInst.strScreen = mnu.Screen;
-                        if (mnu.Target.Trim().Length > 0)
-                            objInst.strTarget = mnu.Target;
-                        objInst.strKey = mnu.Key;
-                        objInst.Link = Link;
-                        if (objInst is ITranslateableInterFace && (Link is IKeyForm || Link == null))
-                        {
-                            FillTranData(Link, objInst as ITranslateableInterFace, ref mnu, ref data);
-                            (objInst as ITranslateableInterFace).NeedUpdateData = data;
-                        }
-                        ////if (objInst.InjectedDatas == null)
-                        ////{
-                        ////    objInst.InjectedDatas = new List<UpdateData>();
-                        ////}
-                        ////if (data != null)
-                        ////{
-                        ////    objInst.InjectedDatas.Add(data);
-                        ////}
-                        ///
                         
                         IXForm frmobj = CreateForm(objInst.ControlType);
-
                         frmobj.InitForm(mnu, SystemIcon);
                         frmobj.Controls_Add(objInst);
                         frmobj.ShowIXDialog();
@@ -295,178 +192,38 @@ namespace WolfInv.Com.CommCtrlLib
                     }
                 case LinkType.Form:
                     {
-                        if (mnu.Params == null || mnu.Params.Trim().Length == 0)
-                        {
-                            objInst = Activator.CreateInstance(tFrm, null) as Ifrm_Model;
-                        }
-                        else
-                        {
-                            objInst = Activator.CreateInstance(tFrm, mnu.Params) as Ifrm_Model;
-                        }
-                        if (objInst == null)
-                        {
-                            return false;
-                        }
-                        objInst.FromMenu = mnu; 
-                        objInst.strUid = mnu.strUid;
-                        objInst.SetDock(XPlatformDockStyle.Fill);
-                        objInst.lb_Title.Text = mnu.MnuName;
-                        objInst.GridSource = mnu.GridSource;
-                        objInst.DetailSource = mnu.DetailSrouce;
-                        if (mnu.Module.Trim().Length > 0)
-                            objInst.strModule = mnu.Module;
-                        if (mnu.Screen.Trim().Length > 0)
-                            objInst.strScreen = mnu.Screen;
-                        if (mnu.Target.Trim().Length > 0)
-                            objInst.strTarget = mnu.Target;
-                        objInst.strKey = mnu.Key;
-                        objInst.Link = Link;
-                        SubForm frm = new SubForm();
-                        if (mnu.WHeight == 0 || mnu.WWidth == 0)
-                        {
-                            frm.Size = new Size(800, 600);
-                        }
-                        else
-                        {
-                            frm.Size = new Size(mnu.WWidth, mnu.WHeight);
-                        }
-                        if (container != null)
-                            frm.Icon = SystemIcon;
-                        frm.Text = mnu.Title;
-                        frm.MaximizeBox = false;
-                        frm.MinimizeBox = false;
-                        frm.FormBorderStyle = FormBorderStyle.FixedSingle;
-                        frm.WindowState = FormWindowState.Maximized;
-                        if (objInst is IMutliDataInterface)
-                        {
-                            (objInst as IMutliDataInterface).InjectedDatas = injectedatas;
-                        }
-                        if (objInst is ITranslateableInterFace && (Link is IKeyForm || Link == null))
-                        {
-                            FillTranData(Link, objInst as ITranslateableInterFace,ref mnu, ref data);
-                            (objInst as ITranslateableInterFace).NeedUpdateData = data;
-                        }
-                        objInst.TranData = mnu.TranDataMapping;
-                        //if (objInst.InjectedDatas == null)
-                        //{
-                        //    objInst.InjectedDatas = new List<UpdateData>();
-                        //}
-                        //if (data != null)
-                        //{
-                        //    objInst.InjectedDatas.Add(data);
-                        //}
-                        objInst.ToTopLevel();
-                        objInst.SetDock(XPlatformDockStyle.Fill);
-                        container.Controls_Add(objInst);
-                        //frm.StartPosition = FormStartPosition.CenterParent;
-                        // objInst.AllowClose = false;
-                        //frm.Controls.Add(objInst);
 
-                        ////Form fm = null;
-                        ////if (container != null)
-                        ////{
-                        ////    fm = (container.TopLevelControl as Form);
-                        ////    if (fm.IsMdiContainer)
-                        ////    {
-                        ////        //frm.MdiParent = fm;
-                                
-                        ////    }
-                        ////    else
-                        ////    {
-                        ////        fm = fm.MdiParent;
-                        ////    }
-                        ////    //container.Controls.Clear();
-                        ////    //container.Controls.Add(objInst);
-                        ////}
-                        objInst.ToTopLevel();
-                        if (!AllModules.ContainsKey(mnu.MnuId))
-                        {
-                            AllModules.Add(mnu.MnuId, objInst);
-                        }
-                        //frm.
-                        //frm.TopLevel = true ;
-                        //frm.MdiParent = ParentForm;
-                        ////frm.Dock = DockStyle.Fill;
-                        ////frm.Show();
-                        //fm.ActiveMdiChild = frm;
-                        container.CurrMainControl = objInst;
                         break;
 
                     }
                 case LinkType.UserControl:
                     {
-                        
-                        //container.Controls.Add(objInst);
-                        ////////////SubForm frm = new SubForm();
-                        ////////////frm.Controls.Add(objInst);
-                        //////////////frm.MdiParent = ParentForm;
-                        ////////////frm.Width = 800;
-                        ////////////frm.Height = 600;
-                        ////////////frm.FormBorderStyle = FormBorderStyle.FixedSingle;
-                        ////////////frm.Dock = DockStyle.Fill;
-                        ////////////frm.StartPosition = FormStartPosition.CenterParent;
-                        ////////////frm.Opacity = 0.5;
-                        ////////////frm.Show();
-                        //////////////container.Controls.Add(objInst);
 
-                        //objInst.Focus();
                         break;
                     }
                 case LinkType.PrintToPDF:
                     {
-                        if (container == null)
+                        if (container is IXPanel) //容器是ixpanel 并且
                         {
-                            container = null;
+                            if ((container as IXPanel).InForm)//容器是在最外层main/mdi_main
+                            {
+                                break;
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        else//如果是form
+                        {
+                            //自加载
                             break;
                         }
-                        //container.Controls.Clear();
-                        //container.Controls.Clear();//清除所有控件
 
-                        if (mnu.Params == null || mnu.Params.Trim().Length == 0)
-                        {
-                            objInst = Activator.CreateInstance(tFrm, null) as Ifrm_Model;
-                        }
-                        else
-                        {
-                            objInst = Activator.CreateInstance(tFrm, mnu.Params) as Ifrm_Model;
-                        }
-                        if (objInst == null)
-                        {
-                            return false;
-                        }
-                        objInst.FromMenu = mnu;
-                        objInst.strUid = mnu.strUid;
-                        objInst.SetDock( XPlatformDockStyle.Fill);
-                        if(objInst.lb_Title !=null)
-                            objInst.lb_Title.Text = mnu.MnuName;
-                        objInst.GridSource = mnu.GridSource;
-                        objInst.DetailSource = mnu.DetailSrouce;
-                        objInst.strKey = mnu.Key;
-                        if (mnu.Module.Trim().Length > 0)
-                            objInst.strModule = mnu.Module;
-                        if (mnu.Screen.Trim().Length > 0)
-                            objInst.strScreen = mnu.Screen;
-                        if (mnu.Target.Trim().Length > 0)
-                            objInst.strTarget = mnu.Target;
-                        objInst.strKey = mnu.Key;
-                        objInst.Link = Link;
-                        if (objInst is IMutliDataInterface)
-                        {
-                            (objInst as IMutliDataInterface).InjectedDatas = injectedatas;
-                        }
-                        if (objInst is ITranslateableInterFace && (Link is IKeyForm || Link == null))
-                        {
-                            FillTranData(Link, objInst as ITranslateableInterFace,ref mnu, ref data);
-                        }
-                        objInst.TranData = mnu.TranDataMapping;//菜单数据下传
-                        objInst.ToTopLevel();
-                        container.Controls_Add(objInst);
-
-                        if (!AllModules.ContainsKey(mnu.MnuId))
-                        {
-                            AllModules.Add(mnu.MnuId, objInst);
-                        }
-                        container.CurrMainControl = objInst;
+                        IXForm frmobj = CreateForm(objInst.ControlType);
+                        frmobj.InitForm(mnu, SystemIcon);
+                        frmobj.Controls_Add(objInst);
+                        frmobj.ShowIXDialog();
                         break;
                     }
                 default:
@@ -562,14 +319,22 @@ namespace WolfInv.Com.CommCtrlLib
                             FillTranData(Link, objInst as ITranslateableInterFace,ref mnu, ref data);
                         }
                         objInst.TranData = mnu.TranDataMapping;
+                        objInst.FromMenu = mnu;
                         if (objInst is ITranslateableInterFace)
                         {
+                            data.ReqType = DataRequestType.Update;
+                            if(mnu.Params == null ||mnu.Params.Trim().Length == 0)
+                            {
+                                data.ReqType = DataRequestType.Add;
+                                data.Updated = true;
+                            }
                             (objInst as ITranslateableInterFace).NeedUpdateData = data;
                         }
                         frm.Controls_Add(objInst);
-                        frm.ShowIXDialog();
-                        if (objInst is ISaveableInterFace)
-                            data = (objInst as ISaveableInterFace).NeedUpdateData;//传出
+                        if (!frm.ShowIXDialog())
+                            return false;
+                        if (objInst is ITranslateableInterFace)
+                            data = (objInst as ITranslateableInterFace).NeedUpdateData;//传出
 
                         break;
                     }
@@ -607,14 +372,7 @@ namespace WolfInv.Com.CommCtrlLib
                         if (container != null)
                             objInst.Icon = SystemIcon;
                         objInst.Text = mnu.Title;
-                        if (mnu.WHeight == 0 || mnu.WWidth == 0)
-                        {
-                            objInst.Size = new Size(800, 600);
-                        }
-                        else
-                        {
-                            objInst.Size = new Size(mnu.WWidth, mnu.WHeight);
-                        }
+                        
                         objInst.MaximizeBox = false;
                         objInst.MinimizeBox = false;
                         objInst.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -625,14 +383,15 @@ namespace WolfInv.Com.CommCtrlLib
                         {
                             FillTranData(Link, objInst as ITranslateableInterFace,ref mnu, ref data, false);
                         }
-                        //if (objInst.ShowDialog(container) != DialogResult.Yes)
-                        //{
-                        //    return false;
-                        //}
+                        if (objInst.ShowDialog() != DialogResult.Yes)
+                        {
+                            return false;
+                        }
                         if (objInst is ITranslateableInterFace && Link is IKeyForm)
                         {
                             data = (objInst as ITranslateableInterFace).NeedUpdateData;//传出
                         }
+
                         break;
                     }
                 case LinkType.Form:
@@ -670,7 +429,7 @@ namespace WolfInv.Com.CommCtrlLib
                         //objInst.AllowClose = false;
                         if (objInst is ITranslateableInterFace && (Link is IKeyForm || Link == null))
                         {
-                            FillTranData(Link, objInst as ITranslateableInterFace,ref mnu, ref data);
+                            FillTranData(Link, objInst as ITranslateableInterFace, ref mnu, ref data);
                             //(objInst as ITranslateableInterFace).NeedUpdateData = data;
                         }
                         frm.Controls_Add(objInst);
@@ -735,7 +494,7 @@ namespace WolfInv.Com.CommCtrlLib
             FillTranData(currfrm, ifrm, ref mnu, ref data, true);
         }
 
-        public static void FillTranData(IKeyForm currfrm, ITranslateableInterFace ifrm,ref CMenuItem mnu, ref UpdateData data, bool TranData)
+        public static void FillTranData(IKeyForm currfrm,ITranslateableInterFace ifrm,ref CMenuItem mnu, ref UpdateData data, bool TranData)
         {
             if (data == null) data = new UpdateData();
 
@@ -749,19 +508,33 @@ namespace WolfInv.Com.CommCtrlLib
             //上个页面查询条件下传
             if (currfrm != null && currfrm is ITranslateableInterFace && (currfrm as ITranslateableInterFace).TranData != null)
             {
+                if(ifrm.TranData == null)
+                {
+                    ifrm.TranData = new List<DataTranMapping>();
+
+                }
                 if (ifrm.TranData != null)
                 {
                     List<DataTranMapping> prevdata = (currfrm as ITranslateableInterFace).TranData;
                     for (int i = 0; i < prevdata.Count; i++)
                     {
                         DataTranMapping inputdata = prevdata[i];
-                        for (int t = 0; t < ifrm.TranData.Count; t++)
+                        var mp = ifrm.TranData.Where(a => a.FromDataPoint.Name == inputdata.ToDataPoint);
+                        if (mp.Count()==0)
                         {
-                            if (ifrm.TranData[t].FromDataPoint == inputdata.ToDataPoint)
-                            {
-                                ifrm.TranData[t].FromDataPoint = inputdata.FromDataPoint;
-                            }
+                            ifrm.TranData.Add(inputdata);
+                                
                         }
+                        else
+                        {
+                            mp.First().FromDataPoint.Text = inputdata.FromDataPoint.Text;
+                        }
+                        if (!data.Items.ContainsKey(inputdata.FromDataPoint.Name))
+                        {
+                            data.Items.Add(inputdata.FromDataPoint.Name, new UpdateItem(inputdata.FromDataPoint.Name, inputdata.FromDataPoint.Text));
+                        }
+                        data.Items[inputdata.FromDataPoint.Name].text = inputdata.FromDataPoint.Text;
+
                     }
                 }
             }
@@ -771,7 +544,7 @@ namespace WolfInv.Com.CommCtrlLib
                 for (int i = 0; i < mnu.TranDataMapping.Count; i++)
                 {
                     DataTranMapping dtm = mnu.TranDataMapping[i];
-                    if (currfrm != null && currfrm is IKeyForm && currfrm.strKey == dtm.FromDataPoint)//如果匹配到关键字，传送到下一个界面
+                    if (currfrm != null && currfrm is IKeyForm && currfrm.strKey == dtm.FromDataPoint.Name)//如果匹配到关键字，传送到下一个界面
                     {
                         string val = currfrm.strRowId;
                         if(mnu.Params!= null && mnu.Params.Trim().Length>0)
@@ -781,19 +554,19 @@ namespace WolfInv.Com.CommCtrlLib
                                 val = mnu.Params;
                             }
                         }
-                        if(data.Items.ContainsKey(dtm.FromDataPoint))
+                        if(data.Items.ContainsKey(dtm.FromDataPoint.Name))
                         {
-                            data.Items[dtm.FromDataPoint].value = val;
+                            data.Items[dtm.FromDataPoint.Name].value = val;
                         }
                         else
                         {
-                            data.Items.Add(dtm.FromDataPoint, new UpdateItem(dtm.FromDataPoint, val));
+                            data.Items.Add(dtm.FromDataPoint.Name, new UpdateItem(dtm.FromDataPoint.Name, val));
                         }
                         //break;
                     }
                     else
                     {
-                        string strPoint = dtm.FromDataPoint.Replace("{", "").Replace("}", "");
+                        string strPoint = dtm.FromDataPoint.Name.Replace("{", "").Replace("}", "");
                         if (GlobalShare.DataPointMappings.ContainsKey(strPoint))//如果是数据点，传数据
                         {
                             if (!TranData)
@@ -814,9 +587,9 @@ namespace WolfInv.Com.CommCtrlLib
                                     else
                                     {
                                         data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, currframedata.Items[strPoint].value));
-                                        //dtm.FromDataPoint  = currframedata.Items[dtm.FromDataPoint].value;
+                                        //dtm.FromDataPoint  = currframedata.Items[dtm.FromDataPoint.Name].value;
                                     }
-                                    dtm.FromDataPoint = currframedata.Items[strPoint].value;
+                                    dtm.FromDataPoint.Text = currframedata.Items[strPoint].value;
                                 }
                             }
                             else//如果是顶层菜单传入，并且是系统的用户常量
@@ -833,9 +606,9 @@ namespace WolfInv.Com.CommCtrlLib
                                     else
                                     {
                                         data.Items.Add(dtm.ToDataPoint, new UpdateItem(strPoint, ud.Items[strPoint].value));
-                                        //dtm.FromDataPoint  = currframedata.Items[dtm.FromDataPoint].value;
+                                        //dtm.FromDataPoint  = currframedata.Items[dtm.FromDataPoint.Name].value;
                                     }
-                                    dtm.FromDataPoint = ud.Items[strPoint].value;
+                                    dtm.FromDataPoint.Text = ud.Items[strPoint].value;
                                 }
                             }
 
@@ -844,11 +617,11 @@ namespace WolfInv.Com.CommCtrlLib
                         {
                             if (data.Items.ContainsKey(dtm.ToDataPoint))
                             {
-                                data.Items[dtm.ToDataPoint].value = dtm.FromDataPoint;
+                                data.Items[dtm.ToDataPoint].value = dtm.FromDataPoint.Text;
                             }
                             else
                             {
-                                data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, dtm.FromDataPoint));
+                                data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, dtm.FromDataPoint.Text));
                             }
                         }
                     }
@@ -876,6 +649,8 @@ namespace WolfInv.Com.CommCtrlLib
                     data.Items.Add(currfrm.strKey, new UpdateItem(currfrm.strKey, currfrm.strRowId));
             }
         }
+
+        
 
     }
 

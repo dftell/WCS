@@ -1,44 +1,74 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+锘縰sing System.Collections.Generic;
 using System.Windows.Forms;
-using System.Collections;
-using WolfInv.Com.CommCtrlLib;
-using System.Linq;
 namespace WolfInv.Com.CommCtrlLib
 {
+    ////public class ListView
+    ////{
+    ////    public class ColumnHeaderCollection
+    ////    {
 
-    public class ListGrid : ListView, ICalcGrid
+    ////    }
+
+    ////    public class ListViewItemCollection
+    ////    {
+
+    ////    }
+
+    ////    public class SelectedListViewItemCollection
+    ////    {
+
+    ////    }
+
+
+    ////    public class SelectedIndexCollection
+    ////    {
+
+    ////    }
+
+    ////    public class CheckedListViewItemCollection
+    ////    {
+
+    ////    }
+
+    ////    public class CheckedIndexCollection
+    ////    {
+
+    ////    }
+
+    ////}
+
+
+    //public class ColumnHeader
+    //{
+    //}
+
+    ////public class ListViewItem
+    ////{
+    ////    public class ListViewSubItemCollection
+    ////    {
+    ////    }
+
+    ////    public class ListViewSubItem
+    ////    {
+    ////    }
+    ////}
+
+    public class BaseListGrid : ListView
     {
-        bool _AllowSum = false;
-        public bool AllowSum
-        {
-            get { return _AllowSum; }
-            set { _AllowSum = value; }
-        }
-        public string SumItems { get; set; }
-        public ListGrid() : base()
+        public bool AllowSum = false;
+        public BaseListGrid()
+            : base()
         {
             Items = new ListGridItemCollection(this);
             Columns = new ListGridColumnHeaderCollection(this);
-            //SelectedItems = new SelectedListViewItemCollection(this);
+            SelectedItems = new SelectedListViewItemCollection(this);
             CheckedItems = new CheckedListViewItemCollection(this);
-            _DataGridColumns = new Dictionary<string, DataGridColumn>();
         }
-
 
         List<ListGridItem> _Items = new List<ListGridItem>();
         ListGridItemCollection Items;
 
-        public SelectedListViewItemCollection SelectedItems
-        {
-            get
-            {
-                SelectedListViewItemCollection slvis = new SelectedListViewItemCollection(this, base.SelectedItems);
-                return slvis;
-            }
 
-        }
 
 
         public ListGridColumnHeaderCollection Columns;
@@ -47,10 +77,10 @@ namespace WolfInv.Com.CommCtrlLib
 
         public new CheckedListViewItemCollection CheckedItems;
 
-        //new SelectedListViewItemCollection SelectedItems;
+        public new SelectedListViewItemCollection SelectedItems;
 
 
-        public class ListGridColumnHeaderCollection : ListView.ColumnHeaderCollection //, IDataFieldHeaderColumnCollection
+        public class ListGridColumnHeaderCollection : ListView.ColumnHeaderCollection
         {
             public ListGridColumnHeaderCollection(ListView listview)
                 : base(listview)
@@ -61,7 +91,7 @@ namespace WolfInv.Com.CommCtrlLib
 
         public class ListGridItemCollection : ListView.ListViewItemCollection
         {
-            public ListGridItemCollection(ListGrid lv)
+            public ListGridItemCollection(BaseListGrid lv)
                 : base(lv)
             {
 
@@ -70,35 +100,22 @@ namespace WolfInv.Com.CommCtrlLib
 
         public class SelectedListViewItemCollection : ListView.SelectedListViewItemCollection
         {
-            public List<ListGridItem> mylist = new List<ListGridItem>();
-            public SelectedListViewItemCollection(ListGrid lg, ListView.SelectedListViewItemCollection blist)
+            public SelectedListViewItemCollection(BaseListGrid lg)
                 : base(lg)
-            {
-                mylist = new List<ListGridItem>();
-                foreach (ListViewItem lvi in blist)
-                {
-                    mylist.Add(new ListGridItem(lvi));
-                }
-            }
+            { }
 
-            ListGridItem this[int index]
+            public ListGridItem this[int index]
             {
                 get
                 {
-                    if (index < 0)
-                        return null;
-                    if (mylist == null)
-                        return null;
-                    if (mylist.Count < index + 1)
-                        return null;
-                    return mylist[index] as ListGridItem;
+                    return base[index] as ListGridItem;
                 }
             }
         }
 
         public class SelectedIndexCollection : ListView.SelectedIndexCollection
         {
-            public SelectedIndexCollection(ListGrid lv)
+            public SelectedIndexCollection(BaseListGrid lv)
                 : base(lv)
             {
             }
@@ -106,69 +123,16 @@ namespace WolfInv.Com.CommCtrlLib
 
         public class CheckedListViewItemCollection : ListView.CheckedListViewItemCollection
         {
-            public CheckedListViewItemCollection(ListGrid lg) : base(lg) { }
+            public CheckedListViewItemCollection(BaseListGrid lg) : base(lg) { }
         }
 
         public class CheckedIndexCollection : ListView.CheckedIndexCollection
         {
-            public CheckedIndexCollection(ListGrid lv)
+            public CheckedIndexCollection(BaseListGrid lv)
                 : base(lv)
             {
             }
         }
-
-        #region ICalcGrid 成员
-
-
-        ////public new ListGridColumnHeaderCollection Columns
-        ////{
-        ////    get
-        ////    {
-        ////        return this._Columns;
-        ////    }
-        ////    set
-        ////    {
-        ////        _Columns = value as ListGridColumnHeaderCollection;
-        ////    }
-        ////}
-
-        #endregion
-
-        protected override void OnItemChecked(ItemCheckedEventArgs e)
-        {
-
-            base.OnItemChecked(e);
-
-            if (e.Item is SumListGridItem)
-            {
-                bool status = e.Item.Checked;
-                for (int i = 0; i < this.Items.Count; i++)
-                {
-                    if (this.Items[i] is SumListGridItem) continue;
-                    this.Items[i].Checked = status;
-                }
-            }
-        }
-
-
-
-        #region ICalcGrid 成员
-
-        Dictionary<string, DataGridColumn> _DataGridColumns;
-        public Dictionary<string, DataGridColumn> DataGridColumns
-        {
-            get
-            {
-                return _DataGridColumns;
-            }
-        }
-
-        public bool AllowGroup { get;set; }
-        public string GroupBy { get; set; }
-
-
-
-        #endregion
     }
 
     ////public class ListGridColumnHeader : ColumnHeader, IPermmsionControl
@@ -178,7 +142,7 @@ namespace WolfInv.Com.CommCtrlLib
     ////    public string DataType;
     ////    public bool Visable = true;
     ////    public bool NeedSum = false;
-    ////    #region IPermmsionControl 成员
+    ////    #region IPermmsionControl 鎴愬憳
     ////    string _PermId;
     ////    public string PermId
     ////    {

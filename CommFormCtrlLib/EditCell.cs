@@ -10,7 +10,7 @@ using WolfInv.Com.XPlatformCtrlLib;
 
 namespace WolfInv.Com.CommFormCtrlLib
 {
-    public class EditCell
+    public class EditCell:DataControlItem
     {
         #region 变量
         public PanelRow OwnRow;
@@ -18,8 +18,7 @@ namespace WolfInv.Com.CommFormCtrlLib
         public string Field;//值域
         public string DisplayField;//显示域
         public string Value = "";
-        public string Text = "";
-        public int Width;
+
         public int Height;
         public string Type;
         public Label ItemLabel;
@@ -66,9 +65,12 @@ namespace WolfInv.Com.CommFormCtrlLib
         }
 
 
-        public virtual void LoadXml(XmlNode node)
+        public override void LoadXml(XmlNode node)
         {
-            int.TryParse(XmlUtil.GetSubNodeText(node, "@width"), out this.Width);
+            base.LoadXml(node);
+            int _w = 0;
+            int.TryParse(XmlUtil.GetSubNodeText(node, "@width"), out _w);
+            this.Width = _w;
             //this.Height 
             this.Field = XmlUtil.GetSubNodeText(node, "@f");
             this.Text = XmlUtil.GetSubNodeText(node, "@text");

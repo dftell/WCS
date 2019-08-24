@@ -139,6 +139,9 @@ namespace WolfInv.Com.CommCtrlLib
             GridObj = new Grid(this);
             GridObj.listViewObj = this.listView1 ;
             GridObj.FillGrid(cmbNode);
+            GridObj.AllowGroup = GridObj.listViewObj.AllowGroup;
+            GridObj.GroupBy = GridObj.listViewObj.GroupBy;
+            GridObj.AllowSum = GridObj.listViewObj.AllowSum;
 
         }
 
@@ -176,12 +179,12 @@ namespace WolfInv.Com.CommCtrlLib
             {
                 foreach (DataTranMapping data in this.TranData)
                 {
-                    if (GlobalShare.DataPointMappings.ContainsKey(data.FromDataPoint))
+                    if (GlobalShare.DataPointMappings.ContainsKey(data.FromDataPoint.Name))
                     {
                         continue;
                     }
                     DataCondition datacond = new DataCondition();
-                    datacond.value = data.FromDataPoint;
+                    datacond.value = data.FromDataPoint.Text;
                     datacond.Datapoint = new DataPoint(data.ToDataPoint);
                     conds.Add(datacond);
                 }

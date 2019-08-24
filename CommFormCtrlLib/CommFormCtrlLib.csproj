@@ -131,6 +131,10 @@
       <Project>{19f4307a-b863-4529-bffa-c6c95bebdfb8}</Project>
       <Name>MetaDataCenter</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WCSExtraDataInterface\WCSExtraDataInterface.csproj">
+      <Project>{effe4a0a-8392-499e-bc08-1fda7f2a390b}</Project>
+      <Name>WCSExtraDataInterface</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WCS_Process\WCS_Process.csproj">
       <Project>{6faecb53-c67a-402c-a7ed-e243c3d114b2}</Project>
       <Name>WCS_Process</Name>

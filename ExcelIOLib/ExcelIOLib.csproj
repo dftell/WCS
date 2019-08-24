@@ -83,9 +83,9 @@
       <Project>{6fd3afa7-69ed-468f-972a-e58feadaba12}</Project>
       <Name>JsLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WCS_Process\WCS_Process.csproj">
-      <Project>{6faecb53-c67a-402c-a7ed-e243c3d114b2}</Project>
-      <Name>WCS_Process</Name>
+    <ProjectReference Include="..\WCSExtraDataInterface\WCSExtraDataInterface.csproj">
+      <Project>{effe4a0a-8392-499e-bc08-1fda7f2a390b}</Project>
+      <Name>WCSExtraDataInterface</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

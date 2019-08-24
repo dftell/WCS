@@ -22,28 +22,28 @@ namespace WolfInv.Com.CommCtrlLib
                 for (int i = 0; i < mnu.TranDataMapping.Count; i++)
                 {
                     DataTranMapping dtm = mnu.TranDataMapping[i];
-                    if (currfrm != null && currfrm.strKey == dtm.FromDataPoint)//如果匹配到关键字，传送到下一个界面
+                    if (currfrm != null && currfrm.strKey == dtm.FromDataPoint.Name)//如果匹配到关键字，传送到下一个界面
                     {
 
                         //break;
                     }
                     else
                     {
-                        if (GlobalShare.DataPointMappings.ContainsKey(dtm.FromDataPoint))//如果是数据点，传数据
+                        if (GlobalShare.DataPointMappings.ContainsKey(dtm.FromDataPoint.Name))//如果是数据点，传数据
                         {
                             //暂时无法处理
                             if (currfrm is ITranslateableInterFace)//获得该界面的所有数据
                             {
                                 UpdateData currframedata = (currfrm as ITranslateableInterFace).GetCurrFrameData();
-                                if (currframedata.Items.ContainsKey(dtm.FromDataPoint))//如果数据中包括要传送的数据点
+                                if (currframedata.Items.ContainsKey(dtm.FromDataPoint.Name))//如果数据中包括要传送的数据点
                                 {
                                     if (data.Items.ContainsKey(dtm.ToDataPoint))
                                     {
-                                        data.Items[dtm.ToDataPoint].value = currframedata.Items[dtm.FromDataPoint].value;
+                                        data.Items[dtm.ToDataPoint].value = currframedata.Items[dtm.FromDataPoint.Name].value;
                                     }
                                     else
                                     {
-                                        data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, currframedata.Items[dtm.FromDataPoint].value));
+                                        data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, currframedata.Items[dtm.FromDataPoint.Name].value));
                                     }
                                 }
                             }
@@ -53,11 +53,11 @@ namespace WolfInv.Com.CommCtrlLib
                         {
                             if (data.Items.ContainsKey(dtm.ToDataPoint))
                             {
-                                data.Items[dtm.ToDataPoint].value = dtm.FromDataPoint;
+                                data.Items[dtm.ToDataPoint].value = dtm.FromDataPoint.Text;
                             }
                             else
                             {
-                                data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, dtm.FromDataPoint));
+                                data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, dtm.FromDataPoint.Text));
                             }
                         }
                     }

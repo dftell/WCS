@@ -83,7 +83,7 @@ namespace WCS
         {
         }
 
-        public override UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData)
+        public override UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData,bool getText=false)
         {
             throw new Exception("The method or operation is not implemented.");
         }

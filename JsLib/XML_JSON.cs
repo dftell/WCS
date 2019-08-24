@@ -15,12 +15,38 @@ namespace WolfInv.Com.JsLib
         /// <returns></returns>
         public static string XML2Json(string str, string nodename)
         {
+
+            try
+            {
+                XmlDocument xmldoc = new XmlDocument();
+                xmldoc.LoadXml(str);
+               
+                return XML2Json(str,nodename);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static string XML2Json(XmlDocument xmldoc, string nodename,bool OnlyInnerText=false)
+        {
             string result = null;
-            XmlDocument xmldoc = new XmlDocument();
-            xmldoc.LoadXml(str);
-            XmlNode node = xmldoc.SelectSingleNode(nodename);
-            result = JsonConvert.SerializeXmlNode(node);
-            return result;
+            try
+            {
+                XmlNode node = xmldoc.SelectSingleNode(nodename);
+                result = JsonConvert.SerializeXmlNode(node);
+                if(OnlyInnerText)//去掉最外面的花括号
+                {
+                    string nopi = result.Substring(1, result.Length - 2);//2边        花括号
+                    return nopi.Substring(nodename.Length + 3);//+2个引号+1个冒号
+                }
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static string Json2XML(string str)

@@ -84,7 +84,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemKeyItem.cs" />
     <Compile Include="UserGlobalShare.cs" />
-    <Compile Include="WCSExtraDataInterface.cs" />
+    <Compile Include="WCSExtraDataAdapter.cs" />
     <Compile Include="WebDataInterface.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -119,6 +119,10 @@
     <ProjectReference Include="..\MetaDataCenter\MetaDataCenter.csproj">
       <Project>{19f4307a-b863-4529-bffa-c6c95bebdfb8}</Project>
       <Name>MetaDataCenter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WCSExtraDataInterface\WCSExtraDataInterface.csproj">
+      <Project>{effe4a0a-8392-499e-bc08-1fda7f2a390b}</Project>
+      <Name>WCSExtraDataInterface</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

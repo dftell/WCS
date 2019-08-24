@@ -14,6 +14,7 @@ using WolfInv.Com.CommFormCtrlLib;
 using WolfInv.Com.CommCtrlLib;
 using WolfInv.Com.HtmlExp;
 using WolfInv.Com.XPlatformCtrlLib;
+using System.Linq;
 
 namespace WCS
 {
@@ -95,7 +96,10 @@ namespace WCS
             GridObj = new Grid(this);
             GridObj.listViewObj = this.listView1;
             GridObj.FillGrid(cmbNode);
-            
+            GridObj.AllowGroup = GridObj.listViewObj.AllowGroup;
+            GridObj.GroupBy = GridObj.listViewObj.GroupBy;
+            GridObj.AllowSum = GridObj.listViewObj.AllowSum;
+            GridObj.SumItems = GridObj.listViewObj.SumItems;
         }
 
         protected void FillData(DataSet ds)
@@ -273,7 +277,7 @@ namespace WCS
                 }
                 else
                 {
-                    if (FrameSwitch.switchToView(this.CurrMainPanel, this, mnu))
+                    if (FrameSwitch.switchToView(this.Parent as IXContainerControl, this, mnu))
                     {
                         RefreshData_Click();
                     }
@@ -446,7 +450,7 @@ namespace WCS
                 return;
             }
             DataTranMapping dtm = new DataTranMapping();
-            dtm.FromDataPoint = menus[combo.SelectedIndex].Params;
+            dtm.FromDataPoint.Text = menus[combo.SelectedIndex].Params;
             dtm.ToDataPoint = menus[combo.SelectedIndex].Key;
             int ExistMapIndex = -1;
             if(this.TranData == null) this.TranData = new List<DataTranMapping>();
@@ -472,5 +476,69 @@ namespace WCS
                 RefreshData_Click();
             }
         }
+
+        private bool frm_View_ToolBar_Remove(CMenuItem mnu)
+        {
+            bool DirDel = false;
+            if (this.strRowId == "")
+            {
+                DirDel = true;
+            }
+            if (GridObj == null)
+                GridObj = this.listView1.Tag as Grid;
+            if (this.listView1.CheckedIndices.Count == 0)
+            {
+                MessageBox.Show("为执行删除操作，至少需选择一行！");
+                return false;
+            }
+            if (MessageBox.Show("确定要删除记录", "删除确认", MessageBoxButtons.YesNo) == DialogResult.No)
+            {
+                return false;
+            }
+            List<UpdateData> ul = new List<UpdateData>();
+            bool NoPass = false;
+            for (int i = this.listView1.CheckedIndices.Count - 1; i >= 0; i--)
+            {
+                int chkid = this.listView1.CheckedIndices[i];
+                ListViewItem lvi = this.listView1.Items[chkid];
+                GridRow gi = lvi.Tag as GridRow;
+                if (gi == null)
+                    continue;
+                var keyitem = gi.Items.Where(a =>a.Value.isKey);
+                if(keyitem == null)
+                {
+                    this.listView1.Items[this.listView1.CheckedIndices[i]].Selected = true;
+                    NoPass = true;
+                    continue;
+                }
+                
+                UpdateData ud = new UpdateData();
+                ud.ReqType = DataRequestType.Delete;
+                ud.keydpt = new DataPoint(keyitem.First().Key);
+                ud.keydpt.Text = keyitem.First().Value.value;
+                ud.keyvalue = ud.keydpt.Text;
+
+                ud.Items.Add(keyitem.First().Key,new UpdateItem(keyitem.First().Key,keyitem.First().Value.value));
+                ul.Add(ud);
+            }
+            if(NoPass)
+            {
+                return false;
+            }
+
+            if (this.listView1.CheckedItems.Count == 0)
+                return false;
+            if (this.SaveData(null, DataRequestType.Delete))//如果
+            {
+                RefreshData_Click();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
+        }
     }
+    
 }

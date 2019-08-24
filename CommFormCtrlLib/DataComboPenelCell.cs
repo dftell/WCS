@@ -42,7 +42,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             DataComboBox ctrl = new DataComboBox(DataSourceName, strUid);
             ctrl.TextField = TextField;
             ctrl.ValueField = ValueField;
-            
+            ctrl.ComboItemsSplitString = ComboItemsSplitString;
             ctrl.Name = this.Field;
             UpdateData data = new UpdateData();
             FrameSwitch.FillTranData(this.OwnRow.OwnPanel.OwnerForm, ctrl,ref mnu, ref data);
@@ -50,6 +50,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             ctrl.ChangeDataSource();
             ctrl.SelectedIndexChanged += OnControlValueChanged;
             ctrl.Width = this.Width;
+            ctrl.Enabled = !this.ReadOnly;
             return ctrl;
         }
 

@@ -108,6 +108,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             txtctrl = new TextBox();
             txtctrl.Top = 0;
             txtctrl.Left = 0;
+            txtctrl.Text = "请点击文本框选择.."; 
             //txtctrl.Margin = new Padding(0, 3, 0, 0);
             txtctrl.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
             txtctrl.ReadOnly = true;

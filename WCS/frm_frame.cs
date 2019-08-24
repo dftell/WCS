@@ -20,12 +20,11 @@ using System.Runtime.InteropServices;
 
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
-
-
+using WolfInv.Com.XPlatformCtrlLib;
 
 namespace WCS
 {
-    public partial class frm_frame : frm_Model, ISaveableInterFace
+    public partial class frm_frame : frm_Model,ITranslateableInterFace
     {
 
 
@@ -46,6 +45,8 @@ namespace WCS
 
         private void frm_frame_Load(object sender, EventArgs e)
         {
+            if (NeedUpdateData == null)
+                NeedUpdateData = DataSource.getDefaultData(DetailSource, this.strUid);
             if (!LoadControls()) return;
             InitEditPanelDefaultValue();
             PanelObj.CoverData(this.NeedUpdateData,this.strRowId!="");
@@ -97,19 +98,20 @@ namespace WCS
             return true;
         }
 
-        public override bool Save()
+        public override bool Save(CMenuItem mnu)
         {
-            return SaveData();
+            return SaveData(mnu);
         }
-
-        public bool SaveData(DataRequestType type= DataRequestType.Update)
+        public bool SaveClientData(CMenuItem mnu, UpdateData updata, DataRequestType type = DataRequestType.Update)
         {
-            if (PanelObj == null)
-                PanelObj = this.tableLayoutPanel1.Tag as EditPanel;
-            if (PanelObj.ControlList == null) return false;
-           
-
-            int cnt = 0;
+            return false;
+        }
+        public override bool SaveData(CMenuItem mnu, DataRequestType type= DataRequestType.Update)
+        {
+            bool ret = base.SaveData(mnu, type);
+            if (!ret)
+                return ret;
+            return true;
             UpdateData updata = GetUpdateData(true);
             //GlobalShare.DataCenterClientObj
             if (updata.Items.Count  == 0) return true;
@@ -143,6 +145,11 @@ namespace WCS
 
         void InitEditPanel(XmlNode xmldoc)
         {
+            UpdateData ud = this.NeedUpdateData;
+            if(ud == null)
+            {
+                
+            }
             XmlNode cmbNode = xmldoc.SelectSingleNode("/root/EditPanel");
             if (cmbNode == null)
             {
@@ -150,7 +157,7 @@ namespace WCS
             }
             PanelObj = new EditPanel(strUid);
             PanelObj.OwnerForm = this;
-            PanelObj.Fill(cmbNode);
+            PanelObj.Fill(cmbNode,ud);
             
             //edit panel¡–¥¶¿Ì
             //this.tableLayoutPanel1 = new TableLayoutPanel();
@@ -203,7 +210,7 @@ namespace WCS
             return GetUpdateData(CheckValueChanged, true);
         }
 
-        public override UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData)
+        public override UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData,bool getText=false)
         {
             UpdateData updata = new UpdateData();
             updata.Items = new Dictionary<string,UpdateItem>();
@@ -231,6 +238,9 @@ namespace WCS
                 updata.Updated = true;
             if(UpdateFrameData)
                 NeedUpdateData = updata;
+            NeedUpdateData.ReqType = DataRequestType.Update;
+            if (updata.keyvalue.Trim().Length == 0)
+                NeedUpdateData.ReqType = DataRequestType.Add;
             return updata;
         }
 
@@ -239,7 +249,7 @@ namespace WCS
             this.Dispose();
         }
 
-       
+        
     }
     
 }

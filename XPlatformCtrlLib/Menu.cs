@@ -51,6 +51,8 @@ namespace WolfInv.Com.XPlatformCtrlLib
         public int WWidth = 900;
         public int WHeight = 720;
 
+        public CMenuItem evt;
+
         //实现了 WCSExtraDataInterface的外部数据接口类
         public bool isextradata { get; set; }
         public string extradataassembly { get; set; }
@@ -61,9 +63,11 @@ namespace WolfInv.Com.XPlatformCtrlLib
         //外部数据用
         public XmlNode extradatagetconfig { get; set; }
 
+        //更新类型
+        public string extradatawritetype { get; set; }
         //外部数据类型
         public string extradatatype { get; set; }
-
+        public bool extradatanosaveinclient { get; set; }
         //导入类型附加数据
         public XmlNode attatchinfo { get; set; }
 
@@ -82,6 +86,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
             }
             return ret;
         }
+
         public List<DataTranMapping> TranDataMapping;
         /// <summary>
         /// 默认子节点
@@ -109,10 +114,14 @@ namespace WolfInv.Com.XPlatformCtrlLib
             return ToXml(parent, true);
         }
 
-        public void LoadXml(XmlNode node)
+        public virtual void LoadXml(XmlNode node)
         {
             this.MnuId = XmlUtil.GetSubNodeText(node, "@id");
             this.MnuName = XmlUtil.GetSubNodeText(node, "@name");
+            if(this.MnuName.Trim().Length == 0)
+            {
+                this.MnuName = XmlUtil.GetSubNodeText(node,".");
+            }
             this.LinkValue = XmlUtil.GetSubNodeText(node, "@classname");
             this.GridSource = XmlUtil.GetSubNodeText(node, "@gridsource");
             if (this.GridSource == "")
@@ -136,11 +145,15 @@ namespace WolfInv.Com.XPlatformCtrlLib
                 WHeight = 720;
             }
             this.isextradata = XmlUtil.GetSubNodeText(node, "@isextradata")=="1";
+            this.extradatanosaveinclient = XmlUtil.GetSubNodeText(node, "@extradatanosaveinclient") == "1";
+            
             this.extradataassembly = XmlUtil.GetSubNodeText(node, "@extradataassembly");
             this.extradataclass = XmlUtil.GetSubNodeText(node, "@extradataclass");
             this.extradataconvertconfig = node.SelectSingleNode("extradataconvertconfig");
             this.extradatagetconfig = node.SelectSingleNode("extradatagetconfig");
             this.extradatatype = XmlUtil.GetSubNodeText(node, "@extradatatype");
+            this.extradatawritetype = XmlUtil.GetSubNodeText(node, "@extradatawritetype");
+
 
             this.attatchinfo = node.SelectSingleNode("attatchinfo");
 
@@ -155,6 +168,25 @@ namespace WolfInv.Com.XPlatformCtrlLib
                     this.TranDataMapping.Add(dtm);
                 }
             }
+            XmlNodeList smapnodes = node.SelectNodes("./SendMaps/Map");
+            if (mapnodes.Count != 0)
+            {
+                this.SendMappings = new List<DataTranMapping>();
+                foreach (XmlNode mapnode in mapnodes)
+                {
+                    DataTranMapping dtm = new DataTranMapping();
+                    dtm.LoadXml(mapnode);
+                    this.SendMappings.Add(dtm);
+                }
+            }
+
+            if (node.SelectSingleNode("evt")!=null)
+            {
+                this.evt = new CMenuItem(this.Uid);
+                this.evt.LoadXml(node.SelectSingleNode("evt"));
+            }
+
+
             string strtype = XmlUtil.GetSubNodeText(node, "@type");
             switch (strtype)
             {
@@ -303,6 +335,8 @@ namespace WolfInv.Com.XPlatformCtrlLib
             }
         }
 
+        public List<DataTranMapping> SendMappings { get; private set; }
+
         #endregion
     }
 
@@ -427,16 +461,16 @@ namespace WolfInv.Com.XPlatformCtrlLib
                         newmnu.Params = ds.Tables[0].Rows[i][cmnu.Params].ToString();
                         
                         if (newmnu.TranDataMapping.Count > 0 && (
-                            (GlobalShare.DataPointMappings.ContainsKey(newmnu.TranDataMapping[0].FromDataPoint) &&
-                             newmnu.TranDataMapping[0].FromDataPoint == cmnu.Params) ||
+                            (GlobalShare.DataPointMappings.ContainsKey(newmnu.TranDataMapping[0].FromDataPoint.Name) &&
+                             newmnu.TranDataMapping[0].FromDataPoint.Text == cmnu.Params) ||
                              newmnu.TranDataMapping[0].ToDataPoint == cmnu.Key))
                         {
-                            newmnu.TranDataMapping[0].FromDataPoint = newmnu.Params;
+                            newmnu.TranDataMapping[0].FromDataPoint.Text = newmnu.Params;
                         }
                         else
                         {
                             DataTranMapping map = new DataTranMapping();
-                            map.FromDataPoint = newmnu.Params;
+                            map.FromDataPoint.Text = newmnu.Params;
                             map.ToDataPoint = cmnu.Key;
                             newmnu.TranDataMapping.Add(map);
                         }
@@ -445,7 +479,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
                     else
                     {
                         DataTranMapping map = new DataTranMapping();
-                        map.FromDataPoint = newmnu.Params;
+                        map.FromDataPoint.Text = newmnu.Params;
                         map.ToDataPoint = cmnu.Key;
                         newmnu.TranDataMapping.Add(map);
                     }

@@ -2,22 +2,62 @@
 using System;
 using WolfInv.Com.WCS_Process;
 using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
+using XmlProcess;
 
 namespace WolfInv.Com.CommCtrlLib
 {
     //目前所有list 的值全部从此处取，
     //未来编辑界面数据也从此处取
-    public class DataControlItem : DataPoint, IXml
+    public class DataControlItem : DataPoint, IXml, ICalcExpreable, IDataSourceable
     {
+        public string RefPoint { get; set; }
+        
+        
+
+        public string DataSourceName { get; set; }
+        public string ValueField { get; set; }
+        public string TextField { get; set; }
+        /// <summary>
+        /// combo 复杂组合多项分割字符串
+        /// </summary>
+        public string ComboItemsSplitString { get; set; }
+        public int DefaultIndex { get; set; }
+
+        /// <summary>
+        /// 可计算列
+        /// </summary>
+        public string Method { get; set; }
+        public string CalcExpr { get; set; }
         public string getValue(string uid, UpdateItem ui)
         {
             UpdateData ud = new UpdateData();
             ud.Items.Add(ui.text, ui);
             return getValue(uid, ud);
         }
-        public string getValue(string uid,  UpdateData ud)
+
+        public override void LoadXml(XmlNode node)
         {
-            DataPoint dc = this;
+            base.LoadXml(node);
+            
+            DataSourceName = XmlUtil.GetSubNodeText(node, "@datasource");
+            ValueField = XmlUtil.GetSubNodeText(node, "@valmember");
+            TextField = XmlUtil.GetSubNodeText(node, "@txtmember");
+            ComboItemsSplitString = XmlUtil.GetSubNodeText(node, "@membersplitor");
+            CalcExpr = XmlUtil.GetSubNodeText(node, "@expr");
+            Method = XmlUtil.GetSubNodeText(node, "@method");
+            RefPoint = XmlUtil.GetSubNodeText(node, "@ref");
+            int defidx = -1;
+            if(int.TryParse(XmlUtil.GetSubNodeText(node,"@defaultindex"),out defidx))
+            {
+                DefaultIndex = defidx;
+            }
+        }
+
+        public string getValue(string uid,  UpdateData ud,string defaultval=null,int defaultIndex=-1)
+        {
+            DataControlItem dc = this;
             string val = null;
             if (ud.Items.ContainsKey(dc.Name))//默认等于本字段值
             {
@@ -52,6 +92,10 @@ namespace WolfInv.Com.CommCtrlLib
                     dcb.ValueField = dc.ValueField;
                     dcb.ComboItemsSplitString = dc.ComboItemsSplitString;
                     List<DataChoiceItem> dcis = dcb.GetDataSource();
+                    if(dcis==null)
+                    {
+                        throw new Exception("系统异常！");
+                    }
                     dcc = new DataChoice();
                     dcc.Options.AddRange(dcis.ToArray());
                     List<string> vallist = new List<string>();
@@ -128,10 +172,29 @@ namespace WolfInv.Com.CommCtrlLib
                         }
                         return string.Join(dc.ComboItemsSplitString,textlist);
                     }
+                    else
+                    {
+                        
+                        if (defaultIndex >= 0&& defaultIndex<dcc.Options.Count)
+                        {
+                            return dcc.Options[defaultIndex].Text;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                       
+                    }
+                    
                 }
+                return null;
 
             }
-
+            if(defaultval!= null&& defaultval.Trim().Length>0)
+            {
+                if(val == null || val.Trim().Length == 0)
+                    return defaultval;
+            }
             return val;
         }
     }

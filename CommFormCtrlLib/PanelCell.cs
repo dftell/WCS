@@ -70,9 +70,12 @@ namespace WolfInv.Com.CommFormCtrlLib
 
        
 
-        public virtual void LoadXml(XmlNode node)
+        public override void LoadXml(XmlNode node)
         {
-            int.TryParse(XmlUtil.GetSubNodeText(node, "@width"), out this.Width);
+            base.LoadXml(node);
+            int _w = 0;
+            int.TryParse(XmlUtil.GetSubNodeText(node, "@width"), out _w);
+            Width = _w;
             //this.Height 
             this.Field = XmlUtil.GetSubNodeText(node, "@f");
             this.Text = XmlUtil.GetSubNodeText(node, "@text");
@@ -141,9 +144,10 @@ namespace WolfInv.Com.CommFormCtrlLib
                         cbb.DisplayMember = "Text";
                         cbb.ValueMember = "Value";
                         cbb.SelectedIndex = -1;
+                        cbb.Enabled = this.ReadOnly;
                         cbb.SelectedIndexChanged += OnControlValueChanged;
                         cbb.Show();
-                        if (PermId == "0") cbb.Enabled = false;
+                        if (PermId == "0") cbb.Visible = false;
                         break;
                     }
                 case "date":
@@ -332,7 +336,7 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         public virtual string GetValue(bool IsText)
         {
-            string ret = "";
+            string ret = base.GetValue(IsText);
             switch (this.Type)
             {
                 case "combo":

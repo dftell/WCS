@@ -118,7 +118,7 @@ namespace WolfInv.Com.CommCtrlLib
 
         public event ToolBarResponseHandle ToolBar_SaveClose;
 
-        public event ToolBarHandle ToolBar_SaveAndCreateNew;
+        public event AddExistHandle ToolBar_SaveAndCreateNew;
 
         public event AddExistHandle ToolBar_AddExist;
 
@@ -146,15 +146,15 @@ namespace WolfInv.Com.CommCtrlLib
         {
         }
 
-        public abstract UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData);
+        public abstract UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData,bool getText=false);
 
         public virtual UpdateData GetUpdateData(bool JudgeValueChanged)
         {
-            return GetUpdateData(false, false);
+            return GetUpdateData(false, false,false);
             //throw new Exception("The method or operation is not implemented.");
         }
 
-        public virtual bool Save()
+        public virtual bool Save(CMenuItem mnu)
         {
             throw new Exception("The method or operation is not implemented.");
         }
@@ -172,7 +172,7 @@ namespace WolfInv.Com.CommCtrlLib
             ToolBar_OnSimpleSearchClicked += new EventHandler(SimpleSearch);
             ToolBar_OkNoSave += new ToolBarHandle(BaseForm_ToolBar_OkNoSave);
             ToolBar_SaveClose += new ToolBarResponseHandle(BaseForm_ToolBar_SaveClose);
-            ToolBar_SaveAndCreateNew += new ToolBarHandle(BaseForm_ToolBar_SaveAndCreateNew);
+            ToolBar_SaveAndCreateNew += new AddExistHandle(BaseForm_ToolBar_SaveAndCreateNew);
             ToolBar_OtherEvent += new AddExistHandle(BaseFormHandle_ToolBar_OtherEvent);
             ToolBar_Remove += BaseFormHandle_ToolBar_Remove;
         }
@@ -209,7 +209,7 @@ namespace WolfInv.Com.CommCtrlLib
             }
         }
 
-        public virtual bool BaseForm_ToolBar_SaveClose()
+        public virtual bool BaseForm_ToolBar_SaveClose(CMenuItem mnu)
         {
             throw new Exception("The method or operation is not implemented.");
         }
@@ -219,7 +219,7 @@ namespace WolfInv.Com.CommCtrlLib
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public virtual  void BaseForm_ToolBar_SaveAndCreateNew()
+        public virtual  void BaseForm_ToolBar_SaveAndCreateNew(CMenuItem mnu)
         {
             throw new Exception("The method or operation is not implemented.");
         }
@@ -267,7 +267,7 @@ namespace WolfInv.Com.CommCtrlLib
                     }
                 case "SaveClose":
                     {
-                        if (ToolBar_SaveClose())
+                        if (ToolBar_SaveClose(mnu))
                         {
                             ToolBar_RefreshData();
                         }
@@ -275,11 +275,12 @@ namespace WolfInv.Com.CommCtrlLib
                     }
                 case "SaveNew":
                     {
-                        ToolBar_SaveAndCreateNew();
+                        ToolBar_SaveAndCreateNew(mnu);
                         break;
                     }
                 case "New":
                     {
+                        DataComboBox.ClearRunningTimeDataSource(); 
                         ToolBar_NewCreate(mnu);
                         break;
                     }
@@ -290,6 +291,7 @@ namespace WolfInv.Com.CommCtrlLib
                     }
                 case "Refresh":
                     {
+                        DataComboBox.ClearRunningTimeDataSource();
                         ToolBar_RefreshData();
                         break;
                     }
@@ -306,11 +308,13 @@ namespace WolfInv.Com.CommCtrlLib
                 case "Remove"://sub items remove
                     {
                         ToolBar_Remove();
+                        ToolBar_RefreshData();
                         break;
                     }
                 case "Delete":
                     {
                         ToolBar_Delete();
+                        ToolBar_RefreshData();
                         break;
                     }
                 case "ListSelectedItems"://
@@ -345,7 +349,7 @@ namespace WolfInv.Com.CommCtrlLib
                 foreach (DataTranMapping data in this.TranData)
                 {
                     DataCondition datacond = new DataCondition();
-                    datacond.value = data.FromDataPoint;
+                    datacond.value = data.FromDataPoint.Text;
                     datacond.Datapoint = new DataPoint(data.ToDataPoint);
                     conds.Add(datacond);
                 }
@@ -397,9 +401,24 @@ namespace WolfInv.Com.CommCtrlLib
             return GetDataList(null, OnlyCheckedItem);
         }
 
+        public bool SaveData(CMenuItem mnu,DataRequestType type = DataRequestType.Update)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool SaveExtraData(UpdateData data, ref UpdateData ret)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool SaveClientData(UpdateData updata, DataRequestType type = DataRequestType.Update)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
-    
-        
+
+
     }
 
 }

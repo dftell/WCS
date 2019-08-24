@@ -5,10 +5,27 @@ using System.Xml;
 using XmlProcess;
 using System.Data;
 using System.IO;
-
+using System.Linq;
 namespace WolfInv.Com.MetaDataCenter
 {
-    public class UpdateData:ICloneable,IXml
+    public interface ICalc : IGroupGrid
+    {
+
+
+        bool AllowSum { get; set; }
+        
+        string SumItems { get; set; }
+        
+    }
+
+    public interface IGroupGrid
+    {
+        bool AllowGroup { get; set; }
+        string GroupBy { get; set; }
+
+
+    }
+    public class UpdateData:ICloneable,IXml,ICalc
     {
         public Dictionary<string, UpdateItem> Items = new Dictionary<string, UpdateItem>();
         public List<UpdateData> SubItems = new List<UpdateData>();
@@ -18,6 +35,13 @@ namespace WolfInv.Com.MetaDataCenter
         public DataSet Dataset;
         public bool IsImported;
         public DataRequestType ReqType;
+
+        #region 专门针对有grid的场景，下面三个属性均取自于grid，需要在getupdatedata()方法里赋值
+        public bool AllowSum { get; set; }
+        public bool AllowGroup { get; set; }
+        public string GroupBy { get; set; }
+        public string SumItems { get; set; }
+        #endregion
         public UpdateData()
         {
 
@@ -137,13 +161,102 @@ namespace WolfInv.Com.MetaDataCenter
                 strm.Close();
                 sw.Close();
                 XmlNode node  = XmlUtil.AddSubNode (parent,"DataSet");
-                node.AppendChild(parent.OwnerDocument.ImportNode(tmp.SelectSingleNode("NewDataSet"),true));
+                node.AppendChild(((parent is XmlDocument)?parent as XmlDocument:parent.OwnerDocument).ImportNode(tmp.SelectSingleNode("NewDataSet"),true));
                 
             }
             return parent;
         }
 
-        
+        public UpdateData getGroupData(bool Group=true,string strGroupBy=null,string strSum=null,bool getText=false)
+        {
+            
+            if (strGroupBy == null)
+                strGroupBy = this.GroupBy;
+            if (!Group||strGroupBy==null||strGroupBy.Trim().Length == 0)//不分组
+                return this;
+            if(strSum == null)
+            {
+                strSum = this.SumItems;
+            }
+            if (this.SubItems == null || this.SubItems.Count < 2)
+                return this;
+            if (strSum == null)
+                strSum = this.SumItems;
+            XmlDocument xmldoc = new XmlDocument();
+            xmldoc.LoadXml("<root/>");
+            UpdateData ret = new UpdateData(this.ToXml(xmldoc.SelectSingleNode("root")));
+            string[] grplist = strGroupBy.Split(',');
+            Dictionary<string, UpdateData> allgrp = new Dictionary<string, UpdateData>();
+            this.SubItems.ForEach(subitem=> {
+                List<UpdateItem> grpkeys = new List<UpdateItem>();
+                grplist.ToList().ForEach(keyitem => {
+                    UpdateItem ui = new UpdateItem(keyitem,null);
+                    if (subitem.Items.ContainsKey(keyitem))
+                    {
+                        
+                        ui = subitem.Items[keyitem];
+                        grpkeys.Add(ui);
+                    }
+                    else
+                    {
+                        ui.value = keyitem;
+                        ui.text = keyitem;
+                        grpkeys.Add(ui);//常数
+                    }
+                });
+                string grpkey = string.Join(",",grpkeys.Select(a=>getText?a.text:a.value));//必须要判断
+                if(!allgrp.ContainsKey(grpkey))
+                {
+                    allgrp.Add(grpkey, new UpdateData());
+                }
+                grpkeys.ForEach(keyitem =>
+                {
+                    if(!allgrp[grpkey].Items.ContainsKey(keyitem.datapoint.Name))
+                        allgrp[grpkey].Items.Add(keyitem.datapoint.Name,keyitem);
+                });
+                allgrp[grpkey].SubItems.Add(subitem);
+            });
+            if(SumItems!= null&& SumItems.Trim().Length > 0)
+            {
+                string[] sums = SumItems.Split(',');
+                allgrp.Values.ToList().ForEach(grp=> { //对合并计算项加入items,值为和
+                    sums.ToList().ForEach(si =>
+                    {
+                        UpdateItem ui = new UpdateItem(si,null);
+                        if (grp.Items.ContainsKey(si))
+                        {
+                            ui = grp.Items[si];
+                        }
+
+                        ui.value = grp.SubItems.Sum(sui => 
+                            {
+                                UpdateItem ssui = sui.Items[si];
+                                string intval = ssui.value;
+                                long retlng = 0;
+                                long.TryParse(intval, out retlng);
+                                return retlng;
+
+                            }).ToString();
+                        ui.text = grp.SubItems.Sum(sui =>
+                        {
+                            UpdateItem ssui = sui.Items[si];
+                            string intval = ssui.text;
+                            long retlng = 0;
+                            long.TryParse(intval, out retlng);
+                            return retlng;
+
+                        }).ToString();
+                    });
+
+                });
+            }
+            ret.SubItems.Clear();
+            allgrp.Values.ToList().ForEach(
+                grp=> {
+                    ret.SubItems.Add(grp);
+                });
+            return ret;
+        }
 
         #region ICloneable 成员
 

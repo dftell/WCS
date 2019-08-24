@@ -128,7 +128,7 @@ namespace WolfInv.Com.jdyInterfaceLib
         
         public string getJsonPath(string name)
         {
-            string strPath = string.Format("{0}Json\\{1}.json", AppDomain.CurrentDomain.BaseDirectory, name);
+            string strPath = string.Format("{0}Json\\{1}.json", AppDomain.CurrentDomain.BaseDirectory, name.Replace("/", "\\"));
             if (File.Exists(strPath))
             {
                 return strPath;
@@ -136,9 +136,11 @@ namespace WolfInv.Com.jdyInterfaceLib
             return null;
         }
 
-        public string getFilePath(string name,string folder="json",string type=".json")
+        public string getFilePath(string name,string folder="",string type="")
         {
-            string strPath = string.Format("{0}{2}\\{1}{3}", AppDomain.CurrentDomain.BaseDirectory, name,folder,type);
+            if (name == null)
+                return null;
+            string strPath = string.Format("{0}{2}\\{1}{3}", AppDomain.CurrentDomain.BaseDirectory, name.Replace("/","\\"),folder,type);
             if (File.Exists(strPath))
             {
                 return strPath;

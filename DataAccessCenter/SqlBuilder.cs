@@ -662,7 +662,7 @@ namespace WolfInv.Com.DataCenter
             }
             else//错误
             {
-                return string.Format("表{0}配置错误！", subtable);
+                //return string.Format("表{0}配置错误！", subtable);  支持外部数据，该句取消
             }
             if (seckey == null)
             {
@@ -1011,10 +1011,16 @@ namespace WolfInv.Com.DataCenter
             if(condition != null && condition.Datapoint!=null)
             {
                 keycol= DataAccessCenter.DataColumnMappings[condition.Datapoint.Name];
+               
             }
             #region for
             for (int i = 0; i < datas.Count; i++)
             {
+                DataColumn currdc =     DataAccessCenter.DataColumnMappings[datas[i].datapoint.Name];
+                if(currdc.IsIden)
+                {
+                    continue;
+                }
                 if (!datas[i].Validate || datas[i].datapoint.Name == key.Name)//如果更新主键，跳过
                 {
                     continue;

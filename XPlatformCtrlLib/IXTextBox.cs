@@ -17,7 +17,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
 
     public interface IXPanel : IXControl, IXContainerControl
     {
-
+        bool InForm { get; set; }
     }
 
     

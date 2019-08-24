@@ -115,6 +115,10 @@ namespace WolfInv.Com.CommFormCtrlLib
                 }
                 else
                 {
+                    if(ret.Items[fromstr].text == null)
+                    {
+                        ret.Items[fromstr].text = ret.Items[fromstr].value;
+                    }
                     pc.ChangeValue(ret.Items[fromstr].value, ret.Items[fromstr].text);//传递返回的值
                 }
             }

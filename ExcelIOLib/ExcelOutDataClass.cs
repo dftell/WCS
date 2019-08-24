@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using WolfInv.Com.WCS_Process;
+using WolfInv.Com.WCSExtraDataInterface;
 using System.Data;
 using System.IO;
 using XmlProcess;
 using WolfInv.Com.JsLib;
 namespace WolfInv.Com.ExcelIOLib
 {
-    public class ExcelOutDataClass : WCSExtraDataInterface
+    public class ExcelOutDataClass : IWCSExtraDataInterface
     {
         public string getFilePath(string name, string folder = "json", string type = ".json")
         {
@@ -40,9 +40,9 @@ namespace WolfInv.Com.ExcelIOLib
             }
 
         }
-        public DataSet getDataSet(XmlNode config)
+        public bool getDataSet(XmlNode config,ref DataSet ds,ref string msg)
         {
-            DataSet ds = new DataSet();
+            ds = null;
             ExcelSheetDefineClass obj = new ExcelSheetDefineClass();
             string strDefinedfile = XmlUtil.GetSubNodeText(config, "@definepath");
             string strDefinedType = "";
@@ -54,7 +54,8 @@ namespace WolfInv.Com.ExcelIOLib
             
             if (obj == null)
             {
-                return ds;
+                msg = "导入选项未正常配置！";
+                return false;
             }
             if (sheetname.Trim().Length > 0)
             {
@@ -63,27 +64,47 @@ namespace WolfInv.Com.ExcelIOLib
             //ExcelSheetDefineClass useObj = new ExcelSheetDefineClass(obj.QuickTitleList, obj.QuickTitleRefList, 1, 2);
             if (fPath == null)
             {
-                //MessageBox.Show("请先选择需要导入的文件！");
-                return ds;
+                msg = ("请先选择需要导入的文件！");
+                return false;
             }
 
             ExcelDefineReader edr = new ExcelDefineReader(obj);
             ReadResult ret = edr.GetResult(fPath);
             if (ret.Succ == false)
             {
-                
-                return ds;
+                msg = ret.Message;
+                return false;
             }
             ds = ret.ReData;
-            return ds;
+            return true;
         }
 
-        public string getJsonData(XmlNode config)
+       
+
+        
+
+        public bool writeXmlData(XmlNode config, DataSet data,ref XmlDocument xmldoc, ref XmlDocument xmlshema,ref string msg, string writetype = "Add")
+        {
+
+            return false;
+        }
+
+        public bool getJsonData(XmlNode config, ref string strJson, ref string msg)
         {
             throw new NotImplementedException();
         }
 
-        public XmlDocument getXmlData(XmlNode config, ref XmlDocument xmlshema)
+        public bool getXmlData(XmlNode config, ref XmlDocument ret, ref XmlDocument xmlshema, ref string msg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool writeJsonData(XmlNode config, DataSet data, ref string strJson, ref string msg, string writetype = "Add")
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool writeDataSet(XmlNode config, DataSet data, ref DataSet ret, ref string msg, string writetype = "Add")
         {
             throw new NotImplementedException();
         }

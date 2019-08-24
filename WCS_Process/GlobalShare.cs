@@ -5,6 +5,8 @@ using System.Xml;
 using XmlProcess;
 using WolfInv.Com.MetaDataCenter;
 using System.Reflection;
+using System.Linq;
+
 namespace WolfInv.Com.WCS_Process
 {
     public enum SystemMode
@@ -116,7 +118,22 @@ namespace WolfInv.Com.WCS_Process
         {
             
         }
-        
+
+        public static bool IsSystemParam(string strPoint, out string val)
+        {
+            val = null;
+            if (strPoint == null)
+                return false;
+            strPoint = strPoint.Trim().Replace("{", "").Replace("}", "").Trim();
+            if (GlobalShare.UserAppInfos.First().Value.appinfo.UserInfo.Items.ContainsKey(strPoint))
+            {
+                val = GlobalShare.UserAppInfos.First().Value.appinfo.UserInfo.Items[strPoint].value;
+                return true;
+            }
+            return false;
+        }
+
+
         public static void Init(string strAppPath)
         {
             if (FileConnectObjs == null)

@@ -7,6 +7,7 @@ using WolfInv.Com.MetaDataCenter;
 using WolfInv.Com;
 using System.Linq;
 using System.Xml.Linq;
+using WolfInv.Com.WCSExtraDataInterface;
 namespace WolfInv.Com.WCS_Process
 {
     public interface iExtraData
@@ -168,11 +169,42 @@ namespace WolfInv.Com.WCS_Process
             {
                 msg = null;
                 WCSExtraDataAdapter adp = new WCSExtraDataAdapter(ds.extradataconvertconfig);
-                DataSet ret = adp.getData(ds.extradataassembly, ds.extradataclass, ds.extradatagetconfig, ds.extradatatype, ref msg);
-                //DataSet ds = null;
-                return FilterExtraData(ret,dc);
+                DataSet ret = null;
+                bool succ = adp.getData(ds.extradataassembly, ds.extradataclass, ds.extradatagetconfig, ds.extradatatype, ref ret,ref msg);
+                if (succ == true)
+                    return FilterExtraData(ret, dc);
+                else
+                {
+                    return null;
+                }
             }
             return GlobalShare.DataCenterClientObj.GetData(ds, dc,out msg);
+        }
+        public static UpdateData getDefaultData(string dsrcName,string uid)
+        {
+            if (!GlobalShare.UserAppInfos.ContainsKey(uid))
+            {
+                return null;
+            }
+
+            if (!GlobalShare.UserAppInfos[uid].mapDataSource.ContainsKey(dsrcName))
+            {
+                return null;
+            }
+            DataSource dsr = GlobalShare.UserAppInfos[uid].mapDataSource[dsrcName];
+            UpdateData ud = new UpdateData();
+            foreach (DataPoint dpt in dsr.AllDataPoint.Values)
+            {
+                if (ud.Items.ContainsKey(dpt.Name))
+                {
+                    continue;
+                }
+                string val = null;
+                
+                ud.Items.Add(dpt.Name, new UpdateItem(dpt.Name, val));
+
+            }
+            return ud;
         }
 
         public static DataSet InitDataSource(DataSource dsrobj, List<DataCondition> dcs, out string msg)
@@ -181,8 +213,13 @@ namespace WolfInv.Com.WCS_Process
             {
                 msg = null;
                 WCSExtraDataAdapter adp = new WCSExtraDataAdapter(dsrobj.extradataconvertconfig);
-                DataSet ds = adp.getData(dsrobj.extradataassembly, dsrobj.extradataclass, dsrobj.extradatagetconfig, dsrobj.extradatatype, ref msg);
+                DataSet ds = null;
+                bool succ = adp.getData(dsrobj.extradataassembly, dsrobj.extradataclass, dsrobj.extradatagetconfig, dsrobj.extradatatype,ref ds, ref msg);
                 //DataSet ds = null;
+                if(!succ)
+                {
+                    return null;
+                }
                 return FilterExtraData(ds,dcs);
             }
             return GlobalShare.DataCenterClientObj.GetData(dsrobj, dcs, out msg);
@@ -262,12 +299,77 @@ namespace WolfInv.Com.WCS_Process
                         val = ds.Tables[0].Rows[i][dpt.Name].ToString();
                     }
                     ud.Items.Add(dpt.Name, new UpdateItem(dpt.Name, val));
+                   
                 }
-                
+                foreach(DataColumn dc in ds.Tables[0].Columns)
+                {
+                    if (ud.Items.ContainsKey(dc.ColumnName))
+                        continue;
+                    ud.Items.Add(dc.ColumnName,new UpdateItem(dc.ColumnName, ds.Tables[0].Rows[i][dc.ColumnName].ToString()));
+                }
+
                 ret.Add(ud);
             }
             return ret;
         }
+
+        public static DataSet UpdateData2DataSet(List<UpdateData> uds,ref DataSet ret,string key,string keyval)
+        {
+            DataSet ds = ret;
+            if (ds == null)
+                ds = new DataSet();
+            if (ds.Tables.Count <= 0)
+                ds.Tables.Add();
+            int curridx = ds.Tables.Count - 1;
+            DataTable currtab = ds.Tables[curridx];
+            //DataSet ret = new DataSet();
+            if (uds.Count == 0)
+                return null;
+            UpdateData ud = uds.First();
+            ud.Items.ToList().ForEach(a=> {
+                if(!currtab.Columns.Contains(a.Key))
+                    currtab.Columns.Add(a.Key);
+                if(ud.keydpt.Name ==a.Key)
+                {
+                    if(keyval!=null && keyval.Trim().Length == 0)
+                        keyval = a.Value.value;
+                }
+            });
+            if(ud.keyvalue!=null&& ud.keyvalue.Trim().Length>0)
+            {
+                keyval = ud.keyvalue;
+            }
+            if(key != null)
+            {
+                if(!currtab.Columns.Contains(key))
+                    currtab.Columns.Add(key);
+                if (ud.SubItems.Count > 0)
+                {
+                    ds.Tables.Add();//新加一个表
+                    UpdateData2DataSet(ud.SubItems, ref ds, key, keyval);
+                }
+            }
+            
+            
+            uds.ForEach(a => {
+
+                DataRow dr = currtab.NewRow();
+                ud.Items.ToList().ForEach(b=> {
+                    dr[b.Key] = b.Value.value;
+                });
+                if (key != null)
+                {
+                    dr[key] = keyval;
+                }
+                currtab.Rows.Add(dr);
+            });
+            
+            
+            return ds;
+        }
+
+
+
 
         #region ICloneable 成员
 

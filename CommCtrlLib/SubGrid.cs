@@ -18,7 +18,7 @@ namespace WolfInv.Com.CommCtrlLib
         {
             return GetUpdateData(true);
         }
-        public List<UpdateData> GetUpdateData(bool checkupdated)
+        public List<UpdateData> GetUpdateData(bool checkupdated,bool getText = false)
         {
             List<UpdateData> ret = new List<UpdateData>();
             if (listobj == null || listobj.Items == null)
@@ -40,7 +40,8 @@ namespace WolfInv.Com.CommCtrlLib
                         UpdateItem ui = new UpdateItem();
                         ui.datapoint = this.Columns[c].dpt;
                         ui.value = gr.Items[this.Columns[c].DataField].value;
-                        if(!subitem.Items.ContainsKey(this.Columns[c].dpt.Name))
+                        ui.text = gr.Items[this.Columns[c].DataField].text;
+                        if (!subitem.Items.ContainsKey(this.Columns[c].dpt.Name))
                             subitem.Items.Add(this.Columns[c].dpt.Name,ui);
                         if (this.Columns[c].IsKeyValue)
                         {
@@ -83,7 +84,9 @@ namespace WolfInv.Com.CommCtrlLib
                         GridCell gc = new GridCell();
                         gc.value = newData.Items[dpt].value;
                         //gc.text = Grid.GetValue(newData.Items[dpt].text, dgcs[dpt], _frmhandle.strUid);
-                        gc.text = dgcs[dpt].getValue(_frmhandle.strUid, newData);
+                        gc.text = newData.Items[dpt].text;
+                        if(gc.text == null || gc.text.Trim().Length == 0)
+                            gc.text = dgcs[dpt].getValue(_frmhandle.strUid, newData);
                         iv.ItemValues.Add(dpt, gc.value);
                         if (dgcs[dpt].IsKeyText)
                         {

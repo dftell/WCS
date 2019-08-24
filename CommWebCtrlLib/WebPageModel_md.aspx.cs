@@ -397,7 +397,7 @@ namespace WolfInv.Com.CommWebCtrlLib
                 foreach (DataTranMapping data in this.TranData)
                 {
                     DataCondition datacond = new DataCondition();
-                    datacond.value = data.FromDataPoint;
+                    datacond.value = data.FromDataPoint.Text;
                     datacond.Datapoint = new DataPoint(data.ToDataPoint);
                     conds.Add(datacond);
                 }
@@ -421,7 +421,7 @@ namespace WolfInv.Com.CommWebCtrlLib
                     }
                 case "SaveClose":
                     {
-                        if (ToolBar_SaveClose())
+                        if (ToolBar_SaveClose(mnu))
                         {
                             ToolBar_RefreshData();
                         }
@@ -429,7 +429,7 @@ namespace WolfInv.Com.CommWebCtrlLib
                     }
                 case "SaveNew":
                     {
-                        ToolBar_SaveAndCreateNew();
+                        ToolBar_SaveAndCreateNew(mnu);
                         break;
                     }
                 case "New":
@@ -439,7 +439,7 @@ namespace WolfInv.Com.CommWebCtrlLib
                     }
                 case "Remove":
                     {
-                        ToolBar_Remove();
+                        ToolBar_Remove(mnu);
                         break;
                     }
                 case "ExportExcel":
@@ -481,13 +481,13 @@ namespace WolfInv.Com.CommWebCtrlLib
             }
         }
 
-        protected bool SaveClose_Click()
+        protected bool SaveClose_Click(CMenuItem mnu)
         {
             if (!CheckData())
             {
                 return false;
             }
-            if (Save())
+            if (Save(mnu))
             {
 
                 //(this.TopLevelControl as Form).Close();
@@ -511,13 +511,13 @@ namespace WolfInv.Com.CommWebCtrlLib
             return true;
         }
 
-        protected void SaveNew_Click()
+        protected void SaveNew_Click(CMenuItem mnu)
         {
             if (!CheckData())
             {
                 return;
             }
-            if (Save())
+            if (Save(mnu))
             {
                 this.strRowId = "";
                 LoadControls();
@@ -558,11 +558,11 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         public virtual event ToolBarHandle ToolBar_EditView;
 
-        public virtual event ToolBarHandle ToolBar_PrintPDF;
+        public virtual event AddExistHandle ToolBar_PrintPDF;
 
         public virtual event ToolBarResponseHandle ToolBar_SaveClose;
 
-        public virtual event ToolBarHandle ToolBar_SaveAndCreateNew;
+        public virtual event AddExistHandle ToolBar_SaveAndCreateNew;
 
         public virtual event AddExistHandle ToolBar_AddExist;
 
@@ -570,7 +570,7 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         public virtual event ToolBarHandle ToolBar_RefreshData;
 
-        public virtual event ToolBarHandle ToolBar_Remove;
+        public virtual event AddExistHandle ToolBar_Remove;
 
         public virtual event ToolBarHandle ToolBar_Export;
 
@@ -592,7 +592,7 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         public virtual void RefreshData_Click() { }
 
-        public virtual UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData)
+        public virtual UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData,bool getText=false)
         {
             UpdateData ret = new UpdateData();
             if (this.TranData == null) return ret;
@@ -603,7 +603,7 @@ namespace WolfInv.Com.CommWebCtrlLib
                     if (!ret.Items.ContainsKey(this.TranData[i].ToDataPoint))
                     {
 
-                        ret.Items.Add(this.TranData[i].ToDataPoint, new UpdateItem(this.TranData[i].ToDataPoint, this.TranData[i].FromDataPoint));
+                        ret.Items.Add(this.TranData[i].ToDataPoint, new UpdateItem(this.TranData[i].ToDataPoint, this.TranData[i].FromDataPoint.Text));
                     }
                 }
             }
@@ -642,7 +642,7 @@ namespace WolfInv.Com.CommWebCtrlLib
 
         }
 
-        public virtual bool Save()
+        public virtual bool Save(CMenuItem mnu)
         {
             throw new Exception("The method or operation is not implemented.");
         }
@@ -675,9 +675,9 @@ namespace WolfInv.Com.CommWebCtrlLib
             ToolBar_Clicked += new EventHandler(ToolBarBtn_Click);
             ToolBar_OnSimpleSearchClicked += new EventHandler(SimpleSearch);
             ToolBar_OkNoSave += new ToolBarHandle(OkNoSave_Click);
-            ToolBar_SaveClose += new ToolBarResponseHandle(SaveClose_Click);
-            ToolBar_SaveAndCreateNew += new ToolBarHandle(SaveNew_Click);
-            ToolBar_RefreshData += new ToolBarHandle(RefreshData_Click);
+            ToolBar_SaveClose += SaveClose_Click;
+            ToolBar_SaveAndCreateNew += SaveNew_Click;
+            ToolBar_RefreshData += RefreshData_Click;
             ToolBar_OtherEvent += new AddExistHandle(ToolBar_OtherEvent_Click);
             ToolBar_ExportTo += new AddExistHandle(frm_Model_ToolBar_ExportTo);
         }

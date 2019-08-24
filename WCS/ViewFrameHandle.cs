@@ -28,7 +28,7 @@ namespace WCS
         {
         }
 
-        public override UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData)
+        public override UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData,bool getText=false)
         {
             return new UpdateData();
         }
@@ -60,7 +60,10 @@ namespace WCS
             GridObj = new Grid(this);
             GridObj.listViewObj = listView1;
             GridObj.FillGrid(cmbNode);
-
+            GridObj.AllowGroup = GridObj.listViewObj.AllowGroup;
+            GridObj.GroupBy = GridObj.listViewObj.GroupBy;
+            GridObj.AllowSum = GridObj.listViewObj.AllowSum;
+            GridObj.SumItems = GridObj.listViewObj.SumItems;
         }
 
         protected void FillData(DataSet ds)

@@ -18,7 +18,7 @@ using WolfInv.Com.XPlatformCtrlLib;
 using System.Linq;
 namespace WCS
 {
-    public partial class frm_MainSubFrame : frm_Model, ISaveableInterFace,IMutliDataInterface
+    public partial class frm_MainSubFrame : frm_Model, IMutliDataInterface
     {
         
 
@@ -71,7 +71,10 @@ namespace WCS
             GridObj.Lbl_Title  = this.Label_Title;
             GridObj.listViewObj = this.listView1;
             GridObj.FillGrid(cmbNode);
-
+            GridObj.AllowGroup = GridObj.listViewObj.AllowGroup;
+            GridObj.GroupBy = GridObj.listViewObj.GroupBy;
+            GridObj.AllowSum = GridObj.listViewObj.AllowSum;
+            GridObj.SumItems = GridObj.listViewObj.SumItems;
             if (GridObj.Lbl_Title != null)
                 GridObj.Lbl_Title.Text = XmlUtil.GetSubNodeText(cmbNode, "@title");
 
@@ -124,58 +127,70 @@ namespace WCS
         {
             this.Cursor = Cursors.WaitCursor;
             this.LoadFlag = false;
-            if (LoadControls() == false)
+            try
             {
-                //this.LoadFlag = true;
-                //this.LoadFlag = true;
-                this.Cursor = Cursors.Default;
-                return;
-            }
-            InitEditPanelDefaultValue();
-            PanelObj.CoverData(this.NeedUpdateData, strRowId != "");
-            if (strRowId != "")
-            {
-                string msg = null;
-                GridData = InitDataSource(DetailSource, out msg);
-                if (msg != null)
+                if (LoadControls() == false)
                 {
-                    this.Cursor = Cursors.Default;
                     //this.LoadFlag = true;
-                    MessageBox.Show(msg);
+                    //this.LoadFlag = true;
+                    this.Cursor = Cursors.Default;
                     return;
                 }
-                PanelObj.FillData(GridData);
-                
+                InitEditPanelDefaultValue();
+                PanelObj.CoverData(this.NeedUpdateData, strRowId != "");
+                if (strRowId != "")
+                {
+                    string msg = null;
+                    GridData = InitDataSource(DetailSource, out msg);
+                    if (msg != null)
+                    {
+                        this.Cursor = Cursors.Default;
+                        //this.LoadFlag = true;
+                        MessageBox.Show(msg);
+                        return;
+                    }
+                    PanelObj.FillData(GridData);
+
+                }
+                if (strRowId != "")
+                {
+                    string msg = null;
+                    DataSet ds = InitDataSource(GridSource, out msg);
+                    if (msg != null)
+                    {
+                        this.Cursor = Cursors.Default;
+                        //this.LoadFlag = true;
+                        MessageBox.Show(msg);
+                        return;
+                    }
+                    FillGridData(ds);
+                    if (InjectedDatas != null)
+                    {
+                        FillGridData(InjectedDatas);
+                    }
+
+                }
+                else
+                {
+                    if (this.InjectedDatas != null)
+                    {
+                        FillGridData(InjectedDatas);
+                    }
+                    //外部数据
+                    if (this.NeedUpdateData != null && this.NeedUpdateData.SubItems != null && this.NeedUpdateData.SubItems.Count > 0)
+                    {
+                        FillGridData(NeedUpdateData.SubItems);
+                    }
+                }
+                this.LoadFlag = true;
             }
-            if (strRowId != "")
+            catch
             {
-                string msg = null;
-                DataSet ds = InitDataSource(GridSource, out msg);
-                if (msg != null)
-                {
-                    this.Cursor = Cursors.Default;
-                    //this.LoadFlag = true;
-                    MessageBox.Show(msg);
-                    return;
-                }
-                FillGridData(ds);
-                if(InjectedDatas!=null)
-                {
-                    FillGridData(InjectedDatas);
-                }
-     
+                this.LoadFlag = false;
             }
-            else
-            {
-                //外部数据
-                if (this.NeedUpdateData != null && this.NeedUpdateData.SubItems!= null && this.NeedUpdateData.SubItems.Count > 0)
-                {
-                    FillGridData(NeedUpdateData.SubItems);
-                }
-            }
-            this.LoadFlag = true;
             this.Cursor = Cursors.Default;
             //this.Refresh();
+
         }
 
         void AddExist_Click(CMenuItem mnu)
@@ -201,7 +216,7 @@ namespace WCS
                     for (int i = 0; i < mnu.TranDataMapping.Count; i++)
                     {
                         DataTranMapping dtm = mnu.TranDataMapping[i];
-                        if (!gr.Items.ContainsKey(dtm.FromDataPoint))//如果map中值不在grid ,contine
+                        if (!gr.Items.ContainsKey(dtm.FromDataPoint.Name))//如果map中值不在grid ,contine
                         {
                             continue;
                         }
@@ -209,22 +224,22 @@ namespace WCS
                         {
                             if (this.strKey == dtm.ToDataPoint)//如果主键在map中，将主健值赋予相应的列
                             {
-                                gr.Items[dtm.FromDataPoint].value = strRowId;
-                                gr.Items[dtm.FromDataPoint].Updated = true;
+                                gr.Items[dtm.FromDataPoint.Name].value = strRowId;
+                                gr.Items[dtm.FromDataPoint.Name].Updated = true;
                             }
                             else
                             {
                                 if (!GlobalShare.DataPointMappings.ContainsKey(dtm.ToDataPoint))
                                 {
-                                    gr.Items[dtm.FromDataPoint].value = dtm.ToDataPoint;//常量
-                                    gr.Items[dtm.FromDataPoint].Updated = true;
+                                    gr.Items[dtm.FromDataPoint.Name].value = dtm.ToDataPoint;//常量
+                                    gr.Items[dtm.FromDataPoint.Name].Updated = true;
                                 }
                             }
                         }
                         else
                         {
-                            gr.Items[dtm.FromDataPoint].value = subdata.Items[dtm.ToDataPoint].value;
-                            gr.Items[dtm.FromDataPoint].Updated = true;
+                            gr.Items[dtm.FromDataPoint.Name].value = subdata.Items[dtm.ToDataPoint].value;
+                            gr.Items[dtm.FromDataPoint.Name].Updated = true;
                         }
                     }
                 }
@@ -263,44 +278,21 @@ namespace WCS
             return true;
         }
         
-        public override bool Save()
+        public override bool Save(CMenuItem mnu)
         {
-            return SaveData(DataRequestType.Update);
+            if( SaveData(mnu,DataRequestType.Update))
+            {
+                MessageBox.Show("保存成功");
+                return true;
+            }
+            return false;
         }
 
-        public  bool SaveData(DataRequestType type=DataRequestType.Update)
+        public override bool SaveClientData(UpdateData updata, DataRequestType type = DataRequestType.Update)
         {
-            if (PanelObj == null)
-                PanelObj = this.tableLayoutPanel1.Tag as EditPanel;
-            if (PanelObj.ControlList == null) return false;
-            int cnt = 0;
-            UpdateData updata = this.GetUpdateData(true);
-            if (!updata.Updated) return true;
-            DataSource ds = GlobalShare.mapDataSource[DetailSource];
-            List<DataCondition> conds = new List<DataCondition>();
-            DataCondition dcond = new DataCondition();
-            dcond.Datapoint = new DataPoint(this.strKey);
-            dcond.value = this.strRowId;
-            conds.Add(dcond);
-            //DataRequestType type = DataRequestType.Update;
-            if (this.strRowId == null || this.strRowId == "")
-            {
-                type = DataRequestType.Add;
-            }
-            if (GlobalShare.mapDataSource.ContainsKey(this.GridSource))
-            {
-                DataSource grid_source = GlobalShare.mapDataSource[this.GridSource];
-                ds.SubSource = grid_source;
-            }
-            //updata.SubItems.Where(a=>a.ReqType)
-            string msg = GlobalShare.DataCenterClientObj.UpdateDataList(ds, dcond, updata, type);
-            if (msg != null)
-            {
-                MessageBox.Show(msg);
-                return false;
-            }
-            return true;
+            return base.SaveClientData(updata, type);
         }
+       
 
         void InitEditPanel(XmlNode xmldoc)
         {
@@ -312,7 +304,7 @@ namespace WCS
             }
             PanelObj = new EditPanel(strUid);
             PanelObj.OwnerForm = this;
-            PanelObj.Fill(cmbNode);
+            PanelObj.Fill(cmbNode,NeedUpdateData);
             //if(PanelObj.Height > 0)
             //    this.splitContainer_detail.SplitterDistance = PanelObj.Height;
             //edit panel列处理
@@ -397,40 +389,49 @@ namespace WCS
         {
             CMenuItem mnu = (sender as ToolStripButton).Tag as CMenuItem;
             if (mnu == null) return;
-            switch (mnu.MnuId)
+            try
             {
-                case "Remove":
-                    {
-                        RemoveSubItem();
-                        break;
-                    }
-                case "RemoveAll":
-                    {
-                        RemoveAllSubItem();
-                        
-                        break;
-                    }
-                case "AddNew":
-                    {
-                        AddNewSubItem(mnu);
-                        break;
-                    }
-                case "AddExist":
-                    {
-                        //AddExist(mnu);
-                        AddExist_Click(mnu);
-                        //OnAddExit(mnu);
-                        break;
-                    }
-                case "Import":
-                    {
-                        ImportData(mnu);
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
+                switch (mnu.MnuId)
+                {
+                    case "Remove":
+                        {
+                            RemoveSubItem();
+                            break;
+                        }
+                    case "RemoveAll":
+                        {
+                            RemoveAllSubItem();
+
+                            break;
+                        }
+                    case "AddNew":
+                        {
+                            AddNewSubItem(mnu);
+                            break;
+                        }
+                    case "AddExist":
+                        {
+                            //AddExist(mnu);
+                            AddExist_Click(mnu);
+                            //OnAddExit(mnu);
+                            break;
+                        }
+                    case "Import":
+                        {
+
+                            ImportData(mnu);
+
+                            break;
+                        }
+                    default:
+                        {
+                            break;
+                        }
+                }
+            }
+            catch (Exception ce)
+            {
+                MessageBox.Show(ce.Message);
             }
         }
 
@@ -518,7 +519,7 @@ namespace WCS
                 return;
             if (this.listView1.CheckedItems.Count == 0)
                 return;
-            if (this.SaveData(DataRequestType.Delete))//如果
+            if (this.SaveData(null,DataRequestType.Delete))//如果
             {
                 this.frm_MainSubFrame_Load(null, null);
             }
@@ -530,11 +531,21 @@ namespace WCS
 
         private void listView1_DoubleClick(object sender, EventArgs e)
         {
-            if (!this.LoadFlag) return;
+            if (!this.LoadFlag)
+                return;
             ListGridItem lvi = this.listView1.SelectedItems[0] as ListGridItem;
 
             //ListGridItem lvi = this.listView1.GetItemAt(tmpPoint.X, tmpPoint.Y);
             if (lvi == null) return;
+            if(lvi.Tag is GridRow)
+            {
+
+            }
+            else
+            {
+                MessageBox.Show("合并项无双击响应事件！");
+                return;
+            }
             ItemValue iv = (lvi.Tag as GridRow).ItemValues;
             if (iv == null) return;
             if (GridObj == null) GridObj = this.listView1.Tag as SubGrid;
@@ -563,7 +574,7 @@ namespace WCS
             return GetUpdateData(CheckValueChanged, true);
         }
 
-        public override UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData=true)
+        public override UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData = true, bool getText = false)
         {
             
             UpdateData updata = new UpdateData();
@@ -586,7 +597,11 @@ namespace WCS
             }
             if (GridObj == null)
                 GridObj = this.listView1.Tag as SubGrid;
-            updata.SubItems = GridObj.GetUpdateData(CheckValueChanged);
+            updata.SubItems = GridObj.GetUpdateData(CheckValueChanged,  getText);
+            updata.AllowSum = GridObj.AllowSum;
+            updata.AllowGroup = GridObj.AllowGroup;
+            updata.GroupBy = GridObj.GroupBy;
+            updata.SumItems = GridObj.listViewObj.SumItems;
             cnt += updata.SubItems.Count;
             updata.keydpt = new DataPoint(this.strKey);
             updata.keyvalue = this.strRowId;

@@ -19,7 +19,7 @@ namespace WolfInv.Com.CommCtrlLib
     ////public delegate void OkNoSaveHandle(object sender);
 
     public delegate void ToolBarHandle();
-    public delegate bool ToolBarResponseHandle();
+    public delegate bool ToolBarResponseHandle(CMenuItem mnu);
     //public delegate UpdateData GetUpdateData(bool JudgeValueChanged);
     public interface IFrame : ITag, IModuleControl,IUserData
     {
@@ -30,7 +30,7 @@ namespace WolfInv.Com.CommCtrlLib
         event ToolBarHandle ToolBar_ListSelectedItemsClicked;
         event ToolBarHandle ToolBar_EditView;
         event ToolBarResponseHandle ToolBar_SaveClose;
-        event ToolBarHandle ToolBar_SaveAndCreateNew;
+        event AddExistHandle ToolBar_SaveAndCreateNew;
         event AddExistHandle ToolBar_AddExist;
         event AddExistHandle ToolBar_NewCreate;
         event ToolBarHandle ToolBar_RefreshData;
@@ -42,9 +42,11 @@ namespace WolfInv.Com.CommCtrlLib
         event AddExistHandle ToolBar_OtherEvent;
         event AddExistHandle ToolBar_ExportTo;
 
-        UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData);
+        UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData=true,bool getText=false);
         UpdateData GetUpdateData(bool JudgeValueChanged);
-        bool Save();
+        bool Save(CMenuItem mnu);
+
+        
         bool CheckData();
         void InitEvent();
         bool LoadControls();

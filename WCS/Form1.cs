@@ -182,9 +182,9 @@ namespace WCS
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.Lbl_SystemName.Text = GlobalShare.SystemAppInfo.Title;
+            this.Lbl_SystemName.Text = GlobalShare.SystemAppInfo.FormText;
             FrameSwitch.SystemText = GlobalShare.SystemAppInfo.Title;
-            this.Text = GlobalShare.SystemAppInfo.FormText;
+            this.Text = GlobalShare.SystemAppInfo.Title;
             string iconpath = string.Format("{0}\\{1}", GlobalShare.AppPath, GlobalShare.SystemAppInfo.IconPath);
             if (File.Exists(iconpath))
             {

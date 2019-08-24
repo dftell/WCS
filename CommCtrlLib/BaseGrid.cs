@@ -9,18 +9,36 @@ using WolfInv.Com.XPlatformCtrlLib;
 
 namespace WolfInv.Com.CommCtrlLib
 {
+    public interface ICalcGrid : ITag, ICalc
+    {
+
+
+
+        Dictionary<string, CommCtrlLib.DataGridColumn> DataGridColumns { get; }
+        //IDataFieldHeaderColumnCollection Columns { get;set;}
+        //IDataItemColumnCollection Items { get;set;}
+
+
+    }
+
     public interface ITag
     {
         Object Tag { get;set;}
     }
-    public interface ICalcGrid:ITag 
+    
+    public interface IGroupItem
     {
-        bool AllowSum { get;set; }
-        Dictionary<string, CommCtrlLib.DataGridColumn> DataGridColumns { get;}
-        //IDataFieldHeaderColumnCollection Columns { get;set;}
-        //IDataItemColumnCollection Items { get;set;}
-        
+        GridItemGroup Group { get; set; }
+    }
+    public class GridItemGroup
+    {
+        public GridItemGroup()
+        {
+            Items = new List<GridRow>();
+        }
 
+        public BaseGrid Grid { get; set; }
+        public List<GridRow> Items { get; set; }
     }
 
     public interface IDataFieldHeaderColumn
@@ -48,7 +66,7 @@ namespace WolfInv.Com.CommCtrlLib
     ////{
     ////}
 
-    public abstract class BaseGrid 
+    public abstract class BaseGrid:ICalc
     {
         public IUserData frmhandle;
 
@@ -88,17 +106,22 @@ namespace WolfInv.Com.CommCtrlLib
         public Dictionary<string, ViewItem> ViewList = new Dictionary<string, ViewItem>();
 
         public ICalcGrid listViewObj ;
+        public bool AllowSum { get; set; }
+        public bool AllowGroup { get; set; }
+        public string GroupBy { get; set; }
+        public string SumItems { get; set; }
 
- 
-        
         public virtual void FillGrid(XmlNode cmbNode)
         {
 
-
+            
             //gridÁÐ´¦Àí
             if(XmlUtil.GetSubNodeText(cmbNode, "@sum") != null)
                 listViewObj.AllowSum = XmlUtil.GetSubNodeText(cmbNode, "@sum") == "1";
-
+            if (XmlUtil.GetSubNodeText(cmbNode, "@allowgroup") != null)
+                listViewObj.AllowGroup = XmlUtil.GetSubNodeText(cmbNode, "@allowgroup") == "1";
+            listViewObj.GroupBy = XmlUtil.GetSubNodeText(cmbNode, "@groupby");
+            listViewObj.SumItems = XmlUtil.GetSubNodeText(cmbNode, "@sumitems");
             XmlNodeList nodes = cmbNode.SelectNodes("cols/f");
             if (nodes.Count > 0)
             {
@@ -180,7 +203,7 @@ namespace WolfInv.Com.CommCtrlLib
         public string text;
         public bool Updated;
         public bool isKey;
-
+        public DataGridColumn OwnerColumn { get; set; }
     }
 
   

@@ -26,6 +26,7 @@ namespace WolfInv.Com.MetaDataCenter
             XmlNode node = XmlUtil.AddSubNode(parent, "i", true);
             XmlUtil.AddAttribute(node, "f", datapoint.Name);
             XmlUtil.AddAttribute(node, "v", value);
+            XmlUtil.AddAttribute(node, "t", text);
             return node;
         }
 
@@ -48,6 +49,9 @@ namespace WolfInv.Com.MetaDataCenter
         {
             datapoint = new DataPoint(XmlUtil.GetSubNodeText(node, "@f"));
             value = XmlUtil.GetSubNodeText(node, "@v");
+            text = XmlUtil.GetSubNodeText(node, "@t");
+            datapoint.Text = value;
+
         }
     }
 }

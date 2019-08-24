@@ -29,9 +29,12 @@ namespace WolfInv.Com.CommFormCtrlLib
         }
         public MDI_Main(string uid)
         {
+            
             _uid = uid;
+            strUid = uid;
             InitializeComponent();
             //FrameSwitch.ParentForm = this;
+            Main_Plan.InForm = true;
             Init();
             this.MainMenuStrip = this.menuStrip1;
             this.Icon = FrameSwitch.SystemIcon;

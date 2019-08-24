@@ -52,7 +52,7 @@
             this.panel1.Controls.Add(this.btn_yes);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 868);
-            this.panel1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.panel1.Margin = new System.Windows.Forms.Padding(6);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(848, 64);
             this.panel1.TabIndex = 27;
@@ -61,7 +61,7 @@
             // 
             this.btn_Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btn_Cancel.Location = new System.Drawing.Point(736, 16);
-            this.btn_Cancel.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btn_Cancel.Margin = new System.Windows.Forms.Padding(6);
             this.btn_Cancel.Name = "btn_Cancel";
             this.btn_Cancel.Size = new System.Drawing.Size(94, 42);
             this.btn_Cancel.TabIndex = 1;
@@ -72,7 +72,7 @@
             // btn_yes
             // 
             this.btn_yes.Location = new System.Drawing.Point(632, 16);
-            this.btn_yes.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btn_yes.Margin = new System.Windows.Forms.Padding(6);
             this.btn_yes.Name = "btn_yes";
             this.btn_yes.Size = new System.Drawing.Size(94, 42);
             this.btn_yes.TabIndex = 0;
@@ -115,7 +115,7 @@
             // 
             this.comboBox_column.FormattingEnabled = true;
             this.comboBox_column.Location = new System.Drawing.Point(180, 80);
-            this.comboBox_column.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.comboBox_column.Margin = new System.Windows.Forms.Padding(6);
             this.comboBox_column.Name = "comboBox_column";
             this.comboBox_column.Size = new System.Drawing.Size(232, 32);
             this.comboBox_column.TabIndex = 22;
@@ -135,7 +135,7 @@
             this.comboBox_datasources.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_datasources.FormattingEnabled = true;
             this.comboBox_datasources.Location = new System.Drawing.Point(180, 26);
-            this.comboBox_datasources.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.comboBox_datasources.Margin = new System.Windows.Forms.Padding(6);
             this.comboBox_datasources.Name = "comboBox_datasources";
             this.comboBox_datasources.Size = new System.Drawing.Size(640, 32);
             this.comboBox_datasources.TabIndex = 20;
@@ -153,7 +153,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(706, 140);
-            this.button1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button1.Margin = new System.Windows.Forms.Padding(6);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(124, 48);
             this.button1.TabIndex = 29;
@@ -164,7 +164,7 @@
             // txt_searchkey
             // 
             this.txt_searchkey.Location = new System.Drawing.Point(180, 142);
-            this.txt_searchkey.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.txt_searchkey.Margin = new System.Windows.Forms.Padding(6);
             this.txt_searchkey.Name = "txt_searchkey";
             this.txt_searchkey.Size = new System.Drawing.Size(502, 35);
             this.txt_searchkey.TabIndex = 30;
@@ -184,21 +184,24 @@
             // txt_location
             // 
             this.txt_location.Location = new System.Drawing.Point(180, 294);
-            this.txt_location.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.txt_location.Margin = new System.Windows.Forms.Padding(6);
             this.txt_location.Name = "txt_location";
             this.txt_location.Size = new System.Drawing.Size(646, 35);
             this.txt_location.TabIndex = 32;
             // 
             // listView1
             // 
+            this.listView1.AllowGroup = false;
             this.listView1.AllowSum = false;
             this.listView1.CheckBoxes = true;
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
-            this.listView1.Location = new System.Drawing.Point(18, 382);
-            this.listView1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.listView1.GroupBy = null;
+            this.listView1.Location = new System.Drawing.Point(18, 354);
+            this.listView1.Margin = new System.Windows.Forms.Padding(6);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(806, 470);
+            this.listView1.SumItems = null;
             this.listView1.TabIndex = 33;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -225,7 +228,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBox_datasources);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Dlg_CommModel";

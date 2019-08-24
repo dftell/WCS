@@ -27,7 +27,10 @@ namespace WolfInv.Com.CommCtrlLib
     /// </summary>
     public interface ISaveableInterFace : ITranslateableInterFace
     {
-        bool SaveData(DataRequestType type= DataRequestType.Update);
+        bool SaveData(CMenuItem mnu, DataRequestType type = DataRequestType.Update);
+        bool SaveExtraData(CMenuItem mnu, UpdateData data, ref UpdateData ret);//保存外部数据
+
+        bool SaveClientData(CMenuItem mnu, UpdateData updata, DataRequestType type = DataRequestType.Update);
     }
 
    

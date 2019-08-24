@@ -97,6 +97,8 @@ namespace WolfInv.Com.XPlatformCtrlLib
             this.Controls.Add(ctrl as Control);
         }
         public IXControl CurrMainControl { get; set; }
+        public bool InForm { get; set; }
+
         public void Controls_Clear()
         {
             this.Controls.Clear();

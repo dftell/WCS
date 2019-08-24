@@ -257,19 +257,29 @@ namespace WolfInv.Com.CommCtrlLib
                 {
                     for (int i = 0; i < this.TranData.Count; i++)
                     {
-                        if (this.NeedUpdateData.Items.ContainsKey(TranData[i].ToDataPoint))
+                        
+                        string checkname = TranData[i].ToDataPoint;
+                        string toname = checkname;
+                        if (!this.NeedUpdateData.Items.ContainsKey(checkname))
                         {
-                            string strval = this.NeedUpdateData.Items[this.TranData[i].ToDataPoint].value;
+                            checkname = TranData[i].FromDataPoint.Name ;
+                            toname = TranData[i].ToDataPoint;
+                        }
+                        if(!this.NeedUpdateData.Items.ContainsKey(checkname))
+                        {
+                            continue;
+                        }
+                        string strval = this.NeedUpdateData.Items[checkname].value;
                             if (strval == null || strval.Trim().Length == 0)
                             {
                                 continue;
                             }
                             DataCondition cond = new DataCondition();
-                            cond.Datapoint = new DataPoint(TranData[i].ToDataPoint);
+                            cond.Datapoint = new DataPoint(toname);
                             cond.value = strval;
                             cond.Logic = ConditionLogic.And;
                             conds.Add(cond);
-                        }
+                        
                     }
                 }
                 string msg = null;
@@ -287,7 +297,9 @@ namespace WolfInv.Com.CommCtrlLib
             }
             if (dc == null)
             {
-                MessageBox.Show(string.Format("无法转换数据选择项{0}", this.Name));
+                MessageBox.Show(string.Format("无法转换数据选择项{0}，这可能是由网络异常引起的，即将退出软件，请重新登录看是否正常！", strdc));
+                
+               
                 return null;
             }
             if (!GlobalShare.DataChoices.ContainsKey(this.DataSourceName))//不断增加新的datachoice

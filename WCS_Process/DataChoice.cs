@@ -135,7 +135,7 @@ namespace WolfInv.Com.WCS_Process
         /// <param name="txtfld"></param>
         /// <param name="isRowItem"></param>
         /// <returns></returns>
-        public static DataChoice ConvertFromDataSet(DataSet ds, string valfld, string txtfld,bool isRowItem, string splitor=null)
+        public static DataChoice ConvertFromDataSet(DataSet ds, string valfld, string txtfld,bool isRowItem, string splitor=",")
         {
             if (ds == null)
                 return null;

@@ -39,9 +39,9 @@ namespace WCS
             this.panel_bottom.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panel1
+            // panel_Title
             // 
-            //this.panel1.Size = new System.Drawing.Size(1200, 42);
+            this.panel_Title.Size = new System.Drawing.Size(1200, 42);
             // 
             // panel_main
             // 
@@ -53,11 +53,10 @@ namespace WCS
             // 
             // panel_bottom
             // 
-            this.panel_bottom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.panel_bottom.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.panel_bottom.Location = new System.Drawing.Point(0, 838);
+            this.panel_bottom.Location = new System.Drawing.Point(0, 854);
             this.panel_bottom.Margin = new System.Windows.Forms.Padding(12);
-            this.panel_bottom.Size = new System.Drawing.Size(1188, 46);
+            this.panel_bottom.Size = new System.Drawing.Size(1200, 46);
             // 
             // listView1
             // 
@@ -90,6 +89,7 @@ namespace WCS
             this.ToolBar_ListSelectedItemsClicked += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.ListSelectedItems_Click);
             this.ToolBar_EditView += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.EditView_Click);
             this.ToolBar_NewCreate += new WolfInv.Com.CommCtrlLib.AddExistHandle(this.NewCreate_Click);
+            this.ToolBar_Remove += this.frm_View_ToolBar_Remove;
             this.ToolBar_RefreshData += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.RefreshData_Click);
             this.ToolBar_Export += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.Export_Click);
             this.Load += new System.EventHandler(this.frm_View_Load);
@@ -103,7 +103,7 @@ namespace WCS
 
         private void Frm_View_ToolBar_Sync(WolfInv.Com.XPlatformCtrlLib.CMenuItem mnu)
         {
-            XmlDocument xmldoc = getExtraData(mnu);
+            //XmlDocument xmldoc = getExtraData(mnu);
         }
 
 

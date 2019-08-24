@@ -126,7 +126,7 @@ namespace WolfInv.Com.jdyInterfaceLib
             }
 
         }
-        public static string getText(string filepath,string folder,string type)
+        public static string getText(string filepath,string folder="",string type="")
         {
             string file = new JdySystemClass().getFilePath(filepath,folder,type);
             if (!File.Exists(file))
@@ -533,6 +533,8 @@ namespace WolfInv.Com.jdyInterfaceLib
         public string RequestModel { get; set; }
 
         public bool RequestMethodUseGET { get; set; }
-        
+        public string RequestSchema { get; set; }
+
+
     }
 }

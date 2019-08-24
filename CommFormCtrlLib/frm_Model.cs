@@ -14,6 +14,9 @@ using WolfInv.Com.MetaDataCenter;
 using WolfInv.Com.CommCtrlLib;
 using WolfInv.Com.XPlatformCtrlLib;
 using WolfInv.Com.ExcelIOLib;
+using WolfInv.Com.WCSExtraDataInterface;
+using System.Linq;
+
 namespace WolfInv.Com.CommFormCtrlLib
 {
 
@@ -87,7 +90,11 @@ namespace WolfInv.Com.CommFormCtrlLib
         {
             get
             {
-                return (this.TopLevelControl as IMainFrame).CurrMainPanel;
+                if(this.TopLevelControl is IMainFrame)
+                {
+                    return (this.TopLevelControl as IMainFrame).CurrMainPanel;
+                }
+                return null;
             }
         }
 
@@ -134,10 +141,13 @@ namespace WolfInv.Com.CommFormCtrlLib
         {
 
             XmlDocument xmldoc = GetConfigXml();
-            
-            AddComboInToolBar(xmldoc);
-            AddButtonInToolBar(xmldoc);
+            if (xmldoc == null)
+                return;
             AddSimpleSearchInToolBar(xmldoc);
+            AddComboInToolBar(xmldoc);
+            //AddButtonInToolBar(xmldoc);
+            InitToolBarStrips(xmldoc.SelectSingleNode("/root/Action"), this.toolStrip1, ToolBar_Clicked, "Buttons");
+            
         }
 
         void AddComboInToolBar(XmlDocument xmldoc)
@@ -179,7 +189,8 @@ namespace WolfInv.Com.CommFormCtrlLib
         
         void AddButtonInToolBar(XmlDocument xmldoc)
         {
-            if (xmldoc == null) return;
+            if (xmldoc == null)
+                return;
             XmlNodeList btnNodes = xmldoc.SelectNodes("/root/Action/Buttons/Button");
             if (btnNodes == null)
             {
@@ -231,7 +242,8 @@ namespace WolfInv.Com.CommFormCtrlLib
             {
                 return;
             }
-            this.toolStrip1.Items.Add(new ToolStripSeparator());
+            if(this.toolStrip1.Items.Count>0)
+                this.toolStrip1.Items.Add(new ToolStripSeparator());
             this.toolStrip1.Items.Add(new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode, "@text")));
             ToolStripTextBox ssearchbox = new ToolStripTextBox();
             
@@ -255,9 +267,29 @@ namespace WolfInv.Com.CommFormCtrlLib
         
         protected void frm_Model_Load(object sender, EventArgs e)
         {
-            if(FromMenu != null && FromMenu.linkType == LinkType.Dialog)
+            if (FromMenu != null && (FromMenu.linkType == LinkType.Dialog|| FromMenu.linkType == LinkType.PrintToPDF))
             {
                 this.btn_close.Visible = false;
+                if (this.CurrMainPanel == null)
+                {
+
+                }
+                else
+                {
+                    if (this.CurrMainPanel.InForm)
+                    {
+                        this.btn_close.Visible = false;
+                    }
+                    else
+                    {
+                        this.btn_close.Visible = true;
+                    }
+                }
+                
+            }
+            else
+            {
+                
             }
             InitEvent();
             //
@@ -291,12 +323,12 @@ namespace WolfInv.Com.CommFormCtrlLib
                 foreach (DataTranMapping data in this.TranData)
                 {
                     DataCondition datacond = new DataCondition();
-                    datacond.value =  data.FromDataPoint;
+                    datacond.value =  data.FromDataPoint.Text;
                     if(this is ITranslateableInterFace)
                     {
-                        if((this as ITranslateableInterFace).NeedUpdateData.Items.ContainsKey(data.FromDataPoint))//直接兑现
+                        if((this as ITranslateableInterFace).NeedUpdateData.Items.ContainsKey(data.FromDataPoint.Name))//直接兑现
                         {
-                            datacond.value = (this as ITranslateableInterFace).NeedUpdateData.Items[data.FromDataPoint].value;
+                            datacond.value = (this as ITranslateableInterFace).NeedUpdateData.Items[data.FromDataPoint.Name].value;
                         }
                     }
                     datacond.Datapoint = new DataPoint(data.ToDataPoint);
@@ -312,90 +344,114 @@ namespace WolfInv.Com.CommFormCtrlLib
             //if (this.LoadFlag ==false) return;
             CMenuItem mnu = (sender as ToolStripButton).Tag as CMenuItem;
             if (mnu == null) return;
-            switch (mnu.MnuId)
+            try
             {
-                case "EditView":
-                    {
-                        ToolBar_EditView();
-                        //EditView();
-                        break;
-                    }
-                case "SaveClose":
-                    {
-                        if (ToolBar_SaveClose())
+                switch (mnu.MnuId)
+                {
+                    case "EditView":
                         {
-                            ToolBar_RefreshData();
+                            ToolBar_EditView();
+                            //EditView();
+                            break;
                         }
-                        break;
-                    }
-                case "SaveNew":
-                    {
-                        ToolBar_SaveAndCreateNew();
-                        break;
-                    }
-                case "New":
-                    {
-                        ToolBar_NewCreate(mnu);
-                        break;
-                    }
-                case "ExportExcel":
-                    {
-                        ToolBar_Export();
-                        break;
-                    }
-                case "Sync":
-                    {
-                        ToolBar_Sync(mnu);
-                        break;
-                    }
-                case "Import":
-                    {
-                        ToolBar_Import(mnu);
-                        break;
-                    }
-                case "Refresh":
-                
-                    {
-                        ToolBar_RefreshData();
-                        break;
-                    }
-                case "OKNoSave":
-                    {
-                        ToolBar_OkNoSave();
-                        break;
-                    }
-                case "AddRows":
-                    {
-                        ToolBar_AddExist(mnu);
-                        break;
-                    }
-                case "ListSelectedItems"://
-                    {
-                        ToolBar_ListSelectedItemsClicked();
-                        break;
-                    }
-                case "ExportTo":
-                    {
-                        ToolBar_ExportTo(mnu);
-                        break;
-                    }
-                default:
-                    {
-                        ToolBar_OtherEvent(mnu);
-                        break;
-                    }
+                    case "SaveClose":
+                        {
+                            if (ToolBar_SaveClose(mnu))
+                            {
+                                ToolBar_RefreshData();
+                            }
+                            break;
+                        }
+                    case "SaveNew":
+                        {
+                            ToolBar_SaveAndCreateNew(mnu);
+                            break;
+                        }
+                    case "New":
+                        {
+                            DataComboBox.ClearRunningTimeDataSource();
+                            ToolBar_NewCreate(mnu);
+                            if (ToolBar_RefreshData != null)
+                            {
+                                ToolBar_RefreshData();
+                            }
+                            break;
+                        }
+                    case "ExportExcel":
+                        {
+                            ToolBar_Export();
+                            break;
+                        }
+                    case "Sync":
+                        {
+                            ToolBar_Sync(mnu);
+                            break;
+                        }
+                    case "Remove":
+                        {
+                            ToolBar_Remove(mnu);
+                            break;
+                        }
+                    case "Import":
+                        {
+                            DataComboBox.ClearRunningTimeDataSource();
+                            ToolBar_Import(mnu);
+                            break;
+                        }
+                    case "PrintToPDF":
+                        {
+                            ToolBar_PrintPDF(mnu);
+                            break;
+                        }
+                    case "Refresh":
+
+                        {
+                            DataComboBox.ClearRunningTimeDataSource();
+                            ToolBar_RefreshData();
+                            break;
+                        }
+                    case "OKNoSave":
+                        {
+                            ToolBar_OkNoSave();
+                            break;
+                        }
+                    case "AddRows":
+                        {
+                            ToolBar_AddExist(mnu);
+                            break;
+                        }
+                    case "ListSelectedItems"://
+                        {
+                            ToolBar_ListSelectedItemsClicked();
+                            break;
+                        }
+                    case "ExportTo":
+                        {
+                            ToolBar_ExportTo(mnu);
+                            break;
+                        }
+                    default:
+                        {
+                            ToolBar_OtherEvent(mnu);
+                            break;
+                        }
+                }
+            }
+            catch(Exception ce)
+            {
+                MessageBox.Show(ce.Message);
             }
         }
 
 
 
-        protected bool SaveClose_Click()
+        protected bool SaveClose_Click(CMenuItem mnu)
         {
             if (!CheckData())
             {
                 return false;
             }
-            if (Save())
+            if (Save(mnu))
             {
 
                 //(this.TopLevelControl as Form).Close();
@@ -421,16 +477,16 @@ namespace WolfInv.Com.CommFormCtrlLib
                 //frm.Close();
                 return false;
             }
-            return true;
+            return false;
         }
 
-        protected void SaveNew_Click()
+        protected void SaveNew_Click(CMenuItem mnu)
         {
             if (!CheckData())
             {
                 return;
             }
-            if (Save())
+            if (Save(mnu))
             {
                 this.strRowId = "";
                 LoadControls();
@@ -471,17 +527,17 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         public virtual event ToolBarHandle ToolBar_EditView;
 
-        public virtual event ToolBarHandle ToolBar_PrintPDF;
+        public virtual event AddExistHandle ToolBar_PrintPDF;
 
         public virtual event ToolBarResponseHandle ToolBar_SaveClose;
 
-        public virtual event ToolBarHandle ToolBar_SaveAndCreateNew;
+        public virtual event AddExistHandle ToolBar_SaveAndCreateNew;
 
         public virtual event AddExistHandle ToolBar_AddExist;
 
         public virtual event AddExistHandle ToolBar_NewCreate;
 
-        public virtual event ToolBarHandle ToolBar_Remove;
+        public virtual event ToolBarResponseHandle ToolBar_Remove;
 
         public virtual event ToolBarHandle ToolBar_RefreshData;
 
@@ -509,7 +565,7 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         public virtual void RefreshData_Click(){}
         
-        public virtual UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData)
+        public virtual UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData,bool getText=false)
         {
             UpdateData ret = new UpdateData();
             if (this.TranData == null) return ret;
@@ -520,7 +576,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                     if (!ret.Items.ContainsKey(this.TranData[i].ToDataPoint))
                     {
                         
-                        ret.Items.Add(this.TranData[i].ToDataPoint, new UpdateItem(this.TranData[i].ToDataPoint,this.TranData[i].FromDataPoint));
+                        ret.Items.Add(this.TranData[i].ToDataPoint, new UpdateItem(this.TranData[i].ToDataPoint,this.TranData[i].FromDataPoint.Name));
                     }
                 }
             }
@@ -530,7 +586,7 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         public virtual UpdateData GetUpdateData(bool JudgeValueChanged)
         {
-            return GetUpdateData(false, false);
+            return GetUpdateData(false, false,true);
             //throw new Exception("The method or operation is not implemented.");
         }
 
@@ -559,53 +615,200 @@ namespace WolfInv.Com.CommFormCtrlLib
                         
         }
         
-        public bool SyncData(CMenuItem mnu)
-        {
-            if (mnu.extradataclass.Trim().Length == 0 || mnu.extradataconvertconfig == null || mnu.extradatagetconfig == null || mnu.extradatatype.Trim().Length == 0)
-            {
-                MessageBox.Show("未正确配置同步参数");
-                return false;
-            }
-            WCSExtraDataClass edc = new WCSExtraDataClass(mnu.extradataassembly,mnu.extradataclass,mnu.extradatatype, mnu.extradatagetconfig);
-            XmlDocument xmldoc = null;
-            XmlDocument xmlschema = null;
-            bool succ = edc.getExtraData(ref xmldoc,ref xmlschema);
-            if(!succ)
-            {
-                MessageBox.Show("获取外部数据失败");
-                return false;
-            }
-            return true;
+        //public bool SyncData(CMenuItem mnu)
+        //{
+        //    if (mnu.extradataclass.Trim().Length == 0 || mnu.extradataconvertconfig == null || mnu.extradatagetconfig == null || mnu.extradatatype.Trim().Length == 0)
+        //    {
+        //        MessageBox.Show("未正确配置同步参数");
+        //        return false;
+        //    }
+        //    WCSExtraDataClass edc = new WCSExtraDataClass(mnu.extradataassembly,mnu.extradataclass,mnu.extradatatype, mnu.extradatagetconfig);
+        //    XmlDocument xmldoc = null;
+        //    XmlDocument xmlschema = null;
+        //    bool succ = edc.getExtraData(ref xmldoc,ref xmlschema);
+        //    if(!succ)
+        //    {
+        //        MessageBox.Show("获取外部数据失败");
+        //        return false;
+        //    }
+        //    return true;
                 
-        }
+        //}
 
 
-        public XmlDocument getExtraData(CMenuItem mnu)
-        {
-            if (mnu.extradataclass.Trim().Length == 0 || mnu.extradataconvertconfig == null || mnu.extradatagetconfig == null || mnu.extradataassembly.Trim().Length == 0)
-            {
-                MessageBox.Show("未正确配置同步参数");
-                return null;
-            }
-            WCSExtraDataClass edc = new WCSExtraDataClass(mnu.extradataassembly, mnu.extradataclass, mnu.extradatatype, mnu.extradatagetconfig);
-            XmlDocument xmldoc = null;
-            XmlDocument xmlschema = null;
-            bool succ = edc.getExtraData(ref xmldoc,ref xmlschema);
-            if (!succ)
-            {
-                MessageBox.Show("获取外部数据失败");
-                return null;
-            }
-            return xmldoc;
-        }
+        ////public XmlDocument getExtraData(CMenuItem mnu)
+        ////{
+        ////    if (mnu.extradataclass.Trim().Length == 0 || mnu.extradataconvertconfig == null || mnu.extradatagetconfig == null || mnu.extradataassembly.Trim().Length == 0)
+        ////    {
+        ////        MessageBox.Show("未正确配置同步参数");
+        ////        return null;
+        ////    }
+        ////    WCSExtraDataClass edc = new WCSExtraDataClass(mnu.extradataassembly, mnu.extradataclass, mnu.extradatatype, mnu.extradatagetconfig);
+        ////    XmlDocument xmldoc = null;
+        ////    XmlDocument xmlschema = null;
+        ////    bool succ = edc.getExtraData(ref xmldoc,ref xmlschema);
+        ////    if (!succ)
+        ////    {
+        ////        MessageBox.Show("获取外部数据失败");
+        ////        return null;
+        ////    }
+        ////    return xmldoc;
+        ////}
 
         
 
 
-        public virtual bool Save()
+        public virtual bool Save(CMenuItem mnu)
         {
             return true;
         }
+
+        public virtual bool SaveData(CMenuItem mnu,DataRequestType type = DataRequestType.Update)
+        {
+            
+            int cnt = 0;
+            UpdateData updata = this.GetUpdateData(true);//获得修改后的数据
+            if (!updata.Updated)
+                return false;
+            updata.ReqType = DataRequestType.Update;
+            if(updata.keydpt != null && updata.keydpt.Name.Trim().Length >0)
+            {
+                if (updata.keyvalue == null || updata.keyvalue.Trim().Length == 0)
+                    updata.ReqType = DataRequestType.Add;
+            }
+            if (mnu == null && updata.SubItems!= null && updata.SubItems.Count>0)
+            {
+                MessageBox.Show("外部数据，未指定保存事件，不能删除子数据！");
+                return false;
+            }
+            if(mnu == null)//如果没有子事件，直接保存到本地
+            {
+                return SaveClientData(updata, type);
+            }
+            CMenuItem useMenu = mnu;
+            if (mnu.evt != null)
+            {
+                useMenu = mnu.evt;
+            }
+            string extramsg = "";
+            if(useMenu.isextradata)
+            {
+                UpdateData ud = null;
+                bool succ =  SaveExtraData(useMenu,updata,ref ud);
+                if(!succ)
+                {
+                    return false;
+                }
+                if(!updata.Items.ContainsKey(updata.keydpt.Name))
+                {
+                    updata.Items.Add(updata.keydpt.Name, null);
+                }
+                updata.Items[updata.keydpt.Name] = ud.Items[updata.keydpt.Name];
+                updata.keyvalue = ud.Items[updata.keydpt.Name].value;
+                if (this.FromMenu.TranDataMapping != null)
+                {
+
+                    this.FromMenu.TranDataMapping.ForEach(a => {
+                        if(a.FromDataPoint.Name.Equals(updata.keydpt.Name))
+                        {
+                            a.FromDataPoint.Text = updata.keyvalue;
+                        }
+                    });
+                }
+                if(updata.SubItems!= null&& updata.SubItems.Count>0)//不传吧
+                {
+                    if(this.FromMenu.TranDataMapping!= null)
+                    {
+                        
+                        updata.SubItems.ForEach(a=> {
+                            this.FromMenu.TranDataMapping.ForEach(b=> {
+                                if(b.FromDataPoint.Text!=null && b.FromDataPoint.Text.Trim().Length >0)
+                                {
+                                    if(a.Items.ContainsKey(b.ToDataPoint))
+                                    {
+                                        a.Items[b.ToDataPoint].value = b.FromDataPoint.Text;
+                                    }
+                                }
+                            });
+                        });
+                    }
+                }
+                extramsg = "[外部数据已保存,请删除外部数据！]";
+            }
+            if(useMenu.extradatanosaveinclient)
+            {
+                return true;
+            }
+            bool suc = SaveClientData(updata, type);
+            if(!suc)
+            {
+                MessageBox.Show(string.Format("保存本地数据错误！{0}", extramsg));
+                return false;
+            }
+            return true;
+        }
+
+        public virtual bool SaveExtraData(CMenuItem mnu ,UpdateData data,ref UpdateData ret)//保存外部数据
+        {
+            if(mnu.extradataconvertconfig == null||mnu.extradatagetconfig == null || mnu.extradataclass.Trim().Length == 0 || mnu.extradataassembly.Trim().Length == 0)
+            {
+                MessageBox.Show("请正确配置事件！");
+                return false;
+            }
+            //data = GetUpdateData(false);
+            WCSExtraDataAdapter wda = new WCSExtraDataAdapter(mnu.extradataconvertconfig,true);
+            DataSet ds = null;
+            List<UpdateData> ul = new List<UpdateData>();
+            ul.Add(data);
+            ds = DataSource.UpdateData2DataSet(ul, ref ds, data.keydpt.Name,data.keyvalue);
+            string msg = null;
+            DataSet dret = null;
+            bool succ = wda.writeData(mnu.extradataassembly, mnu.extradataclass, mnu.extradatagetconfig, mnu.extradatatype, data.ReqType.ToString(), ds,ref dret, ref msg);
+            if(!succ)
+            {
+                MessageBox.Show(msg);
+                return false;
+            }
+            ul = DataSource.DataSet2UpdateData(dret, this.DetailSource, this.strUid);
+            if(ul==null ||(ul!= null&& ul.Count!=1))
+            {
+                MessageBox.Show("返回数据错误");
+                return false;
+            }
+            ret = ul[0];
+            return true;
+        }
+
+        public virtual bool SaveClientData(UpdateData updata,DataRequestType type=DataRequestType.Update)
+        {
+            if (!updata.Updated) return true;
+            DataSource ds = GlobalShare.mapDataSource[DetailSource];
+            List<DataCondition> conds = new List<DataCondition>();
+            DataCondition dcond = new DataCondition();
+            dcond.Datapoint = new DataPoint(this.strKey);
+            dcond.value = this.strRowId;
+            conds.Add(dcond);
+            //DataRequestType type = DataRequestType.Update;
+            if (this.strRowId == null || this.strRowId == "")
+            {
+                type = DataRequestType.Add;
+            }
+            if (GlobalShare.mapDataSource.ContainsKey(this.GridSource))
+            {
+                DataSource grid_source = GlobalShare.mapDataSource[this.GridSource];
+                ds.SubSource = grid_source;
+            }
+            //updata.SubItems.Where(a=>a.ReqType)
+            string msg = GlobalShare.DataCenterClientObj.UpdateDataList(ds, dcond, updata, type);
+            if (msg != null)
+            {
+                MessageBox.Show(msg);
+                return false;
+            }
+            return true;
+        }
+
+
         protected virtual XmlDocument GetConfigXml()
         {
             string strFilePath  = string.Format("{0}\\{1}\\frm_{1}_{2}_{3}.xml", "", strModule, strScreen, strTarget);
@@ -636,11 +839,19 @@ namespace WolfInv.Com.CommFormCtrlLib
             ToolBar_OnSimpleSearchClicked += new EventHandler(SimpleSearch);
             ToolBar_OkNoSave +=new ToolBarHandle(OkNoSave_Click);
             ToolBar_SaveClose +=new ToolBarResponseHandle(SaveClose_Click);
-            ToolBar_SaveAndCreateNew +=new ToolBarHandle(SaveNew_Click);
+            ToolBar_SaveAndCreateNew +=new AddExistHandle(SaveNew_Click);
             ToolBar_RefreshData += new ToolBarHandle(RefreshData_Click);
             ToolBar_OtherEvent += new AddExistHandle(ToolBar_OtherEvent_Click);
             ToolBar_ExportTo += new AddExistHandle(frm_Model_ToolBar_ExportTo);
             ToolBar_Import += new AddExistHandle(Frm_Model_ToolBar_Import);
+            ToolBar_PrintPDF += PrintPDF;
+        }
+
+        private void PrintPDF(CMenuItem mnu)
+        {
+            
+            UpdateData ret = null;
+            FrameSwitch.switchToView(this.panel_main,null,mnu,ref ret, new UpdateData[1] { GetUpdateData(false) }.ToList());
         }
 
         private void Frm_Model_ToolBar_Import(CMenuItem mnu)
@@ -659,6 +870,46 @@ namespace WolfInv.Com.CommFormCtrlLib
                 MessageBox.Show("导入Excel文件配置错误！");
                 return;
             }
+            UpdateData MainData = GetUpdateData(false);
+            this.NeedUpdateData = MainData;
+            if (mnu.TranDataMapping != null)//如果有传入值
+            {
+                int mcnt = 0;
+                for(int i=0;i<mnu.TranDataMapping.Count;i++)
+                {
+                    if (MainData == null)
+                        continue;
+                    string tname = mnu.TranDataMapping[i].FromDataPoint.Name;
+                    if(MainData.Items.ContainsKey(tname))//传输字段在数据中
+                    {
+                        if(MainData.Items[tname].value == null || MainData.Items[tname].value.Trim().Length == 0)//制订了传输的值为空，跳过
+                        {
+                            continue;
+                        }
+                        mnu.TranDataMapping[i].FromDataPoint.Text = MainData.Items[tname].value;
+                    }
+                    else
+                    {
+                        
+                        string val = null;
+                        if(GlobalShare.IsSystemParam(mnu.TranDataMapping[i].FromDataPoint.Name, out val))
+                        {
+                            mnu.TranDataMapping[i].FromDataPoint.Text = val;
+                        }
+                        else//常数，不支持计算，拼接等
+                        {
+                            
+                        }
+                    }
+                    mcnt++;
+                }
+                if (mcnt < mnu.TranDataMapping.Count)
+                {
+                    
+                    MessageBox.Show("请先指定传输值！");
+                    return;
+                }
+            }
             DataComboBox.ClearRunningTimeDataSource();
             OpenExcelSheetDialog ofd = new OpenExcelSheetDialog();
             DialogResult res = ofd.ShowDialog(this);
@@ -670,11 +921,12 @@ namespace WolfInv.Com.CommFormCtrlLib
                 XmlUtil.AddAttribute(mnu.extradatagetconfig, "excelsheet", ofd.SheetName);
                 WCSExtraDataAdapter wa = new WCSExtraDataAdapter(mnu.extradataconvertconfig);
                 string msg = null;
-                DataSet ds = wa.getData(mnu.extradataassembly, mnu.extradataclass, mnu.extradatagetconfig, mnu.extradatatype, ref msg);
-                if (ds == null)
+                DataSet ds = null;
+                bool succ = wa.getData(mnu.extradataassembly, mnu.extradataclass, mnu.extradatagetconfig, mnu.extradatatype, ref ds,ref msg);
+                if (succ == false)
                 {
                     this.Cursor = Cursors.Default;
-                    MessageBox.Show("导入数据错误！");
+                    MessageBox.Show(msg);
                     return;
                 }
                 List<DataControlItem> attCols = new List<DataControlItem>();
@@ -689,18 +941,36 @@ namespace WolfInv.Com.CommFormCtrlLib
                     }
                 }
                 List<UpdateData> InjectData = DataSource.DataSet2UpdateData(ds,GridSource, this.strUid);
+               
                 if(this is ITranslateableInterFace)
                 {
                     for(int i=0;i< InjectData.Count;i++)
                     {
                         UpdateData ud = InjectData[i];
+                        
                         ud.ReqType = DataRequestType.Add;
                         ud.IsImported = true;
                         ud.Updated = true;
-                        for(int j=0;j<attCols.Count;j++)
+                        if (mnu.TranDataMapping != null)
+                        {
+                            for(int j=0;j<mnu.TranDataMapping.Count;j++)
+                            {
+                                string from = mnu.TranDataMapping[j].FromDataPoint.Text;
+                                string to = mnu.TranDataMapping[j].ToDataPoint;
+                                if(ud.Items.ContainsKey(to))
+                                {
+                                    ud.Items[to].value = from;
+                                }
+                                else
+                                {
+                                    ud.Items.Add(to,new UpdateItem(to, from)) ;
+                                }
+                            }
+                        }
+                        for (int j=0;j<attCols.Count;j++)
                         {
                             string attname = attCols[j].Name;
-                            string val = attCols[j].getValue(this.strUid, ud);
+                            string val = attCols[j].getValue(this.strUid, ud,null,0);
                             ud.Items[attname].value=val;
                         }
                         //InjectData.Add(ud);
@@ -709,7 +979,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                 }
                 CMenuItem newMenu = this.FromMenu;
                 UpdateData mydata = null;
-                FrameSwitch.switchToView(this.Parent as XWinForm_Panel,this,newMenu,ref mydata, InjectData);
+                FrameSwitch.switchToView(this.Parent as IXContainerControl,this,newMenu,ref mydata, InjectData);
                 this.Cursor = Cursors.Default;
                 MessageBox.Show("导入成功！");
             }
@@ -757,28 +1027,36 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         }
 
-        protected void InitToolBarStrips(XmlNode cmbNode, ToolStrip trip, EventHandler e)
+        protected void InitToolBarStrips(XmlNode cmbNode, ToolStrip trip, EventHandler e,string strToolKey= "toolbar")
         {
             //ToolStripLabel lb = new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode,"@title") );
             //ToolBar.Items.Add(lb);
-            XmlNode node = cmbNode.SelectSingleNode("toolbar");
+            XmlNode node = cmbNode.SelectSingleNode(strToolKey);
             if (node == null) return;
             trip.Items.Clear();
-            trip.RightToLeft = XmlUtil.GetSubNodeText(cmbNode, "@RightToLeft") == "1" ? RightToLeft.Yes : RightToLeft.No;
-            InitButtons(node, trip.Items,e);
+            trip.RightToLeft = XmlUtil.GetSubNodeText(cmbNode, "@RightToLeft") == "0" ? RightToLeft.No : RightToLeft.Yes;
+            InitButtons(node, trip.Items,e,trip.RightToLeft);
         }
 
-        void InitButtons(XmlNode node, ToolStripItemCollection tsic, EventHandler e)
+        void InitButtons(XmlNode node, ToolStripItemCollection tsic, EventHandler e, RightToLeft RtL)
         {
-            XmlNodeList nodelist = node.SelectNodes("button");
+            string btnkey = "button";
+            XmlNodeList nodelist = node.SelectNodes(btnkey);
+            if(nodelist.Count == 0)
+            {
+                btnkey = "Button";
+                nodelist = node.SelectNodes(btnkey); 
+            }
+
             foreach (XmlNode bnode in nodelist)
             {
 
                 ToolStripItem btn = null;
                 bool isDdb = false;
-                if (bnode.SelectNodes("button").Count > 0)
+                if (bnode.SelectNodes(btnkey).Count > 0)
                 {
                     btn = new ToolStripDropDownButton();
+                    btn.RightToLeft = RightToLeft.No;
                     isDdb = true;
                 }
                 else
@@ -794,10 +1072,11 @@ namespace WolfInv.Com.CommFormCtrlLib
                 btn.Text = mnu.MnuName;
                 btn.Tag = mnu;
                 btn.Enabled = !(sPerm == "0");
+                //btn.RightToLeft = RtL;
                 tsic.Add(btn);
                 if (isDdb)
                 {
-                    InitButtons(bnode, (btn as ToolStripDropDownButton).DropDownItems,e);
+                    InitButtons(bnode, (btn as ToolStripDropDownButton).DropDownItems,e, RtL);
                 }
             }
         }
