@@ -98,6 +98,10 @@ namespace WCS
                 {
                     xmldoc.LoadXml("<root/>");
                     XmlNode root = xmldoc.SelectSingleNode("root");
+                    if(NeedUpdateData!=null)
+                    {
+                        NeedUpdateData.ToXml(root);
+                    }
                     InjectedDatas.ForEach(
                         a =>
                         {
@@ -111,6 +115,7 @@ namespace WCS
 
                         }
                         );
+
 
                 }
             }

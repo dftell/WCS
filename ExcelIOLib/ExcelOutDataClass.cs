@@ -42,41 +42,50 @@ namespace WolfInv.Com.ExcelIOLib
         }
         public bool getDataSet(XmlNode config,ref DataSet ds,ref string msg)
         {
-            ds = null;
-            ExcelSheetDefineClass obj = new ExcelSheetDefineClass();
-            string strDefinedfile = XmlUtil.GetSubNodeText(config, "@definepath");
-            string strDefinedType = "";
-            string fPath = XmlUtil.GetSubNodeText(config, "@excelpath");
-            string sheetname = XmlUtil.GetSubNodeText(config, "@excelsheet");
-            //string strPath = string.Format("{0}\\json\\Imp.Excel.SaleOrder.List.json", AppDomain.CurrentDomain.BaseDirectory);
-            
-            obj = obj.GetFromJson<ExcelSheetDefineClass>(getText(strDefinedfile, "json", strDefinedType));
-            
-            if (obj == null)
+            try
             {
-                msg = "导入选项未正常配置！";
-                return false;
-            }
-            if (sheetname.Trim().Length > 0)
-            {
-                obj.SheetName = sheetname;
-            }
-            //ExcelSheetDefineClass useObj = new ExcelSheetDefineClass(obj.QuickTitleList, obj.QuickTitleRefList, 1, 2);
-            if (fPath == null)
-            {
-                msg = ("请先选择需要导入的文件！");
-                return false;
-            }
+                ds = null;
+                ExcelSheetDefineClass obj = new ExcelSheetDefineClass();
+                string strDefinedfile = XmlUtil.GetSubNodeText(config, "@definepath");
+                string strDefinedType = "";
+                string fPath = XmlUtil.GetSubNodeText(config, "@excelpath");
+                string sheetname = XmlUtil.GetSubNodeText(config, "@excelsheet");
+                //string strPath = string.Format("{0}\\json\\Imp.Excel.SaleOrder.List.json", AppDomain.CurrentDomain.BaseDirectory);
 
-            ExcelDefineReader edr = new ExcelDefineReader(obj);
-            ReadResult ret = edr.GetResult(fPath);
-            if (ret.Succ == false)
-            {
+                obj = obj.GetFromJson<ExcelSheetDefineClass>(getText(strDefinedfile, "json", strDefinedType));
+
+                if (obj == null)
+                {
+                    msg = "导入选项未正常配置！";
+                    return false;
+                }
+                if (sheetname.Trim().Length > 0)
+                {
+                    obj.SheetName = sheetname;
+                }
+                //ExcelSheetDefineClass useObj = new ExcelSheetDefineClass(obj.QuickTitleList, obj.QuickTitleRefList, 1, 2);
+                if (fPath == null)
+                {
+                    msg = ("请先选择需要导入的文件！");
+                    return false;
+                }
+
+                ExcelDefineReader edr = new ExcelDefineReader(obj);
+                ReadResult ret = edr.GetResult(fPath);
+                if (ret.Succ == false)
+                {
+                    msg = ret.Message;
+                    return false;
+                }
                 msg = ret.Message;
+                ds = ret.ReData;
+                return true;
+            }
+            catch(Exception e)
+            {
+                msg = e.Message;
                 return false;
             }
-            ds = ret.ReData;
-            return true;
         }
 
        

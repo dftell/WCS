@@ -194,6 +194,14 @@ namespace WolfInv.Com.ExcelIOLib
         DisplayName("交叉值为空是否跳过"),
         CategoryAttribute("交叉值为空是否跳过")]
         public bool CrossIfNullSkip { get; set; }
+
+        /// <summary>
+        /// 交叉值为0是否跳过
+        /// </summary>
+        [DescriptionAttribute("交叉值为0是否跳过"),
+        DisplayName("交叉值为0是否跳过"),
+        CategoryAttribute("交叉数据项设置")]
+        public bool CrossIfZeroSkip { get; set; }
         #endregion
 
 

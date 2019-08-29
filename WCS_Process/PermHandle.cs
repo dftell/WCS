@@ -355,7 +355,8 @@ int GetPermissionByObjectType(string strObjectType,string strPermissionXml)
             string msg = null;
             List<DataCondition> dcs = new List<DataCondition>();
             dcs.Add(dc);
-            DataSet permdata = DataSource.InitDataSource(source, dcs,_uid,out msg);
+            bool isextra = false;
+            DataSet permdata = DataSource.InitDataSource(source, dcs,_uid,out msg,ref isextra);
             return permdata;
         }
 

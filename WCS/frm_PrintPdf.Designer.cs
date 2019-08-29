@@ -32,13 +32,13 @@ namespace WCS
         {
             this.webBrowser1 = new System.Windows.Forms.WebBrowser();
             this.panel_Title.SuspendLayout();
-            (this.panel_main as Panel).SuspendLayout();
+            panel_main.SuspendLayout();
             this.panel_bottom.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel_main
             // 
-            (this.panel_main as Panel).Controls.Add(this.webBrowser1);
+            this.panel_main.Controls.Add(this.webBrowser1);
             // 
             // webBrowser1
             // 
@@ -57,7 +57,7 @@ namespace WCS
             this.Load += new System.EventHandler(this.frm_PrintPDF_Load);
             this.panel_Title.ResumeLayout(false);
             this.panel_Title.PerformLayout();
-            (this.panel_main as Panel).ResumeLayout(false);
+            (this.panel_main ).ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();
             this.ResumeLayout(false);

@@ -178,8 +178,8 @@ namespace WolfInv.Com.MetaDataCenter
             {
                 strSum = this.SumItems;
             }
-            if (this.SubItems == null || this.SubItems.Count < 2)
-                return this;
+            //if (this.SubItems == null || this.SubItems.Count < 2)
+            //    return this;
             if (strSum == null)
                 strSum = this.SumItems;
             XmlDocument xmldoc = new XmlDocument();

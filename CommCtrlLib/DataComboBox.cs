@@ -112,7 +112,8 @@ namespace WolfInv.Com.CommCtrlLib
                 }
             }
             string msg = null;
-            DataSet ds = WolfInv.Com.WCS_Process.DataSource.InitDataSource(this.DataSourceName, conds, strUid, out msg);
+            bool isextra = false;
+            DataSet ds = WolfInv.Com.WCS_Process.DataSource.InitDataSource(this.DataSourceName, conds, strUid, out msg,ref isextra);
             if (msg != null || ds == null)
             {
                 MessageBox.Show(string.Format("控件{0}无法获得数据！错误：{1}", this.Name, msg));
@@ -145,7 +146,7 @@ namespace WolfInv.Com.CommCtrlLib
     }
 
 
-    public class DataComboBox : ComboBox, ITranslateableInterFace,IDataSourceable
+    public class DataComboBox : ComboBox, ITranslateableInterFace, IDataSourceable
     {
 
         public string DataSourceName { get; set; }
@@ -153,7 +154,7 @@ namespace WolfInv.Com.CommCtrlLib
         public string TextField { get; set; }
         public string ComboItemsSplitString { get; set; }
         //public string UId;
-        public DataComboBox(string DataName,string uid)
+        public DataComboBox(string DataName, string uid)
         {
             DataSourceName = DataName;
             //UId = uid;
@@ -228,7 +229,7 @@ namespace WolfInv.Com.CommCtrlLib
         public static void ClearRunningTimeDataSource()
         {
             string key = "runningtime_S_";
-            List<string> currdcs =GlobalShare.DataChoices.Keys.ToList();
+            List<string> currdcs = GlobalShare.DataChoices.Keys.ToList();
             currdcs.ForEach(a =>
             {
                 if (a.StartsWith(key))
@@ -237,12 +238,12 @@ namespace WolfInv.Com.CommCtrlLib
                 }
             });
         }
-            
+
 
         public List<DataChoiceItem> GetDataSource()
         {
             string strModel = "runningtime_S_{0}_U_{1}_V_{2}_S_{3}";
-            string strdc = string.Format(strModel, this.DataSourceName, this.strUid,this.ValueField,this.ComboItemsSplitString);
+            string strdc = string.Format(strModel, this.DataSourceName, this.strUid, this.ValueField, this.ComboItemsSplitString);
             DataChoice dc = null;
             if (GlobalShare.DataChoices.ContainsKey(strdc))//保存默认dc到dc字典中，如果有同样的id+source直接获取
             {
@@ -257,49 +258,50 @@ namespace WolfInv.Com.CommCtrlLib
                 {
                     for (int i = 0; i < this.TranData.Count; i++)
                     {
-                        
+
                         string checkname = TranData[i].ToDataPoint;
                         string toname = checkname;
                         if (!this.NeedUpdateData.Items.ContainsKey(checkname))
                         {
-                            checkname = TranData[i].FromDataPoint.Name ;
+                            checkname = TranData[i].FromDataPoint.Name;
                             toname = TranData[i].ToDataPoint;
                         }
-                        if(!this.NeedUpdateData.Items.ContainsKey(checkname))
+                        if (!this.NeedUpdateData.Items.ContainsKey(checkname))
                         {
                             continue;
                         }
                         string strval = this.NeedUpdateData.Items[checkname].value;
-                            if (strval == null || strval.Trim().Length == 0)
-                            {
-                                continue;
-                            }
-                            DataCondition cond = new DataCondition();
-                            cond.Datapoint = new DataPoint(toname);
-                            cond.value = strval;
-                            cond.Logic = ConditionLogic.And;
-                            conds.Add(cond);
-                        
+                        if (strval == null || strval.Trim().Length == 0)
+                        {
+                            continue;
+                        }
+                        DataCondition cond = new DataCondition();
+                        cond.Datapoint = new DataPoint(toname);
+                        cond.value = strval;
+                        cond.Logic = ConditionLogic.And;
+                        conds.Add(cond);
+
                     }
                 }
                 string msg = null;
-                DataSet ds = WCS_Process.DataSource.InitDataSource(this.DataSourceName, conds, this.strUid, out msg);
+                bool isextra = false;
+                DataSet ds = WCS_Process.DataSource.InitDataSource(this.DataSourceName, conds, this.strUid, out msg, ref isextra);
                 if (ds == null)
                 {
                     MessageBox.Show(string.Format("控件{0}无法获得数据！[{1}]", this.Name, msg));
                     return null;
                 }
-                dc = DataChoice.ConvertFromDataSet(ds, ValueField, TextField,ComboItemsSplitString);
+                dc = DataChoice.ConvertFromDataSet(ds, ValueField, TextField, ComboItemsSplitString);
                 if (!GlobalShare.DataChoices.ContainsKey(strdc))
                 {
-                    GlobalShare.DataChoices.Add(strdc,dc);
+                    GlobalShare.DataChoices.Add(strdc, dc);
                 }
             }
             if (dc == null)
             {
                 MessageBox.Show(string.Format("无法转换数据选择项{0}，这可能是由网络异常引起的，即将退出软件，请重新登录看是否正常！", strdc));
-                
-               
+
+
                 return null;
             }
             if (!GlobalShare.DataChoices.ContainsKey(this.DataSourceName))//不断增加新的datachoice
@@ -321,5 +323,5 @@ namespace WolfInv.Com.CommCtrlLib
         }
     }
 
-    
+
 }

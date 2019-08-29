@@ -183,7 +183,8 @@ namespace WCS
             if (GridSource == null || GridSource.Trim().Length == 0)
                 return;
             string msg = null;
-            DataSet dss = DataSource.InitDataSource(GridSource, conds, strUid, out msg);
+            bool isextra = false;
+            DataSet dss = DataSource.InitDataSource(GridSource, conds, strUid, out msg,ref isextra);
             if (msg != null || dss == null)
             {
                 MessageBox.Show(msg);

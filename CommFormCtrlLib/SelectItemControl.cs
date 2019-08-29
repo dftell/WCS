@@ -130,7 +130,9 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         void txtctrl_Click(object sender, EventArgs e)
         {
+            this.Cursor = Cursors.WaitCursor;
             this.SelectItem(this, e);
+            
         }
 
         void newbtn_Click(object sender, EventArgs e)

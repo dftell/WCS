@@ -1,7 +1,7 @@
 ﻿using WolfInv.Com.MetaDataCenter;
 using System.Xml;
 using XmlProcess;
-
+using WolfInv.Com.WCS_Process;
 namespace WolfInv.Com.CommCtrlLib
 {
 

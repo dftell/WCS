@@ -52,9 +52,13 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="XmlProcess">
+      <HintPath>..\..\..\..\..\..\..\cfzqzhouys\thinkpad\WorkSpace\技术资料\CommPlatform\ITMSVR\bin\XmlProcess.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JavaScriptClass.cs" />
+    <Compile Include="Json2XmlClass.cs" />
     <Compile Include="JsonableClass.cs" />
     <Compile Include="JsonDataSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

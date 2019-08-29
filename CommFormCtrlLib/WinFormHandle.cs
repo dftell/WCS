@@ -20,7 +20,8 @@ namespace WolfInv.Com.CommFormCtrlLib
                 msg = string.Format("数据源为空");
                 return null; ;
             }
-            return DataSource.InitDataSource(GridSource, InitBaseConditions(), strUid, out msg);
+            bool isextra = false;
+            return DataSource.InitDataSource(GridSource, InitBaseConditions(), strUid, out msg,ref isextra);
 
         }
 

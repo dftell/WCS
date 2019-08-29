@@ -6,6 +6,7 @@ using XmlProcess;
 using WolfInv.Com.CommCtrlLib;
 using System.Windows.Forms;
 using WolfInv.Com.XPlatformCtrlLib;
+using WolfInv.Com.WCS_Process;
 
 namespace WolfInv.Com.CommFormCtrlLib
 {
@@ -404,6 +405,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                     //{
                     //    continue;
                     //}
+                    pc.CurrPanelData = ud;
                     pc.LoadXml(cellnodes[c]);
                     pc.OwnRow = pr;
                     pc.ItemControl = pc.CurrMainControl;
@@ -415,10 +417,12 @@ namespace WolfInv.Com.CommFormCtrlLib
                     {
                         this.ControlList.Add(pc.Field, pc);
                     }
-
+                    pc.Text = pc.getValue(strUid, ud);
+                    pc.DefaultText = pc.Text;
 
                     pr.Cells.Add(pc);
                     pc.ChangeValue(pc.DefaultValue, pc.DefaultText);//设默认值
+                    //pc.ChangeValue(pc.Value, pc.Text);
                 }
                 if (cellnodes.Count * 2 > this.ColumnCnt)
                 {
@@ -431,7 +435,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             return this;
         }
 
-        public void FillData(DataSet ds)
+        public void FillData(DataSet ds,string srcname)
         {
             if (ControlList == null) return;
             if (ds == null) return;
@@ -500,7 +504,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                 if ((val == null || val.Trim().Length == 0) && pc.NoNull)
                 {
 
-                    return string.Format("{0}不能为空！", pc.Text);
+                    return string.Format("{0}不能为空！", pc.ItemLabel.Text);
                 }
             }
             return null;

@@ -16,6 +16,9 @@ using WolfInv.Com.XPlatformCtrlLib;
 using WolfInv.Com.ExcelIOLib;
 using WolfInv.Com.WCSExtraDataInterface;
 using System.Linq;
+using System.Reflection;
+using System.Collections;
+using Newtonsoft.Json.Linq;
 
 namespace WolfInv.Com.CommFormCtrlLib
 {
@@ -120,15 +123,15 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         
 
-        public DataSet InitDataSource(string sGridSource,out string msg)
+        public DataSet InitDataSource(string sGridSource,out string msg,ref bool isExtraData)
         {
             msg = null;
             if (sGridSource == null || sGridSource.Trim().Length == 0)
             {
                 msg = string.Format("数据源为空");
-                return null; ;
+                return null;
             }
-            return DataSource.InitDataSource(sGridSource, InitBaseConditions(), strUid, out msg);
+            return DataSource.InitDataSource(sGridSource, InitBaseConditions(), strUid, out msg,ref isExtraData);
 
         }
 
@@ -145,8 +148,10 @@ namespace WolfInv.Com.CommFormCtrlLib
                 return;
             AddSimpleSearchInToolBar(xmldoc);
             AddComboInToolBar(xmldoc);
+            //AddGroupInToolBar(xmldoc);
             //AddButtonInToolBar(xmldoc);
             InitToolBarStrips(xmldoc.SelectSingleNode("/root/Action"), this.toolStrip1, ToolBar_Clicked, "Buttons");
+            InitContextMenu(xmldoc.SelectSingleNode("/root/Grid"), this.contextMenuStrip1,this.ToolBarBtn_Click, "contextmenu");
             
         }
 
@@ -185,7 +190,67 @@ namespace WolfInv.Com.CommFormCtrlLib
                 combobox.SelectedIndex = 0;
         }
 
-        protected virtual void combobox_SelectedIndexChanged(object sender, EventArgs e) { }
+        protected void AddGroupInToolBar(XmlNode xmldoc,ToolStrip ts,string groupname="group")
+        {
+            if (xmldoc == null) return;
+            XmlNode cmbNode = xmldoc.SelectSingleNode(groupname);
+            if (cmbNode == null)
+            {
+                return;
+            }
+            string strPerm = XmlUtil.GetSubNodeText(cmbNode, "@perm");
+            if (strPerm == "0") return;
+            
+
+            ToolStripComboBox combobox = new ToolStripComboBox("分组");
+
+
+            combobox.SelectedIndexChanged += new EventHandler(combobox_SelectedIndexChanged);
+            //ComboBoxEx cbe = new ComboBoxEx();
+            List<CMenuItem> menus = new List<CMenuItem>();
+            XmlDocument combodoc = new XmlDocument();
+            try
+            {
+                combodoc.LoadXml(cmbNode.InnerXml);
+            }
+            catch
+            {
+                return;
+            }
+            MenuProcess mp = new MenuProcess(combodoc, this.strUid);
+            menus = mp.GenerateMenus();
+            foreach (CMenuItem mnu in menus)
+            {
+                combobox.Items.Add(mnu.MnuName);
+            }
+            combobox.Tag = menus;
+            combobox.RightToLeft = RightToLeft.No;
+            ts.Items.Add(combobox);
+            ts.Items.Add(new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode, "@caption")));
+            //if (menus.Count > 0)
+            //    combobox.SelectedIndex = 0;
+        }
+
+        
+
+        protected virtual void combobox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(sender == null)
+            {
+                return;
+            }
+            ToolStripComboBox tsc = sender as ToolStripComboBox;
+            if (tsc == null)
+                return;
+            if (tsc.SelectedIndex < 0)
+            {
+                return;
+            }
+            List<CMenuItem> menus = tsc.Tag as List<CMenuItem>;
+            ToolStripButton tmp = new ToolStripButton();
+            tmp.Tag = menus[tsc.SelectedIndex];
+            ToolBarBtn_Click(tmp,e);
+        }
         
         void AddButtonInToolBar(XmlDocument xmldoc)
         {
@@ -342,8 +407,16 @@ namespace WolfInv.Com.CommFormCtrlLib
         public void ToolBarBtn_Click(object sender, EventArgs e)
         {
             //if (this.LoadFlag ==false) return;
-            CMenuItem mnu = (sender as ToolStripButton).Tag as CMenuItem;
+            CMenuItem mnu = (sender as ToolStripItem).Tag as CMenuItem;
             if (mnu == null) return;
+            if(mnu.NeedNotice)
+            {
+                if(MessageBox.Show(mnu.NoticeContent,mnu.NoticeTitle,MessageBoxButtons.YesNo) == DialogResult.No)
+                {
+                    return;
+                }
+            }
+
             try
             {
                 switch (mnu.MnuId)
@@ -357,6 +430,14 @@ namespace WolfInv.Com.CommFormCtrlLib
                     case "SaveClose":
                         {
                             if (ToolBar_SaveClose(mnu))
+                            {
+                                ToolBar_RefreshData();
+                            }
+                            break;
+                        }
+                    case "ChangeGroup":
+                        {
+                            if(ToolBar_ChangeGroup(mnu))
                             {
                                 ToolBar_RefreshData();
                             }
@@ -428,6 +509,11 @@ namespace WolfInv.Com.CommFormCtrlLib
                     case "ExportTo":
                         {
                             ToolBar_ExportTo(mnu);
+                            break;
+                        }
+                    case "BatchUpdate":
+                        {
+                            ToolBar_BatchUpdate(mnu);
                             break;
                         }
                     default:
@@ -531,6 +617,10 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         public virtual event ToolBarResponseHandle ToolBar_SaveClose;
 
+        public virtual event ToolBarResponseHandle ToolBar_ChangeGroup;
+
+        public virtual event ToolBarResponseHandle ToolBar_BatchUpdate;
+
         public virtual event AddExistHandle ToolBar_SaveAndCreateNew;
 
         public virtual event AddExistHandle ToolBar_AddExist;
@@ -557,7 +647,7 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         public virtual event AddExistHandle ToolBar_ExportTo;
         public event AddExistHandle ToolBar_EditMappings;
-        public event AddExistHandle ToolBar_BatchUpdate;
+
         public event ToolBarHandle ToolBar_SelectAll;
         public event ToolBarHandle ToolBar_InSelect;
 
@@ -610,7 +700,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             }
             else
             {
-                FrameSwitch.switchToView(null, this, mnu);
+                FrameSwitch.switchToView(this.CurrMainPanel, this, mnu);
             }
                         
         }
@@ -667,7 +757,7 @@ namespace WolfInv.Com.CommFormCtrlLib
         {
             
             int cnt = 0;
-            UpdateData updata = this.GetUpdateData(true);//获得修改后的数据
+            UpdateData updata = this.GetUpdateData(false);//获得修改后的数据
             if (!updata.Updated)
                 return false;
             updata.ReqType = DataRequestType.Update;
@@ -756,7 +846,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                 return false;
             }
             //data = GetUpdateData(false);
-            WCSExtraDataAdapter wda = new WCSExtraDataAdapter(mnu.extradataconvertconfig,true);
+            WCSExtraDataAdapter wda = new WCSExtraDataAdapter(this.strUid,mnu.extradataconvertconfig,true);
             DataSet ds = null;
             List<UpdateData> ul = new List<UpdateData>();
             ul.Add(data);
@@ -847,11 +937,13 @@ namespace WolfInv.Com.CommFormCtrlLib
             ToolBar_PrintPDF += PrintPDF;
         }
 
-        private void PrintPDF(CMenuItem mnu)
+        protected virtual void PrintPDF(CMenuItem mnu)
         {
             
             UpdateData ret = null;
-            FrameSwitch.switchToView(this.panel_main,null,mnu,ref ret, new UpdateData[1] { GetUpdateData(false) }.ToList());
+            UpdateData ud = null;
+            ud = GetUpdateData(false, false, true);
+            FrameSwitch.switchToView(this.panel_main,null,mnu,ref ret, new UpdateData[1] {ud }.ToList());
         }
 
         private void Frm_Model_ToolBar_Import(CMenuItem mnu)
@@ -919,7 +1011,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                 
                 XmlUtil.AddAttribute(mnu.extradatagetconfig, "excelpath", ofd.ExcelFileName);
                 XmlUtil.AddAttribute(mnu.extradatagetconfig, "excelsheet", ofd.SheetName);
-                WCSExtraDataAdapter wa = new WCSExtraDataAdapter(mnu.extradataconvertconfig);
+                WCSExtraDataAdapter wa = new WCSExtraDataAdapter(this.strUid, mnu.extradataconvertconfig);
                 string msg = null;
                 DataSet ds = null;
                 bool succ = wa.getData(mnu.extradataassembly, mnu.extradataclass, mnu.extradatagetconfig, mnu.extradatatype, ref ds,ref msg);
@@ -928,6 +1020,13 @@ namespace WolfInv.Com.CommFormCtrlLib
                     this.Cursor = Cursors.Default;
                     MessageBox.Show(msg);
                     return;
+                }
+                else
+                {
+                    if(msg!=null)//如果非空，提示！
+                    {
+                        MessageBox.Show(msg);
+                    }
                 }
                 List<DataControlItem> attCols = new List<DataControlItem>();
                 if(mnu.attatchinfo!=null)
@@ -970,7 +1069,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                         for (int j=0;j<attCols.Count;j++)
                         {
                             string attname = attCols[j].Name;
-                            string val = attCols[j].getValue(this.strUid, ud,null,0);
+                            string val = attCols[j].getValue(this.strUid, ud);
                             ud.Items[attname].value=val;
                         }
                         //InjectData.Add(ud);
@@ -1022,7 +1121,12 @@ namespace WolfInv.Com.CommFormCtrlLib
             }
         }
 
-        protected virtual void FillGridData(DataSet ds)
+        protected virtual void FillGridData(DataSet ds,string name)
+        {
+
+        }
+
+        protected virtual void FillGridData(List<UpdateData> ds)
         {
 
         }
@@ -1035,19 +1139,43 @@ namespace WolfInv.Com.CommFormCtrlLib
             if (node == null) return;
             trip.Items.Clear();
             trip.RightToLeft = XmlUtil.GetSubNodeText(cmbNode, "@RightToLeft") == "0" ? RightToLeft.No : RightToLeft.Yes;
-            InitButtons(node, trip.Items,e,trip.RightToLeft);
+            InitButtons(node,trip, trip.Items, e, "button", RightToLeft.Yes);
         }
 
-        void InitButtons(XmlNode node, ToolStripItemCollection tsic, EventHandler e, RightToLeft RtL)
+
+        protected void InitContextMenu(XmlNode cmbNode, ToolStrip trip, EventHandler e, string strToolKey = "contextmenu")
+        {
+            //ToolStripLabel lb = new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode,"@title") );
+            //ToolBar.Items.Add(lb);
+            if (cmbNode == null)
+                return;
+            XmlNode node = cmbNode.SelectSingleNode(strToolKey);
+            if (node == null)
+                return;
+            trip.Items.Clear();
+            //trip.RightToLeft = XmlUtil.GetSubNodeText(cmbNode, "@RightToLeft") == "0" ? RightToLeft.No : RightToLeft.Yes;
+            InitButtons(node,trip, trip.Items, e, "menu",RightToLeft.No);
+        }
+
+        void InitButtons(XmlNode node,ToolStrip topctrl, ToolStripItemCollection tsic, EventHandler e,string nodename="button", RightToLeft RtL=RightToLeft.Yes)
         {
             string btnkey = "button";
+            if (nodename!=null)
+            {
+                btnkey = nodename;
+            }
+            
             XmlNodeList nodelist = node.SelectNodes(btnkey);
             if(nodelist.Count == 0)
             {
                 btnkey = "Button";
                 nodelist = node.SelectNodes(btnkey); 
             }
-
+            if (nodelist.Count == 0)
+            {
+                btnkey = "menu";
+                nodelist = node.SelectNodes(btnkey);
+            }
             foreach (XmlNode bnode in nodelist)
             {
 
@@ -1055,15 +1183,31 @@ namespace WolfInv.Com.CommFormCtrlLib
                 bool isDdb = false;
                 if (bnode.SelectNodes(btnkey).Count > 0)
                 {
-                    btn = new ToolStripDropDownButton();
+                    if (topctrl is ContextMenuStrip)
+                    {
+                        btn = new ToolStripMenuItem();
+                    }
+                    else
+                    {
+                        btn = new ToolStripMenuItem();
+                    }
                     btn.RightToLeft = RightToLeft.No;
                     isDdb = true;
                 }
                 else
                 {
-                    btn = new ToolStripButton();
+                    if (topctrl is ContextMenuStrip)
+                    {
+                        btn = new ToolStripMenuItem();
+                    }
+                    else
+                    {
+                        btn = new ToolStripButton();
+                        
+                    }
                     btn.Click += new EventHandler(e);
                 }
+
                 string sPerm = XmlUtil.GetSubNodeText(bnode, "@perm");
 
                 CMenuItem mnu = MenuProcess.GetMenu(null, bnode, strUid);
@@ -1071,12 +1215,21 @@ namespace WolfInv.Com.CommFormCtrlLib
                 btn.Name = mnu.MnuId;
                 btn.Text = mnu.MnuName;
                 btn.Tag = mnu;
+                btn.AutoSize = true;
                 btn.Enabled = !(sPerm == "0");
+                if(mnu.OnlyKeyDisplay && string.IsNullOrEmpty(this.strRowId))
+                {
+                    btn.Enabled = false;
+                }
+                if (mnu.OnlyNoKeyDisplay && !string.IsNullOrEmpty(this.strRowId))
+                {
+                    btn.Enabled = false;
+                }
                 //btn.RightToLeft = RtL;
                 tsic.Add(btn);
                 if (isDdb)
                 {
-                    InitButtons(bnode, (btn as ToolStripDropDownButton).DropDownItems,e, RtL);
+                    InitButtons(bnode,topctrl, (btn as ToolStripDropDownItem).DropDownItems,e, btnkey, RtL);
                 }
             }
         }
@@ -1159,6 +1312,12 @@ class:{7}";
             throw new NotImplementedException();
         }
 
+        public DataSet InitDataSource(string sGridSource, out string msg)
+        {
+            bool isextra = false;
+            return InitDataSource(sGridSource, out msg, ref isextra);
+        }
+
         private void btn_close_Click(object sender, EventArgs e)
         {
             if(this.FromMenu!= null)
@@ -1170,5 +1329,451 @@ class:{7}";
             this.Dispose();
             
         }
+
+        protected bool ChangeGridGroup(Grid gd,CMenuItem mnu)
+        {
+            if (gd == null)
+                return false;
+            if (mnu == null)
+                return false;
+            ListView lv = gd.listViewObj as ListView;
+            if (lv == null)
+                return false;
+            if (mnu.AllowCheckedMultiItems)
+            {
+                if(lv.CheckedItems.Count>0)
+                {
+                    MessageBox.Show("只允许操作单选项！");
+                    return false;
+                }
+            }
+            if(gd.GroupBy == mnu.GridGroupBy)
+            {
+                return true;
+            }
+            //gd.AllowGroup = true;
+            //gd.GroupBy = mnu.GridGroupBy;
+            UpdateData ud =   GetUpdateData(false, false, false);
+            //ud = ud.getGroupData(true, mnu.GridGroupBy, null, false);
+            gd.GroupBy = mnu.GridGroupBy;
+            gd.listViewObj.GroupBy = mnu.GridGroupBy;
+            FillGridData(ud.SubItems);
+            return true;
+        }
+
+        protected virtual bool BatchUpdate(Grid gd,CMenuItem mnu)
+        {
+            return true;
+        }
     }
+
+    public class ComboBoxEx : ToolStripComboBox
+    {
+        TreeView lst = new TreeView();
+
+        public ComboBoxEx()
+        {
+            //this.DrawMode = DrawMode.OwnerDrawFixed;//只有设置这个属性为OwnerDrawFixed才可能让重画起作用
+            lst.KeyUp += new KeyEventHandler(lst_KeyUp);
+            lst.MouseUp += new MouseEventHandler(lst_MouseUp);
+            // lst.KeyDown += new KeyEventHandler(lst_KeyDown);
+            lst.Leave += new EventHandler(lst_Leave);
+            lst.CheckBoxes = true;
+            lst.ShowLines = false;
+            lst.ShowPlusMinus = false;
+            lst.ShowRootLines = false;
+            this.DropDownHeight = 1;
+        }
+
+        void lst_Leave(object sender, EventArgs e)
+        {
+            lst.Hide();
+        }
+        #region Property
+
+        [Description("选定项的值"), Category("Data")]
+        public List<TreeNode> SelectedItems
+        {
+            get
+            {
+                List<TreeNode> lsttn = new List<TreeNode>();
+                foreach (TreeNode tn in lst.Nodes)
+                {
+                    if (tn.Checked)
+                    {
+                        lsttn.Add(tn);
+                    }
+                }
+                return lsttn;
+            }
+        }
+
+        /// <summary>
+        /// 数据源
+        /// </summary>
+        [Description("数据源"), Category("Data")]
+        public object DataSource
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 显示字段
+        /// </summary>
+        [Description("显示字段"), Category("Data")]
+        public string DisplayFiled
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// 值字段
+        /// </summary>
+        [Description("值字段"), Category("Data")]
+        public string ValueFiled
+        {
+            get;
+            set;
+        }
+        #endregion
+
+
+        public void DataBind()
+        {
+            this.BeginUpdate();
+            if (DataSource != null)
+            {
+                if (DataSource is IDataReader)
+                {
+                    DataTable dataTable = new DataTable();
+                    dataTable.Load(DataSource as IDataReader);
+
+                    DataBindToDataTable(dataTable);
+                }
+                if(DataSource is XmlNode)
+                {
+                    DataBindToDataTable(DataSource as XmlNode);
+                }
+                else if (DataSource is DataView || DataSource is DataSet || DataSource is DataTable)
+                {
+                    DataTable dataTable = null;
+
+                    if (DataSource is DataView)
+                    {
+                        dataTable = ((DataView)DataSource).ToTable();
+                    }
+                    else if (DataSource is DataSet)
+                    {
+                        dataTable = ((DataSet)DataSource).Tables[0];
+                    }
+                    else
+                    {
+                        dataTable = ((DataTable)DataSource);
+                    }
+
+                    DataBindToDataTable(dataTable);
+                }
+                else if (DataSource is IEnumerable)
+                {
+                    DataBindToEnumerable((IEnumerable)DataSource);
+                }
+                else
+                {
+                    throw new Exception("DataSource doesn't support data type: " + DataSource.GetType().ToString());
+                }
+            }
+            else
+            {
+                lst.Nodes.Clear();
+            }
+
+            lst.ItemHeight = this.DropDownHeight;
+            lst.BorderStyle = BorderStyle.FixedSingle;
+            lst.Size = new Size(this.Width, this.Height * (this.MaxDropDownItems - 1) - (int)this.Height / 2);
+            //lst.Location = new Point(this.Left, this.Top + this.DropDownHeight + 6);
+            this.Parent.Controls.Add(lst);
+            lst.Hide();
+            this.EndUpdate();
+        }
+
+
+        private void DataBindToDataTable(XmlNode  node)
+        {
+            lst.Nodes.Clear();
+            XmlNodeList dt = node.SelectNodes("item");
+            foreach (XmlNode dr in dt)
+            {
+                TreeNode tn = new TreeNode();
+                tn.Text = XmlUtil.GetSubNodeText(dr, "@text");
+                tn.Tag = XmlUtil.GetSubNodeText(dr, "@point");
+
+                tn.Checked = false;
+                lst.Nodes.Add(tn);
+            }
+        }
+
+        private void DataBindToDataTable(DataTable dt)
+        {
+            foreach (DataRow dr in dt.Rows)
+            {
+                TreeNode tn = new TreeNode();
+                if (!string.IsNullOrEmpty(DisplayFiled) && !string.IsNullOrEmpty(ValueFiled))
+                {
+                    tn.Text = dr[DisplayFiled].ToString();
+                    tn.Tag = dr[ValueFiled].ToString();
+                }
+                else if (string.IsNullOrEmpty(ValueFiled))
+                {
+                    tn.Text = dr[DisplayFiled].ToString();
+                    tn.Tag = dr[DisplayFiled].ToString();
+                }
+                else if (string.IsNullOrEmpty(DisplayFiled))
+                {
+                    tn.Text = dr[ValueFiled].ToString();
+                    tn.Tag = dr[ValueFiled].ToString();
+                }
+                else
+                {
+                    throw new Exception("ValueFiled和DisplayFiled至少保证有一项有值");
+                }
+
+                tn.Checked = false;
+                lst.Nodes.Add(tn);
+            }
+        }
+
+        /// <summary>
+        /// 绑定到可枚举类型
+        /// </summary>
+        /// <param name="enumerable">可枚举类型</param>
+        private void DataBindToEnumerable(IEnumerable enumerable)
+        {
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                object currentObject = enumerator.Current;
+                lst.Nodes.Add(CreateListItem(currentObject));
+            }
+        }
+
+
+
+        private TreeNode CreateListItem(Object obj)
+        {
+            TreeNode item = new TreeNode();
+
+            if (obj is string)
+            {
+                item.Text = obj.ToString();
+                item.Tag = obj.ToString();
+            }
+            else
+            {
+                if (DisplayFiled != "")
+                {
+                    item.Text = GetPropertyValue(obj, DisplayFiled);
+                }
+                else
+                {
+                    item.Text = obj.ToString();
+                }
+
+                if (ValueFiled != "")
+                {
+                    item.Tag = GetPropertyValue(obj, ValueFiled);
+                }
+                else
+                {
+                    item.Tag = obj.ToString();
+                }
+            }
+            return item;
+        }
+
+
+        private string GetPropertyValue(object obj, string propertyName)
+        {
+            object result = null;
+
+            result = ObjectUtil.GetPropertyValue(obj, propertyName);
+            return result == null ? String.Empty : result.ToString();
+        }
+
+        #region override
+
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            bool Pressed = (e.Control && ((e.KeyData & Keys.A) == Keys.A));
+            if (Pressed)
+            {
+                this.Text = "";
+                for (int i = 0; i < lst.Nodes.Count; i++)
+                {
+                    lst.Nodes[i].Checked = true;
+                    if (this.Text != "")
+                    {
+                        this.Text += ",";
+                    }
+                    this.Text += lst.Nodes[i].Tag;
+                }
+            }
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            this.DroppedDown = false;
+
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            this.DroppedDown = false;
+            lst.Focus();
+        }
+
+        protected override void OnDropDown(EventArgs e)
+        {
+            string strValue = this.Text;
+            if (!string.IsNullOrEmpty(strValue))
+            {
+                List<string> lstvalues = strValue.Split(',').ToList<string>();
+                foreach (TreeNode tn in lst.Nodes)
+                {
+                    if (tn.Checked && !lstvalues.Contains(tn.Tag.ToString()) && !string.IsNullOrEmpty(tn.Tag.ToString().Trim()))
+                    {
+                        tn.Checked = false;
+                    }
+                    else if (!tn.Checked && lstvalues.Contains(tn.Tag.ToString()) && !string.IsNullOrEmpty(tn.Tag.ToString().Trim()))
+                    {
+                        tn.Checked = true;
+                    }
+                }
+            }
+
+            lst.Show();
+
+        }
+        #endregion
+
+        private void lst_KeyUp(object sender, KeyEventArgs e)
+        {
+            this.OnKeyUp(e);
+        }
+
+        private void lst_MouseUp(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                this.Text = "";
+                for (int i = 0; i < lst.Nodes.Count; i++)
+                {
+                    if (lst.Nodes[i].Checked)
+                    {
+                        if (this.Text != "")
+                        {
+                            this.Text += ",";
+                        }
+                        this.Text += lst.Nodes[i].Tag;
+                    }
+                }
+            }
+            catch
+            {
+                this.Text = "";
+            }
+            bool isControlPressed = (Control.ModifierKeys == Keys.Control);
+            bool isShiftPressed = (Control.ModifierKeys == Keys.Shift);
+            if (isControlPressed || isShiftPressed)
+                lst.Show();
+            else
+                lst.Hide();
+        }
+
+    }
+
+
+    /// <summary>
+    /// 对象帮助类
+    /// </summary>
+    public class ObjectUtil
+    {
+        /// <summary>
+        /// 获取对象的属性值
+        /// </summary>
+        /// <param name="obj">可能是DataRowView或一个对象</param>
+        /// <param name="propertyName">属性名</param>
+        /// <returns>属性值</returns>
+        public static object GetPropertyValue(object obj, string propertyName)
+        {
+            object result = null;
+
+            try
+            {
+                if (obj is DataRow)
+                {
+                    result = (obj as DataRow)[propertyName];
+                }
+                else if (obj is DataRowView)
+                {
+                    result = (obj as DataRowView)[propertyName];
+                }
+                else if (obj is JObject)
+                {
+                    result = (obj as JObject).Value<JValue>(propertyName).Value; //.getValue(propertyName);
+                }
+                else
+                {
+                    result = GetPropertyValueFormObject(obj, propertyName);
+                }
+            }
+            catch (Exception)
+            {
+                // 找不到此属性
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 获取对象的属性值
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="propertyName">属性名（"Color"、"BodyStyle"或者"Info.UserName"）</param>
+        /// <returns>属性值</returns>
+        private static object GetPropertyValueFormObject(object obj, string propertyName)
+        {
+            object rowObj = obj;
+            object result = null;
+
+            if (propertyName.IndexOf(".") > 0)
+            {
+                string[] properties = propertyName.Split('.');
+                object tmpObj = rowObj;
+
+                for (int i = 0; i < properties.Length; i++)
+                {
+                    PropertyInfo property = tmpObj.GetType().GetProperty(properties[i], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    if (property != null)
+                    {
+                        tmpObj = property.GetValue(tmpObj, null);
+                    }
+                }
+
+                result = tmpObj;
+            }
+            else
+            {
+                PropertyInfo property = rowObj.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (property != null)
+                {
+                    result = property.GetValue(rowObj, null);
+                }
+            }
+
+            return result;
+        }
+    }
+
 }

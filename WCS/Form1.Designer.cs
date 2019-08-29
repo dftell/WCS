@@ -99,7 +99,7 @@ namespace WCS
             this.btn_enter.Location = new System.Drawing.Point(216, 379);
             this.btn_enter.Margin = new System.Windows.Forms.Padding(6);
             this.btn_enter.Name = "btn_enter";
-            this.btn_enter.Size = new System.Drawing.Size(110, 38);
+            this.btn_enter.Size = new System.Drawing.Size(110, 47);
             this.btn_enter.TabIndex = 5;
             this.btn_enter.Text = "提交";
             this.btn_enter.UseVisualStyleBackColor = true;
@@ -111,7 +111,7 @@ namespace WCS
             this.btn_out.Location = new System.Drawing.Point(326, 379);
             this.btn_out.Margin = new System.Windows.Forms.Padding(6);
             this.btn_out.Name = "btn_out";
-            this.btn_out.Size = new System.Drawing.Size(110, 38);
+            this.btn_out.Size = new System.Drawing.Size(110, 47);
             this.btn_out.TabIndex = 6;
             this.btn_out.Text = "退出";
             this.btn_out.UseVisualStyleBackColor = true;

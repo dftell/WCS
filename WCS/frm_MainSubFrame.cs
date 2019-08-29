@@ -80,6 +80,9 @@ namespace WCS
 
 
             InitToolBarStrips(cmbNode,GridObj.ToolBar,SubGrid_btn_Click);
+            AddGroupInToolBar(cmbNode, GridObj.ToolBar);
+            //InitContextMenu(cmbNode, this.ContextMenuStrip, this.ToolBarBtn_Click);
+            this.listView1.ContextMenuStrip = this.contextMenuStrip1;
         }
 
 
@@ -137,11 +140,13 @@ namespace WCS
                     return;
                 }
                 InitEditPanelDefaultValue();
+                bool isExtraData = false;
                 PanelObj.CoverData(this.NeedUpdateData, strRowId != "");
                 if (strRowId != "")
                 {
                     string msg = null;
-                    GridData = InitDataSource(DetailSource, out msg);
+                    bool isextra = false;
+                    GridData = InitDataSource(DetailSource, out msg,ref isextra);
                     if (msg != null)
                     {
                         this.Cursor = Cursors.Default;
@@ -149,24 +154,31 @@ namespace WCS
                         MessageBox.Show(msg);
                         return;
                     }
-                    PanelObj.FillData(GridData);
-
-                }
-                if (strRowId != "")
-                {
-                    string msg = null;
-                    DataSet ds = InitDataSource(GridSource, out msg);
-                    if (msg != null)
-                    {
-                        this.Cursor = Cursors.Default;
-                        //this.LoadFlag = true;
-                        MessageBox.Show(msg);
+                    List<UpdateData> ul = DataSource.DataSet2UpdateData(GridData, DetailSource,strUid);
+                    if (ul.Count != 1)
                         return;
-                    }
-                    FillGridData(ds);
-                    if (InjectedDatas != null)
+                    PanelObj.FillData(GridData, DetailSource);
+                    if (isextra&& GridData.Tables.Count > 1)//如果是外部数据，并且表数大于1
                     {
-                        FillGridData(InjectedDatas);
+                          
+                        FillGridData(ul[0].SubItems);
+                       
+                    }
+                    else
+                    {
+                        DataSet ds = InitDataSource(GridSource, out msg);
+                        if (msg != null)
+                        {
+                            this.Cursor = Cursors.Default;
+                            //this.LoadFlag = true;
+                            MessageBox.Show(msg);
+                            return;
+                        }
+                        FillGridData(ds, GridSource);
+                        if (InjectedDatas != null)
+                        {
+                            FillGridData(InjectedDatas);
+                        }
                     }
 
                 }
@@ -184,8 +196,9 @@ namespace WCS
                 }
                 this.LoadFlag = true;
             }
-            catch
+            catch(Exception ce)
             {
+                MessageBox.Show(ce.Message);
                 this.LoadFlag = false;
             }
             this.Cursor = Cursors.Default;
@@ -361,8 +374,8 @@ namespace WCS
 
         ////    //strRowId 
         ////}
-
-        protected override void FillGridData(DataSet ds)
+        
+        protected void FillGridData(DataSet ds,string strsrc)
         {
 
             GridData = ds;
@@ -374,7 +387,7 @@ namespace WCS
             this.listView1.Refresh();
         }
 
-        protected void FillGridData(List<UpdateData> ds)
+        protected override void FillGridData(List<UpdateData> ds)
         {
 
             if (GridObj == null)
@@ -423,6 +436,12 @@ namespace WCS
 
                             break;
                         }
+                    case "Export":
+                        {
+                            ToolBarBtn_Click(sender,e);
+                            break;
+                        }
+                    
                     default:
                         {
                             break;
@@ -437,11 +456,14 @@ namespace WCS
 
         void AddNewSubItem(CMenuItem mnu)
         {
+            this.Cursor = Cursors.WaitCursor;
             UpdateData newData = new UpdateData();
             if (!FrameSwitch.ShowDialoger(null, this,mnu, ref newData))
             {
+                this.Cursor = Cursors.Default;
                 return ;
             }
+            this.Cursor = Cursors.WaitCursor;
             if (newData == null) return ;
             if (GridObj == null)
                 GridObj = this.listView1.Tag as SubGrid;
@@ -450,6 +472,7 @@ namespace WCS
             if (gr == null) return ;
             GridObj.Items.Add(gr);
             GridObj.FillListView();
+            this.Cursor = Cursors.Default;
             return ;
         }
         void RemoveAllSubItem()
@@ -546,6 +569,7 @@ namespace WCS
                 MessageBox.Show("合并项无双击响应事件！");
                 return;
             }
+            
             ItemValue iv = (lvi.Tag as GridRow).ItemValues;
             if (iv == null) return;
             if (GridObj == null) GridObj = this.listView1.Tag as SubGrid;
@@ -573,8 +597,70 @@ namespace WCS
         {
             return GetUpdateData(CheckValueChanged, true);
         }
-
         public override UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData = true, bool getText = false)
+        {
+            return GetUpdateData(CheckValueChanged, UpdateFrameData ,  getText);
+        }
+
+        protected override void PrintPDF(CMenuItem mnu)
+        {
+            UpdateData ret = null;
+            UpdateData ud = null;
+            ud = GetUpdateData(false, false, true,mnu.OnlyOperateSelectItems, mnu.OnlyOperateSelectGroup);
+            FrameSwitch.switchToView(this.panel_main, null, mnu, ref ret, new UpdateData[1] { ud }.ToList());
+        }
+
+        protected override bool BatchUpdate(Grid gd, CMenuItem mnu)
+        {
+            this.Cursor = Cursors.WaitCursor;
+            UpdateData ret = null;
+            UpdateData ud = null;
+            if(this.listView1.CheckedItems.Count==0)
+            {
+                MessageBox.Show("请选择需要批量修改的数据！");
+                return false;
+            }
+            ud = GetUpdateData(false, true, true, mnu.OnlyOperateSelectItems, mnu.OnlyOperateSelectGroup,true);
+            UpdateData subdata = ud.SubItems.Where(a => a.Updated==true).First();
+            if(subdata == null)
+            {
+                MessageBox.Show("没有行状态被标记为修改！");
+                return false;
+            }
+            if (!FrameSwitch.ShowDialoger(null, null, mnu, ref  subdata ))
+            {
+                this.Cursor = Cursors.Default;
+                return false;
+            }
+            this.Cursor = Cursors.WaitCursor;
+            if (subdata == null)
+                return false;
+            if (GridObj == null)
+                GridObj = this.listView1.Tag as SubGrid;
+            string[] items = gd.GroupBy.Split(',');
+            ud.SubItems.ForEach(a =>{
+                if(a.Updated)//如果子列表需要更新
+                {
+                    for(int i=0;i<items.Length;i++)
+                    {
+                        if(subdata.Items.ContainsKey(items[i]) && a.Items.ContainsKey(items[i]))
+                        {
+                            a.Items[items[i]].value = subdata.Items[items[i]].value;
+                        }
+                    }
+                }
+            });
+            GridRow gr = null;
+            ////GridObj.GetNewRow(ref gr, newData);
+            ////if (gr == null) return;
+            //GridObj.Items.Add(gr);
+            //GridObj.FillListView();
+            GridObj.FillGridData(ud.SubItems);
+            this.Cursor = Cursors.Default;
+            return true;
+        }
+
+        public  UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData = true, bool getText = false, bool onlyReadSelectedItems = false, bool onlyReadSelectedGroups = false,bool onlySign=false)
         {
             
             UpdateData updata = new UpdateData();
@@ -582,6 +668,10 @@ namespace WCS
             int cnt = 0;
             foreach (string dpt in PanelObj.ControlList.Keys)
             {
+                if(!PanelObj.ControlList.ContainsKey(dpt))
+                {
+                    continue;
+                }
                 PanelCell pc = PanelObj.ControlList[dpt];
                 string strVal = pc.GetValue(false);
                 if (pc.Value == strVal && CheckValueChanged)//如果值未改变
@@ -592,12 +682,13 @@ namespace WCS
                 ui.datapoint = new DataPoint(dpt);
                 ui.value = strVal;
                 ui.text = pc.GetValue(true);
-                updata.Items.Add(dpt,ui);
+                if(!updata.Items.ContainsKey(dpt))
+                    updata.Items.Add(dpt,ui);
                 cnt++;
             }
             if (GridObj == null)
                 GridObj = this.listView1.Tag as SubGrid;
-            updata.SubItems = GridObj.GetUpdateData(CheckValueChanged,  getText);
+            updata.SubItems = GridObj.GetUpdateData(CheckValueChanged,  getText, onlyReadSelectedItems, onlyReadSelectedGroups,onlySign);
             updata.AllowSum = GridObj.AllowSum;
             updata.AllowGroup = GridObj.AllowGroup;
             updata.GroupBy = GridObj.GroupBy;
@@ -685,8 +776,35 @@ namespace WCS
             this.listView1.Top = this.toolStrip1.Height + 5;
             this.listView1.Left = left;
             this.listView1.Width = allwidth ;
-            this.listView1.Height = this.panel_subtoolbar.Height- toolStrip1.Height-6;
+            this.listView1.Height = this.panel_subtoolbar.Height- toolStrip1.Height-36;
             this.listView1.Scrollable = true;
+        }
+
+        private bool Frm_MainSubFrame_ToolBar_BatchUpdate(CMenuItem mnu)
+        {
+            this.Cursor = Cursors.WaitCursor;
+            bool succ = BatchUpdate(this.GridObj, mnu);
+            this.Cursor = Cursors.Default;
+            if (!succ)
+            {
+                return false;
+                //MessageBox.Show("更新失败");
+            }
+            else
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void listView1_MouseUp(object sender, MouseEventArgs e)
+        {
+            this.listView1.ContextMenuStrip = this.contextMenuStrip1;
+        }
+
+        private bool frm_MainSubFrame_ToolBar_ChangeGroup(CMenuItem mnu)
+        {
+            return ChangeGridGroup(this.GridObj, mnu);
         }
     }
 

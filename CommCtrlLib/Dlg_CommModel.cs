@@ -150,7 +150,8 @@ namespace WolfInv.Com.CommCtrlLib
             if (GridSource == null || GridSource.Trim().Length == 0)
                 return;
             string msg = null;
-            GridData = DataSource.InitDataSource(GridSource,InitBaseConditions(),strUid,out msg);
+            bool isextra = false;
+            GridData = DataSource.InitDataSource(GridSource,InitBaseConditions(),strUid,out msg,ref isextra);
 
             //strRowId 
         }
@@ -288,9 +289,11 @@ namespace WolfInv.Com.CommCtrlLib
 
         private void Dlg_CommModel_Load(object sender, EventArgs e)
         {
+            this.Cursor = Cursors.WaitCursor;
             this.listView1.CheckBoxes = this.MultiSelect;
             if (!LoadControls()) return;
             RefreshData();
+            this.Cursor = Cursors.Default;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -325,7 +328,8 @@ namespace WolfInv.Com.CommCtrlLib
             if (GridSource == null || GridSource.Trim().Length == 0)
                 return;
             string msg = null;
-            GridData = DataSource.InitDataSource(GridSource, conds,strUid ,out msg);
+            bool isextra = false;
+            GridData = DataSource.InitDataSource(GridSource, conds,strUid ,out msg,ref isextra);
             if (msg != null)
             {
                 MessageBox.Show(msg);

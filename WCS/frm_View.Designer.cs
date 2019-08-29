@@ -60,6 +60,7 @@ namespace WCS
             // 
             // listView1
             // 
+            this.listView1.AllowGroup = false;
             this.listView1.AllowSum = false;
             this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
@@ -67,15 +68,18 @@ namespace WCS
             this.listView1.CheckBoxes = true;
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
+            this.listView1.GroupBy = null;
             this.listView1.Location = new System.Drawing.Point(0, 0);
             this.listView1.Margin = new System.Windows.Forms.Padding(6);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(1184, 731);
+            this.listView1.SumItems = null;
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
             this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+            this.listView1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseUp);
             // 
             // frm_View
             // 
@@ -89,10 +93,12 @@ namespace WCS
             this.ToolBar_ListSelectedItemsClicked += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.ListSelectedItems_Click);
             this.ToolBar_EditView += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.EditView_Click);
             this.ToolBar_NewCreate += new WolfInv.Com.CommCtrlLib.AddExistHandle(this.NewCreate_Click);
-            this.ToolBar_Remove += this.frm_View_ToolBar_Remove;
             this.ToolBar_RefreshData += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.RefreshData_Click);
             this.ToolBar_Export += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.Export_Click);
             this.Load += new System.EventHandler(this.frm_View_Load);
+            this.Controls.SetChildIndex(this.panel_Title, 0);
+            this.Controls.SetChildIndex(this.panel_main, 0);
+            this.Controls.SetChildIndex(this.panel_bottom, 0);
             this.panel_main.ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();

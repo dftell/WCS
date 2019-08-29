@@ -30,6 +30,7 @@ namespace WolfInv.Com.CommFormCtrlLib
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_Model));
             this.panel_Title = new System.Windows.Forms.Panel();
             this.btn_close = new System.Windows.Forms.PictureBox();
@@ -39,6 +40,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             this.label_buttom = new System.Windows.Forms.Label();
             this.panel_main = new WolfInv.Com.XPlatformCtrlLib.XWinForm_Panel();
             this.toolStrip1 = new WolfInv.Com.CommFormCtrlLib.ToolBarStrip();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.panel_Title.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.btn_close)).BeginInit();
             this.panel_bottom.SuspendLayout();
@@ -120,6 +122,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel_main.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panel_main.CurrMainControl = null;
+            this.panel_main.InForm = false;
             this.panel_main.Location = new System.Drawing.Point(0, 105);
             this.panel_main.Margin = new System.Windows.Forms.Padding(6);
             this.panel_main.Name = "panel_main";
@@ -137,6 +140,12 @@ namespace WolfInv.Com.CommFormCtrlLib
             this.toolStrip1.Size = new System.Drawing.Size(1200, 25);
             this.toolStrip1.TabIndex = 3;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(301, 48);
             // 
             // frm_Model
             // 
@@ -173,6 +182,7 @@ namespace WolfInv.Com.CommFormCtrlLib
         public System.Windows.Forms.Label label_buttom;
         private PictureBox btn_close;
         private Label label1;
+        protected ContextMenuStrip contextMenuStrip1;
         //public Label lb_Title { get; set; }
     }
 }

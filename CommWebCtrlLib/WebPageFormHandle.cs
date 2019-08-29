@@ -33,7 +33,8 @@ namespace WolfInv.Com.CommWebCtrlLib
                 msg = string.Format("数据源为空");
                 return null; ;
             }
-            return DataSource.InitDataSource(sGridSource, InitBaseConditions(), strUid, out msg);
+            bool ret=false;
+            return DataSource.InitDataSource(sGridSource, InitBaseConditions(), strUid, out msg,ref ret);
 
         }
 
@@ -50,7 +51,7 @@ namespace WolfInv.Com.CommWebCtrlLib
                 foreach (DataTranMapping data in this.TranData)
                 {
                     DataCondition datacond = new DataCondition();
-                    datacond.value = data.FromDataPoint;
+                    datacond.value = data.FromDataPoint.Name;
                     datacond.Datapoint = new DataPoint(data.ToDataPoint);
                     conds.Add(datacond);
                 }
@@ -59,7 +60,8 @@ namespace WolfInv.Com.CommWebCtrlLib
             return conds;
         }
 
-        public override UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData)
+        public override UpdateData GetUpdateData(bool JudgeValueChanged, bool UpdateFrameData, bool getText = false)
+        
         {
             return null;
         }

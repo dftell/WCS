@@ -54,6 +54,7 @@ namespace WCS
             // 
             // panel_Title
             // 
+            this.panel_Title.Location = new System.Drawing.Point(0, 25);
             this.panel_Title.Size = new System.Drawing.Size(1200, 42);
             // 
             // panel_main
@@ -142,19 +143,23 @@ namespace WCS
             // 
             // listView1
             // 
+            this.listView1.AllowGroup = false;
             this.listView1.AllowSum = false;
             this.listView1.CheckBoxes = true;
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
+            this.listView1.GroupBy = null;
             this.listView1.Location = new System.Drawing.Point(6, 67);
             this.listView1.Margin = new System.Windows.Forms.Padding(6);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(982, 412);
+            this.listView1.SumItems = null;
             this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
             this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+            this.listView1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseUp);
             // 
             // toolStrip_subtitle
             // 
@@ -187,7 +192,7 @@ namespace WCS
             this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
             this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(54, 36);
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(54, 46);
             this.toolStripDropDownButton1.Text = "toolStripDropDownButton1";
             // 
             // frm_MainSubFrame
@@ -197,9 +202,14 @@ namespace WCS
             this.Margin = new System.Windows.Forms.Padding(12);
             this.Name = "frm_MainSubFrame";
             this.Size = new System.Drawing.Size(1200, 900);
+            this.ToolBar_ChangeGroup += new WolfInv.Com.CommCtrlLib.ToolBarResponseHandle(this.frm_MainSubFrame_ToolBar_ChangeGroup);
+            this.ToolBar_BatchUpdate += Frm_MainSubFrame_ToolBar_BatchUpdate ;
             this.ToolBar_AddExist += new WolfInv.Com.CommCtrlLib.AddExistHandle(this.AddExist_Click);
             this.Load += new System.EventHandler(this.frm_MainSubFrame_Load);
             this.DockChanged += new System.EventHandler(this.frm_MainSubFrame_DockChanged);
+            this.Controls.SetChildIndex(this.panel_Title, 0);
+            this.Controls.SetChildIndex(this.panel_main, 0);
+            this.Controls.SetChildIndex(this.panel_bottom, 0);
             this.panel_main.ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();
@@ -217,6 +227,8 @@ namespace WCS
             this.PerformLayout();
 
         }
+
+        
 
         #endregion
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;

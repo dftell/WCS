@@ -16,6 +16,32 @@ namespace WolfInv.Com.jdyInterfaceLib
     {
 
     }
+
+    public class JDYSCM_SaleOrder_List_Class : JDYSCM_Bussiness_List_Class
+    {
+
+    }
+
+    public class JDYSCM_SaleDelivery_List_Class : JDYSCM_Bussiness_List_Class
+    {
+
+    }
+
+    public class JDYSCM_SaleDelivery_Add_Class : JDYSCM_Bussiness_List_Class
+    {
+
+    }
+
+    public class JDYSCM_SaleDelivery_Update_Class : JDYSCM_Bussiness_List_Class
+    {
+
+    }
+
+    public class JDYSCM_SaleDelivery_Delete_Class : JDYSCM_Bussiness_List_Class
+    {
+
+    }
+
     public class JDYSCM_SaleOrder_Add_Class : JDYSCM_Bussiness_List_Class
     {
         public List<JDYSCM_SaleOrder_List_Item_Class> items { get; set; }

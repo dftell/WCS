@@ -44,14 +44,30 @@ namespace WolfInv.Com.XPlatformCtrlLib
         public string Title;
         public string LinkUrl;
         public string isSummary;
+
         public bool ReplaceMenu;
         public string FixField;
         CMenuItem _defaultSubItem;
         public bool Expand;
         public int WWidth = 900;
         public int WHeight = 720;
+        public bool OnlyOperateSelectItems;
+        public bool OnlyOperateSelectGroup;
+
+        public bool NeedNotice;
+        public string NoticeTitle;
+        public string NoticeContent;
+
 
         public CMenuItem evt;
+
+        public bool OnlyKeyDisplay;
+
+        public bool OnlyNoKeyDisplay;
+
+        public string GridGroupBy;
+
+        public bool AllowCheckedMultiItems;
 
         //实现了 WCSExtraDataInterface的外部数据接口类
         public bool isextradata { get; set; }
@@ -129,6 +145,11 @@ namespace WolfInv.Com.XPlatformCtrlLib
             this.DetailSrouce = XmlUtil.GetSubNodeText(node, "@datasource");
             this.Params = XmlUtil.GetSubNodeText(node, "@param");
             this.Module = XmlUtil.GetSubNodeText(node, "@module");
+
+            this.NeedNotice = XmlUtil.GetSubNodeText(node, "@neednotice")=="1";
+            this.NoticeTitle = XmlUtil.GetSubNodeText(node, "@noticetitle");
+            this.NoticeContent = XmlUtil.GetSubNodeText(node, "@noticecontent");
+
             this.Screen = XmlUtil.GetSubNodeText(node, "@screen");
             this.Target = XmlUtil.GetSubNodeText(node, "@target");
             this.Title = XmlUtil.GetSubNodeText(node, "@title");
@@ -136,6 +157,14 @@ namespace WolfInv.Com.XPlatformCtrlLib
             this.FixField = XmlUtil.GetSubNodeText(node, "@fixfield");
             this.Expand = XmlUtil.GetSubNodeText(node, "@expand") == "1";
             this.ReplaceMenu = XmlUtil.GetSubNodeText(node, "@list") == "1";
+            this.OnlyOperateSelectItems = XmlUtil.GetSubNodeText(node, "@onlyoperateselectitems") == "1";
+            this.OnlyOperateSelectGroup = XmlUtil.GetSubNodeText(node, "@onlyoperateselectgroup") == "1";
+            this.OnlyKeyDisplay = XmlUtil.GetSubNodeText(node, "@onlykeydisplay") == "1";
+            this.OnlyNoKeyDisplay = XmlUtil.GetSubNodeText(node, "@onlynokeydisplay") == "1";
+            this.AllowCheckedMultiItems = XmlUtil.GetSubNodeText(node, "@allowcheckedmultiItems") == "1";
+            this.GridGroupBy = XmlUtil.GetSubNodeText(node, "gridgroupby");
+
+
             if (!int.TryParse(XmlUtil.GetSubNodeText(node, "@winwidth"), out this.WWidth))
             {
                 WWidth = 900;
@@ -619,6 +648,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
             mnu.extradatagetconfig = node.SelectSingleNode("extradatagetconfig");
             mnu.extradatatype = XmlUtil.GetSubNodeText(node, "@extradatatype");
             mnu.attatchinfo = node.SelectSingleNode("attatchinfo");
+            mnu.GridGroupBy = XmlUtil.GetSubNodeText(node, "@groupby");
             XmlNodeList mapnodes = node.SelectNodes("./Maps/Map");
             if (mapnodes.Count != 0)
             {

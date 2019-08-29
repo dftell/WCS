@@ -100,6 +100,7 @@ namespace WCS
             GridObj.GroupBy = GridObj.listViewObj.GroupBy;
             GridObj.AllowSum = GridObj.listViewObj.AllowSum;
             GridObj.SumItems = GridObj.listViewObj.SumItems;
+            this.listView1.ContextMenuStrip = this.contextMenuStrip1;
         }
 
         protected void FillData(DataSet ds)
@@ -320,7 +321,8 @@ namespace WCS
             if (GridSource == null || GridSource.Trim().Length == 0)
                 return;
             string msg = null;
-            GridData = DataSource.InitDataSource(GridSource, conds,strUid,out msg);
+            bool isextra = false;
+            GridData = DataSource.InitDataSource(GridSource, conds,strUid,out msg,ref isextra);
             if (msg != null || GridData == null)
             {
                 MessageBox.Show(msg);
@@ -538,6 +540,11 @@ namespace WCS
                 return false;
             }
             
+        }
+
+        private void listView1_MouseUp(object sender, MouseEventArgs e)
+        {
+            this.listView1.ContextMenuStrip = this.contextMenuStrip1;
         }
     }
     

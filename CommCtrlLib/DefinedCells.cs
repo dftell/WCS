@@ -210,7 +210,8 @@ namespace WolfInv.Com.CommCtrlLib
                 }
             }
             string msg = null;
-            DataSet ds = WolfInv.Com.WCS_Process.DataSource.InitDataSource(this.DataSourceName, conds, this.Name,out msg);
+            bool isextra = false;
+            DataSet ds = WolfInv.Com.WCS_Process.DataSource.InitDataSource(this.DataSourceName, conds, this.Name,out msg,ref isextra);
             if (ds == null)
             {
                 MessageBox.Show(string.Format("控件{0}无法获得数据！", this.Name));

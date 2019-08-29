@@ -45,6 +45,7 @@ namespace WCS
 
         private void frm_frame_Load(object sender, EventArgs e)
         {
+            this.Cursor = Cursors.WaitCursor;
             if (NeedUpdateData == null)
                 NeedUpdateData = DataSource.getDefaultData(DetailSource, this.strUid);
             if (!LoadControls()) return;
@@ -60,10 +61,11 @@ namespace WCS
             if (strRowId != "")
             {
                 GridData = InitDataSource(DetailSource, out msg);
-                PanelObj.FillData(GridData);
+                PanelObj.FillData(GridData,DetailSource);
             }
             
             this.Refresh();
+            this.Cursor = Cursors.Default;
         }
 
         public override bool LoadControls()
@@ -185,7 +187,7 @@ namespace WCS
                     this.tableLayoutPanel1.Controls.Add(pc.ItemControl, 2 * c + 1, i);
                     if (c == pr.Cells.Count - 1)
                     {
-                        this.tableLayoutPanel1.SetColumnSpan(pc.ItemControl, PanelObj.ColumnCnt - pr.Cells.Count * 2 + 1);
+                        this.tableLayoutPanel1.SetColumnSpan(pc.ItemControl,Math.Max(PanelObj.ColumnCnt - pr.Cells.Count * 2 + 1,1));
                     }
 
                 }

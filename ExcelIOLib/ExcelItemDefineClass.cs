@@ -90,7 +90,13 @@ namespace WolfInv.Com.ExcelIOLib
         CategoryAttribute("设置")]
         public bool IsKey { get; set; }
 
-        
+        /// <summary>
+        /// 跳过值
+        /// </summary>
+        [DescriptionAttribute("跳过值"),
+        DisplayName("跳过值"),
+        CategoryAttribute("设置")]
+        public string SkipValue { get; set; }
 
         public bool Skip(Func<bool> CheckResult)
         {

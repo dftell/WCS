@@ -19,6 +19,7 @@ using Newtonsoft.Json.Linq;
 using Xilium.CefGlue.WindowsForms;
 using WolfInv.Com.AccessWebLib;
 using System.Text.RegularExpressions;
+using System.Data;
 //using Microsoft.Toolkit.Win32.UI.Controls.WinForms;
 namespace WCS
 {
@@ -182,6 +183,45 @@ namespace WCS
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            if(1==0)
+            {
+                DataSet ds = new DataSet();
+                DataTable dt = new DataTable();
+                for (int i = 0; i < 5; i++)
+                    dt.Columns.Add("str1col" + i.ToString());
+                for(int i=0;i<10;i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    for (int j = 0; j < 5; j++)
+                        dr[j] = string.Format("val_{0}", j);
+                    dt.Rows.Add(dr);
+                }
+                ds.Tables.Add(dt);
+                DataTable tb2 = dt.Clone();
+                for(int i=0;i<3;i++)
+                {
+                    DataRow dr = tb2.NewRow();
+                    for (int j=0;j<2;j++)
+                    {
+                        dr[j] = string.Format("val2_{0}",j);
+
+                    }
+                    tb2.Rows.Add(dr);
+                }
+                tb2.TableName = "tb2";
+                ds.Tables.Add(tb2);
+                string ret = ds.GetXml();
+                DataSet ds2 = new DataSet();
+                MemoryStream ms = new MemoryStream();
+                byte[] bs = Encoding.ASCII.GetBytes(ret);
+                
+                ms.Write(bs, 0, bs.Length);
+                ms.Flush();
+                ms.Seek(0, SeekOrigin.Begin);
+                ds2.ReadXml(ms);
+                ms.Close();
+            }
+            
             this.Lbl_SystemName.Text = GlobalShare.SystemAppInfo.FormText;
             FrameSwitch.SystemText = GlobalShare.SystemAppInfo.Title;
             this.Text = GlobalShare.SystemAppInfo.Title;

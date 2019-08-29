@@ -23,11 +23,13 @@ namespace WolfInv.Com.ExcelIOLib
             if(define.QuickTitleList!=null&& define.QuickTitleList.Trim().Length>0)
             {
                 gbdef = new ExcelSheetDefineClass(define.QuickTitleList, define.QuickTitleRefList, define.TitleBaseIndex, define.ItemsBaseIndex, define.DataDirect);
+                gbdef.SheetName = define.SheetName;
             }
         }
 
         public ReadResult GetResult(string strFileName)
         {
+            
             ReadResult ret = new ReadResult();
             XmlDocument res = new XmlDocument();
             DataSet ds = new DataSet();
@@ -128,6 +130,11 @@ namespace WolfInv.Com.ExcelIOLib
                 excel = null;
                 return ret;
             }
+            List<string> msglist = new List<string>();
+            if(msg!=null)
+            {
+                msglist.Add(string.Format("表格{0}提示:{1};",MainWs.Name, msg));
+            }
             if(gbdef.DataType == DataMode.GroupAndDetail || gbdef.DataType == DataMode.MainAndSubList)
             {
                 XmlNode subNode = res.SelectSingleNode("root/SubData");
@@ -170,6 +177,10 @@ namespace WolfInv.Com.ExcelIOLib
                             ret.Message = string.Format("{0}获取数据错误:{1}",st.Name,msg);
                             return ret;
                         }
+                        if(msg != null)
+                        {
+                            msglist.Add(string.Format("表格{0}提示:{1};", st.Name, msg));
+                        }
                         MatchCnt++;
                         
                         
@@ -189,8 +200,16 @@ namespace WolfInv.Com.ExcelIOLib
                     MainWs = wb.Worksheets[1] as Worksheet;
                 }
             }
-
+            if(msglist.Count==0)
+            {
+                ret.Message = null;
+            }
+            else
+            {
+                ret.Message = string.Join(",", msglist);
+            }
             ret.Succ = true;
+            
             excel.Quit();
             ExcelCommLib.Kill(excel);
             excel = null;
@@ -314,6 +333,8 @@ namespace WolfInv.Com.ExcelIOLib
 
         bool GetDataInfo(Worksheet ws, ExcelSheetDefineClass def, XmlNode doc,ref DataSet ds, out string msg)
         {
+            Dictionary<string,List<string>> SkipRec = new Dictionary<string, List<string>>();
+            List<string> ErrorRec = new List<string>();
             if (ds == null)
                 ds = new DataSet();
             msg = null;
@@ -384,20 +405,34 @@ namespace WolfInv.Com.ExcelIOLib
             {
                 DataRow dr = dt.NewRow();
                 bool NeedSkip = false;
+                string SkipReason = null;
                 string keyval = strKeyModel;
                 for (int j=0;j<FixPoint.Count;j++)
                 {
                     object val = (ws.Cells[isVer ? i : FixPoint[j].pos,isVer?FixPoint[j].pos : i] as Range).Value;
-                    if(val == null)
+                    dr[FixPoint[j].name] = val;
+                    if (val == null)
                     {
                         if(!AllPoints[FixPoint[j].name].AllowNull||AllPoints[FixPoint[j].name].IsKey)
                         {
                             NeedSkip = true;
+                            SkipReason=string.Format("定义的非空字段{0}出现空值，无法导入，跳过！","");
+                            continue;
+                        }
+                    }
+                    
+                    if (val!= null)
+                    {
+                        val = val.ToString().Trim();//去除空格
+                        if (AllPoints[FixPoint[j].name].SkipValue == val.ToString().Trim())
+                        {
+                            NeedSkip = true;
+                            SkipReason = string.Format("定义的字段{0}违反非{1}约束，无法导入，跳过！", AllPoints[FixPoint[j].name], AllPoints[FixPoint[j].name].SkipValue);
                             continue;
                         }
                     }
                     if(AllPoints[FixPoint[j].name].IsKey)
-                        keyval = keyval.Replace(string.Format("[{0}]", FixPoint[j].name), val?.ToString());
+                        keyval = keyval.Replace(string.Format("[{0}]", FixPoint[j].name), val?.ToString().Trim());
                     
                     if (FixPoint[j].expr != null && FixPoint[j].expr.Trim().Length > 0)
                     {
@@ -424,6 +459,11 @@ namespace WolfInv.Com.ExcelIOLib
                 }
                 else
                 {
+                    if(!SkipRec.ContainsKey(SkipReason))
+                    {
+                        SkipRec.Add(SkipReason, new List<string>());
+                    }
+                    SkipRec[SkipReason].Add(string.Join(",",dr.ItemArray));
                 }
             }
             System.Data.DataTable retDt = dt.Clone();
@@ -438,6 +478,7 @@ namespace WolfInv.Com.ExcelIOLib
                 List<string> AlldgTitles = new List<string>();
                 while (dgStartPos <= absMaxPos)//遍历从交叉开始位置到结束的所有Title值
                 {
+                    
                     List<string> dgTitles = new List<string>();
                     
                     for (int k = 0; k < def.CrossDataUseUnits; k++)
@@ -450,6 +491,8 @@ namespace WolfInv.Com.ExcelIOLib
                             msg = "动态列未找到标题";
                             return false;
                         }
+                        if(val!=null)
+                            val = val.ToString().Trim();//去除空格
                         if((def.CrossSkipTitle!=null && def.CrossSkipTitle.Trim().Length>0)&&val.ToString().IndexOf(def.CrossSkipTitle)>=0)//如果找到跳过关键字
                         {
                             dgStartPos++;
@@ -470,11 +513,13 @@ namespace WolfInv.Com.ExcelIOLib
                 }
                 for (int j=0;j<dgPoss.Count;j++)
                 {
+                  
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         DataRow dr = retDt.NewRow();
                         dr.ItemArray = dt.Rows[i].ItemArray;
                         bool NeedSkip = false;
+                        string SkipReason = null;
                         for (int k = 0; k < def.CrossDataUseUnits; k++)
                         {
                             int row = isVer ? def.ItemsBaseIndex + i : dgPoss[j] + k;
@@ -486,15 +531,34 @@ namespace WolfInv.Com.ExcelIOLib
                                 if (val == null)
                                 {
                                     NeedSkip = true;
-                                    continue;
+                                    SkipReason = "交叉值为空跳过";
+                                    //continue;
+                                }
+                            }
+                            if(def.CrossIfZeroSkip)
+                            {
+                                if (val!= null && val.ToString() == "0")
+                                {
+                                    NeedSkip = true;
+                                    SkipReason = "交叉值为0跳过";
                                 }
                             }
                             dr[strPoint] = val;
                         }
                         //公共标题所对应的数据点必须放在最后一个字符串。
                         dr[def.CrossItemNames[def.CrossDataUseUnits]] = AlldgTitles[j];
-                        if(!NeedSkip)
+                        if (!NeedSkip)
+                        {
                             retDt.Rows.Add(dr);
+                        }
+                        else
+                        {
+                            if (!SkipRec.ContainsKey(SkipReason))
+                            {
+                                SkipRec.Add(SkipReason, new List<string>());
+                            }
+                            SkipRec[SkipReason].Add(string.Join(",", dr.ItemArray));
+                        }
                     }
                 }
             }
@@ -502,7 +566,18 @@ namespace WolfInv.Com.ExcelIOLib
             {
                 retDt = dt;
             }
+            if (SkipRec.Count == 0)
+            {
+                msg = null;
+            }
+            else
+            {
+                msg = string.Join(";", SkipRec.Select(a => {
+                    return string.Format("[{0}:{1}]", a.Key, string.Join(";", a.Value));
+                }).ToArray());
+            }
             ds.Tables.Add(retDt);
+           
             ExcelDataTable edt = new ExcelDataTable(retDt);
             edt.ToXml(doc);
             return true;

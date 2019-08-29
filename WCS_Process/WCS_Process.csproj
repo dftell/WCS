@@ -73,6 +73,7 @@
     <Compile Include="CSupport.cs" />
     <Compile Include="DataCenterClient.cs" />
     <Compile Include="DataChoice.cs" />
+    <Compile Include="DataControlItem.cs" />
     <Compile Include="DataInterface.cs" />
     <Compile Include="DataSource.cs" />
     <Compile Include="DocumentRecord.cs" />

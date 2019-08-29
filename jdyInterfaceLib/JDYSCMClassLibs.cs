@@ -33,28 +33,7 @@ namespace WolfInv.Com.jdyInterfaceLib
         
     }
 
-    public class TableGuider
-    {
-        public string TableName { get; set; }
-        public string Key { get; set; }
-        public string KeyValue;
-        public string NextRef { get; set; }
-
-        public TableGuider() { }
-        public TableGuider(XmlNode node)
-        {
-            LoadXml(node);
-        }
-
-        public void LoadXml(XmlNode node)
-        {
-            TableName = XmlUtil.GetSubNodeText(node,"@Name");
-            Key = XmlUtil.GetSubNodeText(node, "@MainKey");
-            NextRef = XmlUtil.GetSubNodeText(node, "@MainRef");
-        }
-
-    }
-
+    
     public abstract class JDYSCM_Bussiness_Class: JDYSCM_Class
     {
 
@@ -105,7 +84,7 @@ namespace WolfInv.Com.jdyInterfaceLib
                 this.ReqJson = string.Format("{0}&pageSize={1}&page={2}", this.ReqJson, pageSize, page); 
                 return;
             }
-            XmlDocument doc = getRequestSchema();
+            XmlDocument doc = getFilterSchema();
             if(doc == null)
             {
                 return;
@@ -249,13 +228,36 @@ namespace WolfInv.Com.jdyInterfaceLib
             return parent;
         }
 
-        XmlDocument getRequestSchema()
+
+        public XmlDocument getFilterSchema()
         {
             if (this.Module.RequestSchema == null)
                 this.Module.RequestSchema = "";
             string xmlreq = jdy_GlbObject.getText(this.Module.RequestSchema);
             if (xmlreq == null || xmlreq.Trim().Length == 0)//如果获取不到，获取过滤请求
                 xmlreq = jdy_GlbObject.getText("Schema\\System.Bussiness.Item.Filter.Model.xml", "", "");
+            if (xmlreq == null || xmlreq.Trim().Length == 0)
+                return null;
+            XmlDocument ret = new XmlDocument();
+            try
+            {
+                ret.LoadXml(xmlreq);
+                return ret;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
+        public XmlDocument getRequestSchema()
+        {
+            if (this.Module.RequestSchema == null)
+                this.Module.RequestSchema = "";
+            string xmlreq = jdy_GlbObject.getText(this.Module.RequestSchema);
+            if (xmlreq == null || xmlreq.Trim().Length == 0)//如果获取不到，获取过滤请求
+                xmlreq = jdy_GlbObject.getText("Schema\\System.Bussiness.Item.Model.xml", "", "");
             if (xmlreq == null || xmlreq.Trim().Length == 0)
                 return null;
             XmlDocument ret = new XmlDocument();
@@ -383,11 +385,7 @@ namespace WolfInv.Com.jdyInterfaceLib
             public int elsPurPrice { get; set; }
         }
     }
-    public class JDYSCM_SaleOrder_List_Class : JDYSCM_Bussiness_List_Class
-    {
-
-    }
-
+   
     public class JDYSCM_Product_Unit_List_Class: JDYSCM_Bussiness_List_Class
     {
         public List<Product_Unit_Class> items { get; set; }

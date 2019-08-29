@@ -211,11 +211,11 @@ namespace WolfInv.Com.WCS_Process
                 {
                     if (allcols.ContainsKey(vals[c]))
                     {
-                        valitems.Add(dr[vals[c]].ToString());
+                        valitems.Add(dr[vals[c]].ToString().Trim());
                     }
                     else
                     {
-                        valitems.Add(vals[c]);
+                        valitems.Add(vals[c].Trim());
                     }
                     
 
@@ -225,11 +225,11 @@ namespace WolfInv.Com.WCS_Process
                 {
                     if (allcols.ContainsKey(txts[c]))
                     {
-                        txtitems.Add(dr[txts[c]].ToString());
+                        txtitems.Add(dr[txts[c]].ToString().Trim());
                     }
                     else
                     {
-                        txtitems.Add(txts[c]);
+                        txtitems.Add(txts[c].Trim());
                     }
                 }
                 dci.Value = string.Join(splitor, valitems);

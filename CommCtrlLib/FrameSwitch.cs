@@ -621,7 +621,7 @@ namespace WolfInv.Com.CommCtrlLib
                             }
                             else
                             {
-                                data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, dtm.FromDataPoint.Text));
+                                data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, dtm.FromDataPoint.Name));
                             }
                         }
                     }

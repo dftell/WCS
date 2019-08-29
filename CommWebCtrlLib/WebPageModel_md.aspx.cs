@@ -227,7 +227,8 @@ namespace WolfInv.Com.CommWebCtrlLib
                 msg = string.Format("数据源为空");
                 return null; ;
             }
-            return DataSource.InitDataSource(sGridSource, InitBaseConditions(), strUid, out msg);
+            bool isextra = false;
+            return DataSource.InitDataSource(sGridSource, InitBaseConditions(), strUid, out msg,ref isextra);
 
         }
 

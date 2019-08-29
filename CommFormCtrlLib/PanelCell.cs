@@ -12,7 +12,7 @@ namespace WolfInv.Com.CommFormCtrlLib
 {
     public class PanelCell :EditCell,IUserData, IPermmsionControl
     {
-        
+        public UpdateData CurrPanelData { get; set; }//整个Panel数据
 
         #region IPermmsionControl 成员
         string _permid;

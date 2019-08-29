@@ -222,6 +222,8 @@ namespace WolfInv.Com.CommCtrlLib
 
                         intgrids[col] = this.Items.Sum(row => {
                             float val = 0;
+                            if (!row.Items.ContainsKey(a.DataField))
+                                return 0;
                             float.TryParse(row.Items[a.DataField].value,out val);
                             return val;
                         }).ToString();

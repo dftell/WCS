@@ -18,21 +18,90 @@ namespace WolfInv.Com.CommCtrlLib
         {
             return GetUpdateData(true);
         }
-        public List<UpdateData> GetUpdateData(bool checkupdated,bool getText = false)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="checkupdated"></param>
+        /// <param name="getText"></param>
+        /// <param name="onlyReadSelectedItems"></param>
+        /// <param name="onlyReadSelectedGroups"></param>
+        /// <param name="onlySign">只标志，批更新专用，将子项标记为修改，修改后回传</param>
+        /// <returns></returns>
+        public List<UpdateData> GetUpdateData(bool checkupdated,bool getText = false,bool onlyReadSelectedItems=false, bool onlyReadSelectedGroups = false,bool onlySign=false)
         {
             List<UpdateData> ret = new List<UpdateData>();
             if (listobj == null || listobj.Items == null)
                 return ret;
+            HashSet<string> selectGrps = new HashSet<string>();
+            //onlyReadSelectedGroups是在onlyReadSelectedItems为true的上进一步约束，如果是onlyReadSelectedGroups为true,就算未选，如果属于组，一样要进行操作
+            if (onlyReadSelectedGroups && onlyReadSelectedItems)
+            {
+                for (int i = 0; i < listobj.CheckedIndices.Count; i++)
+                {
+                    ListViewItem lvi = listobj.Items[listobj.CheckedIndices[i]];
+                    if (onlyReadSelectedGroups)//如果只读已选的
+                    {
+                        
+                        if ( lvi.Group != null)
+                        {
+                            if (!selectGrps.Contains(lvi.Group.Header))
+                                selectGrps.Add(lvi.Group.Header);
+                        }
+                    }
+                }
+            }
             for (int i = 0; i < listobj.Items.Count; i++)
             {
+                ListViewItem lvi = listobj.Items[i];
                 GridRow gr = listobj.Items[i].Tag as GridRow;
-                if (gr == null)
+                if (gr == null)//汇总行
                     continue;
+                if (onlySign)
+                {
+                    gr.Updated = true;
+                }
+                
+                if (!lvi.Checked)//如果没选
+                {
+                    if (onlyReadSelectedItems)//如果只显示选择的
+                    {
+                        if (onlyReadSelectedGroups)//只显示同组的
+                        {
+                            if (lvi.Group != null && selectGrps.Contains(lvi.Group.Header))//如果属于
+                            {
+                                
+                            }
+                            else
+                            {
+                                if (!onlySign)
+                                    continue;
+                                else
+                                    gr.Updated = false;
+                            }
+                           
+                        }
+                        else//不同组的
+                        {
+                            if (!onlySign)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                gr.Updated = false;
+                            }
+                        }
+                    }
+                    
+                }
+                
+                
                 if (!gr.Updated && checkupdated)
                 {
                     continue;
                 }
                 UpdateData  subitem = new UpdateData();
+                subitem.Updated = gr.Updated;
                 for (int c = 0; c < this.Columns.Count; c++)
                 {
                     if (gr.Items.ContainsKey(this.Columns[c].DataField))
