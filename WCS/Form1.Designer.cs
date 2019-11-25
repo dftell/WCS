@@ -60,7 +60,6 @@ namespace WCS
             this.txt_user.Name = "txt_user";
             this.txt_user.Size = new System.Drawing.Size(240, 35);
             this.txt_user.TabIndex = 1;
-            this.txt_user.Text = "gmxgd";
             // 
             // label2
             // 
@@ -80,7 +79,6 @@ namespace WCS
             this.txt_pwd.PasswordChar = '*';
             this.txt_pwd.Size = new System.Drawing.Size(240, 35);
             this.txt_pwd.TabIndex = 3;
-            this.txt_pwd.Text = "cnhx20190218";
             // 
             // Lbl_SystemName
             // 

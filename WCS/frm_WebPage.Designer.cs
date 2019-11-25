@@ -33,26 +33,26 @@
             this.panel_bottom.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panel1
+            // panel_Title
             // 
-            this.panel_Title.Size = new System.Drawing.Size(1596, 42);
+            this.panel_Title.Size = new System.Drawing.Size(1043, 42);
             // 
             // panel_main
             // 
             this.panel_main.Controls.Add(this.webview);
-            this.panel_main.Size = new System.Drawing.Size(1582, 981);
+            this.panel_main.Size = new System.Drawing.Size(1029, 981);
             // 
             // panel_bottom
             // 
-            this.panel_bottom.Location = new System.Drawing.Point(6, 1091);
-            this.panel_bottom.Size = new System.Drawing.Size(1584, 52);
+            this.panel_bottom.Location = new System.Drawing.Point(0, 1092);
+            this.panel_bottom.Size = new System.Drawing.Size(1043, 52);
             // 
             // webview
             // 
             this.webview.Dock = System.Windows.Forms.DockStyle.Fill;
             this.webview.Location = new System.Drawing.Point(0, 0);
             this.webview.Name = "webview";
-            this.webview.Size = new System.Drawing.Size(1578, 977);
+            this.webview.Size = new System.Drawing.Size(1025, 977);
             this.webview.TabIndex = 0;
             this.webview.Text = "cefWebBrowser1";
             // 
@@ -61,14 +61,16 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "frm_WebPage";
-            this.Size = new System.Drawing.Size(1596, 1144);
+            this.Size = new System.Drawing.Size(1043, 1144);
             this.Load += new System.EventHandler(this.frm_WebPage_Load);
             this.DockChanged += new System.EventHandler(this.frm_WebPage_DockChanged);
+            this.Controls.SetChildIndex(this.panel_Title, 0);
+            this.Controls.SetChildIndex(this.panel_main, 0);
+            this.Controls.SetChildIndex(this.panel_bottom, 0);
             this.panel_main.ResumeLayout(false);
             this.panel_bottom.ResumeLayout(false);
             this.panel_bottom.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

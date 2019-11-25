@@ -189,6 +189,7 @@ namespace WolfInv.Com.MetaDataCenter
             Dictionary<string, UpdateData> allgrp = new Dictionary<string, UpdateData>();
             this.SubItems.ForEach(subitem=> {
                 List<UpdateItem> grpkeys = new List<UpdateItem>();
+                
                 grplist.ToList().ForEach(keyitem => {
                     UpdateItem ui = new UpdateItem(keyitem,null);
                     if (subitem.Items.ContainsKey(keyitem))
@@ -204,16 +205,37 @@ namespace WolfInv.Com.MetaDataCenter
                         grpkeys.Add(ui);//常数
                     }
                 });
-                string grpkey = string.Join(",",grpkeys.Select(a=>getText?a.text:a.value));//必须要判断
-                if(!allgrp.ContainsKey(grpkey))
+                string grpkey = string.Join(",", grpkeys.Select(a => {
+                    string val= getText? a.text: a.value;
+                    if(string.IsNullOrEmpty(val))
+                    {
+                        val = a.value;
+                    }
+                    return val;
+                }));//必须要判断
+                if (!allgrp.ContainsKey(grpkey))
                 {
                     allgrp.Add(grpkey, new UpdateData());
                 }
+                allgrp[grpkey].keydpt = grpkeys[0].datapoint;//只有一个数据点，可能需要多个呀，以后再说????????????????????????????????????????
+                allgrp[grpkey].keyvalue = grpkey;
+
+                List<string> allkeys = grpkeys.Select(a => a.datapoint.Name).ToList();
+                this.Items.Values.ToList().ForEach(pitem => { //将顶级信息下传到子节点
+
+                    if (!allkeys.Contains(pitem.datapoint.Name))
+                    {
+                        grpkeys.Add( pitem);
+                    }
+                });
+                
+                
                 grpkeys.ForEach(keyitem =>
                 {
                     if(!allgrp[grpkey].Items.ContainsKey(keyitem.datapoint.Name))
                         allgrp[grpkey].Items.Add(keyitem.datapoint.Name,keyitem);
                 });
+                
                 allgrp[grpkey].SubItems.Add(subitem);
             });
             if(SumItems!= null&& SumItems.Trim().Length > 0)

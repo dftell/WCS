@@ -147,13 +147,13 @@ namespace WolfInv.Com.WCS_Process
             return true;
         }
 
-        public bool writeData(string assembly, string classname, XmlNode callguider, string type,string updateype, DataSet inputds,ref DataSet ret, ref string msg)
+        public bool writeData(string assembly, string classname, XmlNode callguider, string type,string updateype, DataSet inputds1,ref DataSet ret, ref string msg)
         {
             ret = null;
             msg = null;
             try
             {
-                inputds = ConvertDataSet(inputds);
+                DataSet inputds = ConvertDataSet(inputds1);
                 if(!getAttachInfo(ref inputds,ref msg))
                 {
 

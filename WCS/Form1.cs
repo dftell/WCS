@@ -26,20 +26,22 @@ namespace WCS
     public partial class Form1 : Form
     {
         Task<string> webViewRet;
+        bool fDebug = false;
         
         public Form1()
         {
             
             InitializeComponent();
             //Form1_Load(null,null);
-            
-            
+
+
             //webView1 as 
             ////webView1
             //webView1.DocumentCompleted += WebView1_DocumentCompleted; ;
-            
+
             ////webView1.DOMContentLoaded += WebView1_DOMContentLoaded;
             //this.Controls.Add(webView1);
+            
         }
 
         
@@ -52,6 +54,11 @@ namespace WCS
 
         private void btn_enter_Click(object sender, EventArgs e)
         {
+            fDebug = GlobalShare.DebugMode;
+            if (fDebug)
+            {
+                MessageBox.Show("debug!");
+            }
             this.btn_enter.Enabled = false;
             
             
@@ -65,22 +72,24 @@ namespace WCS
                 loginwithpwd = false;
                 
             }
-            string err = user.Login(this.txt_user.Text, this.txt_pwd.Text, loginwithpwd);
+            string err = user.Login(this.txt_user.Text.Trim(), this.txt_pwd.Text.Trim(), loginwithpwd,fDebug);
             if (loginwithpwd)//非web登录
             {
                 
                 Cursor = Cursors.Default;
                 if (err != null)
                 {
+                    this.btn_enter.Enabled = true;
                     MessageBox.Show(err);
                     return;
                 }
+                GlobalShare.Logined = true;
             }
             else
             {
                 string strurl = GlobalShare.SystemAppInfo.LoginUrl;
                 //string reurl = GetRedirectUrl(strurl);
-                string url = string.Format(strurl, txt_user.Text, txt_pwd.Text);
+                string url = string.Format(strurl, txt_user.Text.Trim(), txt_pwd.Text.Trim());
                 //CefWebBrowser webctrl11 = new CefWebBrowser();
                 
                 
@@ -109,7 +118,7 @@ namespace WCS
                 if(retOjb == null || retOjb["msg"] == null || retOjb["msg"].Value<string>()!="OK")
                 {
                     this.btn_enter.Enabled = true;
-                    MessageBox.Show(string.Format("密码错误:{0}",retOjb["msg"].Value<string>()));
+                    MessageBox.Show(string.Format("密码错误:{0}", strjson));
                     return;
                 }
                 user.UserId = retOjb["data"]["userId"].Value<int>();
@@ -135,7 +144,11 @@ namespace WCS
                 this.Close();
                 return;
             }
-            MDI_Main frm = new MDI_Main(this.txt_user.Text);
+            Form frm = null;// new MDI_Main(this.txt_user.Text);
+            if (GlobalShare.SystemAppInfo.NoNeedLeftTreeView)
+                frm = new frm_Main(user.LoginName);
+            else
+                frm = new MDI_Main(this.txt_user.Text);
             FrameSwitch.ParentForm = frm;
             if (!loginwithpwd)
             {

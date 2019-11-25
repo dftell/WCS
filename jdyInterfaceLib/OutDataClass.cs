@@ -24,6 +24,12 @@ namespace WolfInv.Com.jdyInterfaceLib
         }
 
         
+        string getTranReqs(XmlNode node)
+        {
+            if (node == null)
+                return null;
+            return null;
+        }
 
         public bool getXmlData(XmlNode config, ref XmlDocument doc,ref XmlDocument xmlschema,ref string msg)
         {
@@ -31,6 +37,9 @@ namespace WolfInv.Com.jdyInterfaceLib
             string strRootName = "NewDataSet";
             string ret = "";
             string strName = XmlUtil.GetSubNodeText(config, "module/@name");
+            string strReqJson = null;
+
+            XmlNode xmlreq = config.SelectSingleNode("req");
             Assembly assem = Assembly.GetExecutingAssembly();
             try
             {
@@ -43,7 +52,7 @@ namespace WolfInv.Com.jdyInterfaceLib
                 JDYSCM_Bussiness_List_Class jdyreq = Activator.CreateInstance(t) as JDYSCM_Bussiness_List_Class;
                 jdyreq.InitClass(jdy_GlbObject.mlist[t.Name]);
                 jdyreq.InitRequestJson();
-                jdyreq.RequestSizeAndPage(1000, 1);
+                jdyreq.RequestSizeAndPage(1000, 1,xmlreq);
                 if(jdy_GlbObject.mlist[t.Name].RequestMethodUseGET)
                 {
                     ret = jdyreq.GetRequest();
@@ -65,7 +74,7 @@ namespace WolfInv.Com.jdyInterfaceLib
                 {
                     for(int i=2;i<=totalPage;i++)
                     {
-                        jdyreq.RequestSizeAndPage(totalsize, i);
+                        jdyreq.RequestSizeAndPage(totalsize, i,xmlreq);
                         if (jdy_GlbObject.mlist[t.Name].RequestMethodUseGET)
                         {
                             ret = jdyreq.GetRequest();
@@ -102,6 +111,8 @@ namespace WolfInv.Com.jdyInterfaceLib
             string strRootName = "NewDataSet";
             string ret = "";
             string strName = XmlUtil.GetSubNodeText(config, "module/@name");
+            
+            
             Assembly assem = Assembly.GetExecutingAssembly();
             strName = string.Format(strName, writetype);
             try

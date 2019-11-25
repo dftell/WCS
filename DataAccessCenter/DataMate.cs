@@ -13,6 +13,7 @@ namespace WolfInv.Com.DataCenter
         string LogPath;
         string FileName;
         public bool Debug;
+        
         public void SetLogFileName(string filename)
         {
             FileName = filename;
@@ -42,6 +43,7 @@ namespace WolfInv.Com.DataCenter
             }
             catch (Exception e)
             {
+                //lgc.DWrite("\rError:{0},{1}", msg, strSql);
                 return;
             }
         }

@@ -139,18 +139,18 @@ namespace WolfInv.Com.WCS_Process
             return ret;
         }
 
-        public static DataSet InitDataSource(string dscName, string[] keys, string[] values)
+        public static DataSet InitDataSource(string dscName, string[] keys, string[] values,bool debug=false)
         {
             string msg = null;
             bool isextradata = false;
-            return InitDataSource(dscName,keys,values,GlobalShare.DefaultUser,out msg,ref isextradata);
+            return InitDataSource(dscName,keys,values,GlobalShare.DefaultUser,out msg,ref isextradata,debug);
         }
-        public static DataSet InitDataSource(string dsrcName, string[] keys, string[] values, string uid, out string msg)
+        public static DataSet InitDataSource(string dsrcName, string[] keys, string[] values, string uid, out string msg,bool debug=false)
         {
             bool isExtraData = false;
-            return InitDataSource(dsrcName, keys, values, uid,out msg,ref isExtraData);
+            return InitDataSource(dsrcName, keys, values, uid,out msg,ref isExtraData,debug);
         }
-        public static DataSet InitDataSource(string dsrcName,string[] keys,string[] values,string uid,out string msg,ref bool isExtraData)
+        public static DataSet InitDataSource(string dsrcName,string[] keys,string[] values,string uid,out string msg,ref bool isExtraData,bool debuug=false)
         {
             msg = null;
             List<DataCondition> dcs = new List<DataCondition>();
@@ -172,7 +172,7 @@ namespace WolfInv.Com.WCS_Process
             return InitDataSource(dsrcName, dcs,uid,out msg, ref isExtraData);
         }
 
-        public static DataSet InitDataSource(string dsrcName, List<DataCondition> dc,string uid,out string msg, ref bool isExtraData)
+        public static DataSet InitDataSource(string dsrcName, List<DataCondition> dc,string uid,out string msg, ref bool isExtraData,bool debug=false)
         {
             if (!GlobalShare.UserAppInfos.ContainsKey(uid))
             {
@@ -189,8 +189,55 @@ namespace WolfInv.Com.WCS_Process
             isExtraData = ds.isextradata;
             if (ds.isextradata)
             {
+                DataTranMappings dms = new DataTranMappings();
+                dms.LoadXml(ds.extradataconvertconfig);
                 msg = null;
                 WCSExtraDataAdapter adp = new WCSExtraDataAdapter(uid,ds.extradataconvertconfig);
+                if(dc.Count>0)
+                {
+                    XmlNode req =  ds.extradatagetconfig.SelectSingleNode("req");
+                    if(req == null)
+                    {
+                        req = ds.extradatagetconfig.OwnerDocument.CreateElement("req");
+                        ds.extradatagetconfig.AppendChild(req);
+                    }
+                    req.RemoveAll();
+                    for (int i = 0; i < dc.Count; i++)
+                    {
+                        string strName = dc[i].Datapoint.Name;
+                        if(string.IsNullOrEmpty(strName))
+                        {
+                            continue;
+                        }
+                        if (dms.AllTo.ContainsKey(strName))
+                        {
+                            strName = dms.AllTo[strName].FromDataPoint.Name;
+                        }
+                        else 
+                        {
+                            if(dms.AllFrom.ContainsKey(strName))
+                            {
+                                strName = dms.AllFrom[strName].ToDataPoint;
+                            }
+                        }
+                        XmlNode reqnode = req.OwnerDocument.CreateElement(strName);
+                        XmlAttribute att = req.OwnerDocument.CreateAttribute("o");
+                        att.Value = dc[i].strOpt;
+                        reqnode.Attributes.Append(att);
+                        att = req.OwnerDocument.CreateAttribute("fmt");
+                        att.Value = dc[i].Format;
+                        reqnode.Attributes.Append(att);
+                        att = req.OwnerDocument.CreateAttribute("flds");
+                        att.Value = dc[i].FormatFields;
+                        reqnode.Attributes.Append(att);
+                        att = req.OwnerDocument.CreateAttribute("value");
+                        att.Value = dc[i].value;
+                        reqnode.Attributes.Append(att);
+                        //reqnode.InnerText = dc[i].value;
+
+                        req.AppendChild(reqnode);
+                    }
+                }
                 DataSet ret = null;
                 bool succ = adp.getData(ds.extradataassembly, ds.extradataclass, ds.extradatagetconfig, ds.extradatatype, ref ret,ref msg);
                 if (succ == true)
@@ -200,7 +247,7 @@ namespace WolfInv.Com.WCS_Process
                     return null;
                 }
             }
-            return GlobalShare.DataCenterClientObj.GetData(ds, dc,out msg);
+            return GlobalShare.DataCenterClientObj.GetData(ds, dc,out msg,debug);
         }
         public static UpdateData getDefaultData(string dsrcName,string uid)
         {
@@ -229,7 +276,7 @@ namespace WolfInv.Com.WCS_Process
             return ud;
         }
 
-        public static DataSet InitDataSource(DataSource dsrobj, List<DataCondition> dcs, out string msg)//必须要修改，但目前无任何有效功能调用
+        public static DataSet InitDataSource(DataSource dsrobj, List<DataCondition> dcs, out string msg,bool debug=false)//必须要修改，但目前无任何有效功能调用
         {
             if(dsrobj.isextradata)
             {
@@ -244,7 +291,7 @@ namespace WolfInv.Com.WCS_Process
                 }
                 return FilterExtraData(ds,dcs);
             }
-            return GlobalShare.DataCenterClientObj.GetData(dsrobj, dcs, out msg);
+            return GlobalShare.DataCenterClientObj.GetData(dsrobj, dcs, out msg,debug);
         }
 
         public static DataSet FilterExtraData(DataSet ds, List<DataCondition> dcs)
@@ -305,7 +352,7 @@ namespace WolfInv.Com.WCS_Process
             return ret;
         }
 
-        public static List<UpdateData> DataSet2UpdateData(DataSet ds, string dsrcName, string uid,int tableindex=0,string keycol=null,string keycolval=null)
+        public static List<UpdateData> DataSet2UpdateData(DataSet ds, string dsrcName, string uid,int tableindex=0, bool getParentInfo = false,UpdateData parent=null, string keycol=null,string keycolval=null)
         {
             List<UpdateData> ret = new List<UpdateData>();
             if (!GlobalShare.UserAppInfos.ContainsKey(uid))
@@ -367,6 +414,23 @@ namespace WolfInv.Com.WCS_Process
                         continue;
                     ud.Items.Add(dc.ColumnName,new UpdateItem(dc.ColumnName, rows[i][dc.ColumnName].ToString()));
                 }
+                if(getParentInfo)
+                {
+                    if(parent!=null)
+                    {
+                        parent.Items.Values.ToList().ForEach(a => {
+                            if(!ud.Items.ContainsKey(a.datapoint.Name))
+                            {
+                                ud.Items.Add(a.datapoint.Name, new UpdateItem(a.datapoint.Name, null));
+                            }
+                            if(!string.IsNullOrEmpty(a.value))
+                                ud.Items[a.datapoint.Name].value = a.value;
+                            if (!string.IsNullOrEmpty(a.text))
+                                ud.Items[a.datapoint.Name].text = a.text;
+
+                        });
+                    }
+                }
                 ret.Add(ud);
             }
             if (ret.Count == 0)
@@ -412,7 +476,7 @@ namespace WolfInv.Com.WCS_Process
                 if(ret[i].Items.ContainsKey(strKey))
                 {
                     string keyval = ret[i].Items[usekey].value;
-                    List<UpdateData> subdatas = DataSet2UpdateData(ds, dsr.SubSourceName, uid, tableindex + 1, strKey, keyval);
+                    List<UpdateData> subdatas = DataSet2UpdateData(ds, dsr.SubSourceName, uid, tableindex + 1,getParentInfo,ret[i], strKey, keyval);
                     if (subdatas != null)
                         ret[i].SubItems.AddRange(subdatas);
                 }

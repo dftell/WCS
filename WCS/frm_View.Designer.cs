@@ -41,6 +41,7 @@ namespace WCS
             // 
             // panel_Title
             // 
+            this.panel_Title.Location = new System.Drawing.Point(0, 25);
             this.panel_Title.Size = new System.Drawing.Size(1200, 42);
             // 
             // panel_main
@@ -92,10 +93,12 @@ namespace WCS
             this.ToolBar_OnSimpleSearchClicked += new System.EventHandler(this.SimpleSearch);
             this.ToolBar_ListSelectedItemsClicked += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.ListSelectedItems_Click);
             this.ToolBar_EditView += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.EditView_Click);
+            this.ToolBar_ChangeGroup += new WolfInv.Com.CommCtrlLib.ToolBarResponseHandle(this.frm_View_ToolBar_ChangeGroup);
             this.ToolBar_NewCreate += new WolfInv.Com.CommCtrlLib.AddExistHandle(this.NewCreate_Click);
             this.ToolBar_RefreshData += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.RefreshData_Click);
             this.ToolBar_Export += new WolfInv.Com.CommCtrlLib.ToolBarHandle(this.Export_Click);
             this.Load += new System.EventHandler(this.frm_View_Load);
+            this.DockChanged += new System.EventHandler(this.frm_View_DockChanged);
             this.Controls.SetChildIndex(this.panel_Title, 0);
             this.Controls.SetChildIndex(this.panel_main, 0);
             this.Controls.SetChildIndex(this.panel_bottom, 0);

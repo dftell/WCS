@@ -77,7 +77,7 @@ namespace WolfInv.Com.jdyInterfaceLib
             public int page { get; set; }//":1
         }
 
-        public void RequestSizeAndPage(int pageSize, int page)
+        public void RequestSizeAndPage(int pageSize, int page, XmlNode reqnode = null)
         {
             if(this.Module.RequestMethodUseGET)
             {
@@ -109,6 +109,26 @@ namespace WolfInv.Com.jdyInterfaceLib
             else
             {
                 node.InnerText = page.ToString();
+            }
+            if(reqnode!=null)
+            {
+                for(int i=0;i<reqnode.ChildNodes.Count;i++)
+                {
+                    XmlNode cnode = reqnode.ChildNodes[i];
+                    string val = XmlUtil.GetSubNodeText(cnode, "@value");
+                    if (string.IsNullOrEmpty(val))//值为空，直接跳过
+                    {
+                        continue;
+                    }
+                    string name = cnode.Name;
+                    XmlNode currnode = root.SelectSingleNode(name);
+                    if(currnode == null)
+                    {
+                        currnode = doc.CreateElement(name);
+                        root.AppendChild(currnode);
+                    }
+                    currnode.InnerText = val.Trim();
+                }
             }
             this.Req_PostData =  XML_JSON.XML2Json(doc, "filter");
         }
@@ -233,7 +253,7 @@ namespace WolfInv.Com.jdyInterfaceLib
         {
             if (this.Module.RequestSchema == null)
                 this.Module.RequestSchema = "";
-            string xmlreq = jdy_GlbObject.getText(this.Module.RequestSchema);
+            string xmlreq = null;
             if (xmlreq == null || xmlreq.Trim().Length == 0)//如果获取不到，获取过滤请求
                 xmlreq = jdy_GlbObject.getText("Schema\\System.Bussiness.Item.Filter.Model.xml", "", "");
             if (xmlreq == null || xmlreq.Trim().Length == 0)

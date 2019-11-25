@@ -330,7 +330,7 @@ namespace WolfInv.Com.JsLib
                     continue;
                 }
                 int NextIdx = dtindex + 1;
-                if (ds.Tables.Count <= NextIdx)
+                if (ds.Tables.Count <= NextIdx || guds.Count<= NextIdx)
                 {
                     parent.AppendChild(node);
                     continue;

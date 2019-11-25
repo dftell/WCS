@@ -70,6 +70,7 @@ namespace WCS
 
         public override bool LoadControls()
         {
+            this.toolStrip1.Width = this.Width - 1;
             XmlDocument xmldoc = this.GetConfigXml();
             if (xmldoc == null) return false;
             InitEditPanel(xmldoc);

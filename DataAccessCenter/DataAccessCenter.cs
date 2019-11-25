@@ -263,7 +263,7 @@ namespace WolfInv.Com.DataCenter
             }
         }
 
-        public static DataSet GetDataList(XmlNode req,out string msg)
+        public static DataSet GetDataList(XmlNode req,out string msg,bool debug=false)
         {
             msg = null;
             lgc.SetLogFileName("getDataList.txt");
@@ -278,14 +278,15 @@ namespace WolfInv.Com.DataCenter
             }
             catch (Exception e)
             {
-                msg = e.Message;
+                msg = e.Message + (debug? (":" + strSql):"");
                 return null;
             }
             DataSet ds = null;
+            db.SetDebug(debug);
             msg =db.GetResult(strSql,ref ds);// DBAccessClass.GetDataSet(strSql, ref msg);
             if (msg != null)
             {
-                lgc.DWrite("\rError:{0}", msg);
+                lgc.DWrite("\rError:{0},{1}", msg,strSql);
                 return null;
             }
             return ds;
@@ -548,11 +549,11 @@ namespace WolfInv.Com.DataCenter
             return vdpp.GetDataPoint();
         }
 
-        //public static void RunTool()
-        //{
-        //    ToolMain frm = new ToolMain();
-        //    frm.Show();
-        //}
+        ////public static void RunTool()
+        ////{
+        ////    ToolMain frm = new ToolMain();
+        ////    frm.Show();
+        ////}
 
         public static string DisConnect()
         {
