@@ -40,6 +40,7 @@ namespace WolfInv.Com.CommFormCtrlLib
         public string _strRowId = "";
         public string _GridSource;
         public string _DetailSource;
+        
         public string GridSource { get { return _GridSource; } set { _GridSource = value; } }
         public string DetailSource { get { return _DetailSource; } set { _DetailSource = value; } }
         public string _strKey;
@@ -146,13 +147,13 @@ namespace WolfInv.Com.CommFormCtrlLib
             XmlDocument xmldoc = GetConfigXml();
             if (xmldoc == null)
                 return;
-            AddSimpleSearchInToolBar(xmldoc);
-            AddComboInToolBar(xmldoc);
+            
             //AddGroupInToolBar(xmldoc);
             //AddButtonInToolBar(xmldoc);
             InitToolBarStrips(xmldoc.SelectSingleNode("/root/Action"), this.toolStrip1, ToolBar_Clicked, "Buttons");
             InitContextMenu(xmldoc.SelectSingleNode("/root/Grid"), this.contextMenuStrip1,this.ToolBarBtn_Click, "contextmenu");
-            
+            AddSimpleSearchInToolBar(xmldoc);
+            AddComboInToolBar(xmldoc);
         }
 
         void AddComboInToolBar(XmlDocument xmldoc)
@@ -164,8 +165,9 @@ namespace WolfInv.Com.CommFormCtrlLib
                 return;
             }
             string strPerm = XmlUtil.GetSubNodeText(cmbNode, "@perm");
-            if (strPerm == "0") return;
-            this.toolStrip1.Items.Add(new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode, "@caption")));
+            if (strPerm == "0")
+                return;
+            
             ToolStripComboBox combobox = new ToolStripComboBox("查看");
             combobox.SelectedIndexChanged += new EventHandler(combobox_SelectedIndexChanged);
             List<CMenuItem> menus = new List<CMenuItem>();
@@ -174,7 +176,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             {
                 combodoc.LoadXml(cmbNode.InnerXml);
             }
-            catch
+            catch(Exception ce)
             {
                 return;
             }
@@ -185,7 +187,9 @@ namespace WolfInv.Com.CommFormCtrlLib
                 combobox.Items.Add(mnu.MnuName);
             }
             combobox.Tag = menus;
+            combobox.RightToLeft = RightToLeft.No;
             this.toolStrip1.Items.Add(combobox);
+            this.toolStrip1.Items.Add(new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode, "@caption")));
             if (menus.Count > 0)
                 combobox.SelectedIndex = 0;
         }
@@ -252,7 +256,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             ToolBarBtn_Click(tmp,e);
         }
         
-        void AddButtonInToolBar(XmlDocument xmldoc)
+        void AddButtonInToolBar(ToolStrip tools, XmlDocument xmldoc)
         {
             if (xmldoc == null)
                 return;
@@ -307,9 +311,12 @@ namespace WolfInv.Com.CommFormCtrlLib
             {
                 return;
             }
-            if(this.toolStrip1.Items.Count>0)
+            string strPerm = XmlUtil.GetSubNodeText(cmbNode, "@perm");
+            if (strPerm == "0")
+                return;
+            if (this.toolStrip1.Items.Count>0)
                 this.toolStrip1.Items.Add(new ToolStripSeparator());
-            this.toolStrip1.Items.Add(new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode, "@text")));
+            
             ToolStripTextBox ssearchbox = new ToolStripTextBox();
             
             ToolStripButton searchbtn = new ToolStripButton();
@@ -326,8 +333,10 @@ namespace WolfInv.Com.CommFormCtrlLib
             ssearchbox.Tag = cond;
             searchbtn.Tag = ssearchbox;
             this.toolStrip1.Tag  = searchbtn;
-            this.toolStrip1.Items.Add(ssearchbox);
+            
             this.toolStrip1.Items.Add(searchbtn);
+            this.toolStrip1.Items.Add(ssearchbox);
+            this.toolStrip1.Items.Add(new ToolStripLabel(XmlUtil.GetSubNodeText(cmbNode, "@text")));
         }
         
         protected void frm_Model_Load(object sender, EventArgs e)
@@ -357,6 +366,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                 
             }
             InitEvent();
+            LoadControls();
             //
             if(strKey != null)//防止设计器里面加载loadtoolbar()
                 LoadToolBar();
@@ -394,8 +404,28 @@ namespace WolfInv.Com.CommFormCtrlLib
                         if((this as ITranslateableInterFace).NeedUpdateData.Items.ContainsKey(data.FromDataPoint.Name))//直接兑现
                         {
                             datacond.value = (this as ITranslateableInterFace).NeedUpdateData.Items[data.FromDataPoint.Name].value;
+                            datacond.Datapoint = new DataPoint(data.ToDataPoint);
+                            conds.Add(datacond);
+                            continue;
                         }
                     }
+                    if (GlobalShare.DataPointMappings.ContainsKey(data.FromDataPoint.Name) && string.IsNullOrEmpty(datacond.value))
+                    {
+                        continue;
+                    }
+                    string val = null;
+                    if (GlobalShare.IsSystemParam(data.FromDataPoint.Name, out val))
+                    {
+                        datacond.value = val;
+                        datacond.Datapoint = new DataPoint(data.ToDataPoint);
+                        conds.Add(datacond);
+                        continue;
+                    }
+                    else
+                    {
+                        datacond.value = data.FromDataPoint.Name;
+                    }
+                    
                     datacond.Datapoint = new DataPoint(data.ToDataPoint);
                     conds.Add(datacond);
                 }
@@ -443,6 +473,13 @@ namespace WolfInv.Com.CommFormCtrlLib
                             }
                             break;
                         }
+                    case "btn_Ssearch":
+                    case "combo_Selected":
+                    case "FilterExtraData":
+                        {
+                            ToolBar_FilterExtraData(mnu);
+                            break;
+                        }
                     case "SaveNew":
                         {
                             ToolBar_SaveAndCreateNew(mnu);
@@ -454,7 +491,9 @@ namespace WolfInv.Com.CommFormCtrlLib
                             ToolBar_NewCreate(mnu);
                             if (ToolBar_RefreshData != null)
                             {
-                                ToolBar_RefreshData();
+                                ToolStripComboBox tcb = this.toolStrip1.Items["查看"] as ToolStripComboBox;
+                                combobox_SelectedIndexChanged(tcb, null);
+                                //ToolBar_RefreshData();
                             }
                             break;
                         }
@@ -575,7 +614,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             if (Save(mnu))
             {
                 this.strRowId = "";
-                LoadControls();
+                //LoadControls();
             }
             else
             {
@@ -615,6 +654,8 @@ namespace WolfInv.Com.CommFormCtrlLib
 
         public virtual event AddExistHandle ToolBar_PrintPDF;
 
+        public virtual event AddExistHandle ToolBar_FilterExtraData;
+
         public virtual event ToolBarResponseHandle ToolBar_SaveClose;
 
         public virtual event ToolBarResponseHandle ToolBar_ChangeGroup;
@@ -651,7 +692,9 @@ namespace WolfInv.Com.CommFormCtrlLib
         public event ToolBarHandle ToolBar_SelectAll;
         public event ToolBarHandle ToolBar_InSelect;
 
-        public virtual void SimpleSearch(object sender, EventArgs e) {}
+        public virtual void SimpleSearch(object sender, EventArgs e)
+        {
+        }
 
         public virtual void RefreshData_Click(){}
         
@@ -757,83 +800,120 @@ namespace WolfInv.Com.CommFormCtrlLib
         {
             
             int cnt = 0;
-            UpdateData updata = this.GetUpdateData(false);//获得修改后的数据
-            if (!updata.Updated)
-                return false;
-            updata.ReqType = DataRequestType.Update;
-            if(updata.keydpt != null && updata.keydpt.Name.Trim().Length >0)
+            UpdateData org_updata = this.GetUpdateData(false);//获得修改后的数据 
+            bool orgstatus = org_updata.Updated;
+            DataRequestType rt = type;
+            if(string.IsNullOrEmpty(org_updata.keyvalue))
             {
-                if (updata.keyvalue == null || updata.keyvalue.Trim().Length == 0)
-                    updata.ReqType = DataRequestType.Add;
+                rt = DataRequestType.Add;
             }
-            if (mnu == null && updata.SubItems!= null && updata.SubItems.Count>0)
+            org_updata.ReqType = rt;
+            List<UpdateData> savedatas = new List<UpdateData>();
+            if(mnu == null)//直接保存
             {
-                MessageBox.Show("外部数据，未指定保存事件，不能删除子数据！");
-                return false;
-            }
-            if(mnu == null)//如果没有子事件，直接保存到本地
-            {
-                return SaveClientData(updata, type);
-            }
-            CMenuItem useMenu = mnu;
-            if (mnu.evt != null)
-            {
-                useMenu = mnu.evt;
-            }
-            string extramsg = "";
-            if(useMenu.isextradata)
-            {
-                UpdateData ud = null;
-                bool succ =  SaveExtraData(useMenu,updata,ref ud);
-                if(!succ)
-                {
-                    return false;
-                }
-                if(!updata.Items.ContainsKey(updata.keydpt.Name))
-                {
-                    updata.Items.Add(updata.keydpt.Name, null);
-                }
-                updata.Items[updata.keydpt.Name] = ud.Items[updata.keydpt.Name];
-                updata.keyvalue = ud.Items[updata.keydpt.Name].value;
-                if (this.FromMenu.TranDataMapping != null)
-                {
-
-                    this.FromMenu.TranDataMapping.ForEach(a => {
-                        if(a.FromDataPoint.Name.Equals(updata.keydpt.Name))
-                        {
-                            a.FromDataPoint.Text = updata.keyvalue;
-                        }
-                    });
-                }
-                if(updata.SubItems!= null&& updata.SubItems.Count>0)//不传吧
-                {
-                    if(this.FromMenu.TranDataMapping!= null)
-                    {
-                        
-                        updata.SubItems.ForEach(a=> {
-                            this.FromMenu.TranDataMapping.ForEach(b=> {
-                                if(b.FromDataPoint.Text!=null && b.FromDataPoint.Text.Trim().Length >0)
-                                {
-                                    if(a.Items.ContainsKey(b.ToDataPoint))
-                                    {
-                                        a.Items[b.ToDataPoint].value = b.FromDataPoint.Text;
-                                    }
-                                }
-                            });
-                        });
-                    }
-                }
-                extramsg = "[外部数据已保存,请删除外部数据！]";
-            }
-            if(useMenu.extradatanosaveinclient)
-            {
+                return SaveClientData(org_updata, rt);
                 return true;
             }
-            bool suc = SaveClientData(updata, type);
-            if(!suc)
+            if (mnu.GroupBeforeSave)
             {
-                MessageBox.Show(string.Format("保存本地数据错误！{0}", extramsg));
-                return false;
+                org_updata = org_updata.getGroupData(true, mnu.GridGroupBy);
+                savedatas = org_updata.SubItems;
+                savedatas.ForEach(a => { a.Updated = orgstatus; a.ReqType = rt; });
+            }
+            else
+            {
+                savedatas.Add(org_updata);
+            }
+            cnt = 0;
+            foreach (UpdateData updata in savedatas)
+            {
+
+                if (!updata.Updated)
+                    return false;
+                //updata.ReqType = DataRequestType.Update;
+                //if (updata.keydpt != null && updata.keydpt.Name.Trim().Length > 0)
+                //{
+                //    if (updata.keyvalue == null || updata.keyvalue.Trim().Length == 0)
+                //        updata.ReqType = DataRequestType.Add;
+                //}
+                if (mnu == null && updata.SubItems != null && updata.SubItems.Count > 0)
+                {
+                    MessageBox.Show("外部数据，未指定保存事件，不能删除子数据！");
+                    return false;
+                }
+                if (mnu == null)//如果没有子事件，直接保存到本地
+                {
+                    return SaveClientData(updata, type);
+                }
+                CMenuItem useMenu = mnu;
+                if (mnu.evt != null)
+                {
+                    useMenu = mnu.evt;
+                }
+                string extramsg = "";
+                if (useMenu.isextradata)
+                {
+                    UpdateData ud = null;
+                    bool succ = SaveExtraData(useMenu, updata, ref ud);
+                    if (!succ)
+                    {
+                        if (DialogResult.Cancel == MessageBox.Show( string.Format("保存数据{0}时遇到错误.点确定按钮，本次将跳过错误内容，请您记录关键内容，下次单独存储！点取消按钮，本次保存将停止，已经保存的数据请您在可删除的界面手动删除！", "跳过错误内容，继续保存",string.Join(",", updata.Items.Select(a => a.Value.value)), ""), "跳过错误内容，继续保存", MessageBoxButtons.YesNoCancel))
+                        {
+                            return false;
+                        }
+                        continue;// return false;
+                    }
+                    if (!updata.Items.ContainsKey(updata.keydpt.Name))
+                    {
+                        updata.Items.Add(updata.keydpt.Name, null);
+                    }
+                    updata.Items[updata.keydpt.Name] = ud.Items[updata.keydpt.Name];
+                    updata.keyvalue = ud.Items[updata.keydpt.Name].value;
+                    if (this.FromMenu.TranDataMapping != null)
+                    {
+
+                        this.FromMenu.TranDataMapping.ForEach(a =>
+                        {
+                            if (a.FromDataPoint.Name.Equals(updata.keydpt.Name))
+                            {
+                                a.FromDataPoint.Text = updata.keyvalue;
+                            }
+                        });
+                    }
+                    if (updata.SubItems != null && updata.SubItems.Count > 0)//不传吧
+                    {
+                        if (this.FromMenu.TranDataMapping != null)
+                        {
+
+                            updata.SubItems.ForEach(a =>
+                            {
+                                this.FromMenu.TranDataMapping.ForEach(b =>
+                                {
+                                    if (b.FromDataPoint.Text != null && b.FromDataPoint.Text.Trim().Length > 0)
+                                    {
+                                        if (a.Items.ContainsKey(b.ToDataPoint))
+                                        {
+                                            a.Items[b.ToDataPoint].value = b.FromDataPoint.Text;
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    }
+                    extramsg = "[外部数据已保存,请删除外部数据！]";
+                    this.label_buttom.Text = string.Format("共计{0}组数据需要保存，正在保存第{1}组！", savedatas.Count,++cnt);
+                    this.label_buttom.Refresh();
+                }
+                if (useMenu.extradatanosaveinclient)
+                {
+                    continue;
+                }
+                bool suc = SaveClientData(updata, type);
+                if (!suc)
+                {
+                    MessageBox.Show(string.Format("保存本地数据错误！{0}", extramsg));
+                    return false;
+                }
             }
             return true;
         }
@@ -934,8 +1014,47 @@ namespace WolfInv.Com.CommFormCtrlLib
             ToolBar_OtherEvent += new AddExistHandle(ToolBar_OtherEvent_Click);
             ToolBar_ExportTo += new AddExistHandle(frm_Model_ToolBar_ExportTo);
             ToolBar_Import += new AddExistHandle(Frm_Model_ToolBar_Import);
+            ToolBar_FilterExtraData += Frm_Model_ToolBar_FilterExtraData;
             ToolBar_PrintPDF += PrintPDF;
         }
+
+        private void Frm_Model_ToolBar_FilterExtraData(CMenuItem mnu)
+        {
+            if(mnu == null)
+            {
+                return;
+            }
+            DataTranMappings dtm = new DataTranMappings();
+            if(this.TranData!= null)
+                dtm.AddRange(this.TranData);
+            if (mnu.TranDataMapping == null || mnu.TranDataMapping.Count == 0)
+            {
+                this.TranData = null;
+                this.ToolBar_RefreshData();
+                this.TranData = dtm;
+                return;
+            }
+            
+            
+            mnu.TranDataMapping.ForEach(
+                a =>
+                {
+                    if(dtm.AllTo.ContainsKey(a.ToDataPoint))
+                    {
+                        // = dtm.AllTo[a.ToDataPoint].FromDataPoint.Text;
+                    }
+                    else
+                    {
+                        if (this.TranData == null)
+                            this.TranData = new List<DataTranMapping>();
+                        this.TranData.Add(a);
+                    }
+                }
+                );
+            this.ToolBar_RefreshData();
+            this.TranData = dtm;
+        }
+
 
         protected virtual void PrintPDF(CMenuItem mnu)
         {
@@ -995,12 +1114,12 @@ namespace WolfInv.Com.CommFormCtrlLib
                     }
                     mcnt++;
                 }
-                if (mcnt < mnu.TranDataMapping.Count)
-                {
+                //if (mcnt < mnu.TranDataMapping.Count)
+                //{
                     
-                    MessageBox.Show("请先指定传输值！");
-                    return;
-                }
+                //    MessageBox.Show("请先指定传输值！");
+                //    return;
+                //}
             }
             DataComboBox.ClearRunningTimeDataSource();
             OpenExcelSheetDialog ofd = new OpenExcelSheetDialog();
@@ -1025,7 +1144,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                 {
                     if(msg!=null)//如果非空，提示！
                     {
-                        MessageBox.Show(msg);
+                        //MessageBox.Show(msg);
                     }
                 }
                 List<DataControlItem> attCols = new List<DataControlItem>();
@@ -1070,7 +1189,14 @@ namespace WolfInv.Com.CommFormCtrlLib
                         {
                             string attname = attCols[j].Name;
                             string val = attCols[j].getValue(this.strUid, ud);
-                            ud.Items[attname].value=val;
+                            if (ud.Items.ContainsKey(attname))
+                            {
+                                ud.Items[attname].value = val;
+                            }
+                            else
+                            {
+                                ud.Items.Add(attname, new UpdateItem(attname, val));
+                            }
                         }
                         //InjectData.Add(ud);
                     }
@@ -1137,7 +1263,7 @@ namespace WolfInv.Com.CommFormCtrlLib
             //ToolBar.Items.Add(lb);
             XmlNode node = cmbNode.SelectSingleNode(strToolKey);
             if (node == null) return;
-            trip.Items.Clear();
+            //trip.Items.Clear();
             trip.RightToLeft = XmlUtil.GetSubNodeText(cmbNode, "@RightToLeft") == "0" ? RightToLeft.No : RightToLeft.Yes;
             InitButtons(node,trip, trip.Items, e, "button", RightToLeft.Yes);
         }
@@ -1283,10 +1409,11 @@ namespace WolfInv.Com.CommFormCtrlLib
         public List<DataTranMapping> RefData { get; set; }
         //IXLabel Ifrm_Model.lb_Title { get; }
         IKeyForm ILink.Link { get; set; }
+        public bool UseSubItems { get; set; }
 
         #endregion
 
-        
+
 
         private void panel1_DoubleClick(object sender, EventArgs e)
         {

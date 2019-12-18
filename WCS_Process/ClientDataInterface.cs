@@ -18,7 +18,7 @@ namespace WolfInv.Com.WCS_Process
             XmlDocument xmlmap = GlobalShare.GetXmlFile("\\xml\\dataidmapping.xml");
             XmlDocument xmlcol = GlobalShare.GetXmlFile("\\xml\\sdataidmapping.xml");
             if (GlobalShare.DataConnectObjs == null) return;
-            dac = new DataAccessCenter(GlobalShare.AppPath , GlobalShare.DataConnectObjs ,xmlmap,xmlcol);
+            dac = new DataAccessCenter(GlobalShare.AppPath, GlobalShare.DataConnectObjs ,xmlmap,xmlcol);
         }
         public override DataSet GetDataSet(XmlNode xml, out string msg)
         {

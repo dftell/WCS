@@ -93,6 +93,7 @@ namespace WCS
             {
                 return;
             }
+            AddGroupInToolBar(cmbNode, this.toolStrip1);
             GridObj = new Grid(this);
             GridObj.listViewObj = this.listView1;
             GridObj.FillGrid(cmbNode);
@@ -109,10 +110,21 @@ namespace WCS
             ////this.listView1.VirtualMode = true;
             ////this.listView1.VirtualListSize = ds.Tables[0].Rows.Count;
             GridData = ds;
-            if (GridObj == null) 
+            if (GridObj == null)
                 GridObj = this.listView1.Tag as Grid;
-            if (GridObj == null) return;
-            GridObj.FillGridData(DataSource.DataSet2UpdateData(ds, this.GridSource, strUid));
+            if (GridObj == null)//还未初始化
+                return;
+            List<UpdateData> ul = DataSource.DataSet2UpdateData(ds, this.GridSource, strUid,0,true);
+            if (this.UseSubItems)
+            {
+                List<UpdateData> subitems = new List<UpdateData>();
+                ul.ForEach(a => subitems.AddRange(a.SubItems));
+                GridObj.FillGridData(subitems);
+            }
+            else
+            {
+                GridObj.FillGridData(ul);
+            }
             //this.listView1.DrawItem += new DrawListGridItemEventHandler(listView1_DrawItem);
             //this.listView1.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(listView1_RetrieveVirtualItem);
             /*
@@ -161,10 +173,10 @@ namespace WCS
         private void frm_View_Load(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
-            if (!LoadControls()) return;
-            RefreshData_Click();
+            //if (!LoadControls()) return;
+            //this.RefreshData_Click();
             this.Cursor = Cursors.Default;
-            
+            //
         }
 
         private void listView1_DoubleClick(object sender, EventArgs e)
@@ -352,9 +364,11 @@ namespace WCS
 
         protected  void RefreshData_Click()
         {
+            this.Cursor = Cursors.WaitCursor;
             string msg = null;
             if (this.InjectedDatas == null || this.InjectedDatas.Count == 0)
             {
+                Application.DoEvents();
                 GridData = InitDataSource(GridSource, out msg);
                 if (msg != null)
                 {
@@ -370,6 +384,7 @@ namespace WCS
             {
                 FillData(this.InjectedDatas);
             }
+            this.Cursor = Cursors.Default;
         }
 
         public override void ToolBar_OtherEvent_Click(CMenuItem mnu)
@@ -405,8 +420,52 @@ namespace WCS
                     }
             }
         }
+
+        public UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData = true, bool getText = false, bool onlyReadSelectedItems = false, bool onlyReadSelectedGroups = false, bool onlySign = false,string groupbys="")
+        {
+
+            UpdateData updata = new UpdateData();
+            updata.Items = new Dictionary<string, UpdateItem>();
+            int cnt = 0;
+           
+            if (GridObj == null)
+                GridObj = this.listView1.Tag as SubGrid;
+            updata.SubItems = GridObj.GetUpdateData(CheckValueChanged, getText, onlyReadSelectedItems, onlyReadSelectedGroups, onlySign).SelectMany(a=>a.SubItems).ToList();
+            updata.AllowSum = GridObj.AllowSum;
+            updata.AllowGroup = GridObj.AllowGroup;
+            updata.GroupBy = string.IsNullOrEmpty(groupbys)?GridObj.GroupBy:groupbys;
+            updata.SumItems = GridObj.listViewObj.SumItems;
+            cnt += updata.SubItems.Count;
+            updata.keydpt = new DataPoint(this.strKey);
+            updata.keyvalue = this.strRowId;
+            if (cnt == 0)
+                updata.Updated = false;
+            else
+                updata.Updated = true;
+            if (UpdateFrameData)
+                NeedUpdateData = updata;
+            return updata;
+        }
+
+        public override UpdateData GetUpdateData(bool CheckValueChanged)
+        {
+            return GetUpdateData(CheckValueChanged, true);
+        }
+        public override UpdateData GetUpdateData(bool CheckValueChanged, bool UpdateFrameData = true, bool getText = false)
+        {
+            return GetUpdateData(CheckValueChanged, UpdateFrameData, getText);
+        }
+
+        protected override void PrintPDF(CMenuItem mnu)
+        {
+            UpdateData ret = null;
+            UpdateData ud = null;
+            ud = GetUpdateData(false, false, true, mnu.OnlyOperateSelectItems, mnu.OnlyOperateSelectGroup,false,mnu.GridGroupBy);
+            FrameSwitch.switchToView(this.panel_main, null, mnu, ref ret, new UpdateData[1] { ud }.ToList());
+        }
+
         #region IMutliDataInterface 成员
-       
+
 
 
         public List<UpdateData> GetDataList(List<UpdateData> OrgList)
@@ -441,43 +500,44 @@ namespace WCS
             return nec.GetDatas();
         }
 
-        protected override void combobox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //base.combobox_SelectedIndexChanged(sender, e);
-            ToolStripComboBox combo = sender as ToolStripComboBox;
-            List<CMenuItem> menus = combo.Tag as List<CMenuItem>;
-            if (menus == null) return;
-            if(menus.Count <= combo.SelectedIndex || combo.SelectedIndex < 0)
-            {
-                return;
-            }
-            DataTranMapping dtm = new DataTranMapping();
-            dtm.FromDataPoint.Text = menus[combo.SelectedIndex].Params;
-            dtm.ToDataPoint = menus[combo.SelectedIndex].Key;
-            int ExistMapIndex = -1;
-            if(this.TranData == null) this.TranData = new List<DataTranMapping>();
-            for(int i=0;i<this.TranData.Count;i++)
-            {
-                DataTranMapping key = this.TranData[i];
-                if(key.ToDataPoint == dtm.ToDataPoint)
-                {
-                    ExistMapIndex = i;
-                    break ;
-                }
-            }
-            if (ExistMapIndex >= 0)
-            {
-                this.TranData[ExistMapIndex].FromDataPoint = dtm.FromDataPoint;
-            }
-            else
-            {
-                this.TranData.Add(dtm);
-            }
-            if (this.GridObj != null)
-            {
-                RefreshData_Click();
-            }
-        }
+        ////protected override void combobox_SelectedIndexChanged(object sender, EventArgs e)
+        ////{
+        ////    //base.combobox_SelectedIndexChanged(sender, e);
+        ////    ToolStripComboBox combo = sender as ToolStripComboBox;
+        ////    List<CMenuItem> menus = combo.Tag as List<CMenuItem>;
+        ////    if (menus == null) return;
+        ////    if(menus.Count <= combo.SelectedIndex || combo.SelectedIndex < 0)
+        ////    {
+        ////        return;
+        ////    }
+        ////    DataTranMapping dtm = new DataTranMapping();
+        ////    dtm.FromDataPoint.Text = menus[combo.SelectedIndex].Params;
+        ////    dtm.ToDataPoint = menus[combo.SelectedIndex].Key;
+        ////    int ExistMapIndex = -1;
+        ////    if(this.TranData == null)
+        ////        this.TranData = new List<DataTranMapping>();
+        ////    for(int i=0;i<this.TranData.Count;i++)
+        ////    {
+        ////        DataTranMapping key = this.TranData[i];
+        ////        if(key.ToDataPoint == dtm.ToDataPoint)
+        ////        {
+        ////            ExistMapIndex = i;
+        ////            break ;
+        ////        }
+        ////    }
+        ////    if (ExistMapIndex >= 0)
+        ////    {
+        ////        this.TranData[ExistMapIndex].FromDataPoint = dtm.FromDataPoint;
+        ////    }
+        ////    else
+        ////    {
+        ////        this.TranData.Add(dtm);
+        ////    }
+        ////    if (this.GridObj != null)
+        ////    {
+        ////        RefreshData_Click();
+        ////    }
+        ////}
 
         private bool frm_View_ToolBar_Remove(CMenuItem mnu)
         {
@@ -545,6 +605,16 @@ namespace WCS
         private void listView1_MouseUp(object sender, MouseEventArgs e)
         {
             this.listView1.ContextMenuStrip = this.contextMenuStrip1;
+        }
+
+        private void frm_View_DockChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private bool frm_View_ToolBar_ChangeGroup(CMenuItem mnu)
+        {
+            return ChangeGridGroup(this.GridObj, mnu);
         }
     }
     

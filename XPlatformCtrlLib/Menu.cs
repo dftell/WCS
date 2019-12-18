@@ -60,13 +60,13 @@ namespace WolfInv.Com.XPlatformCtrlLib
 
 
         public CMenuItem evt;
-
+        public bool UseSubItems;//用子表，用于外部数据
         public bool OnlyKeyDisplay;
 
         public bool OnlyNoKeyDisplay;
 
         public string GridGroupBy;
-
+        public bool GroupBeforeSave;
         public bool AllowCheckedMultiItems;
 
         //实现了 WCSExtraDataInterface的外部数据接口类
@@ -145,10 +145,13 @@ namespace WolfInv.Com.XPlatformCtrlLib
             this.DetailSrouce = XmlUtil.GetSubNodeText(node, "@datasource");
             this.Params = XmlUtil.GetSubNodeText(node, "@param");
             this.Module = XmlUtil.GetSubNodeText(node, "@module");
-
+            this.UseSubItems = XmlUtil.GetSubNodeText(node, "@usesubitems") == "1";
+            this.LinkUrl = XmlUtil.GetSubNodeText(node, "@linkurl");
+            this.isSummary = XmlUtil.GetSubNodeText(node, "@issummary");
             this.NeedNotice = XmlUtil.GetSubNodeText(node, "@neednotice")=="1";
             this.NoticeTitle = XmlUtil.GetSubNodeText(node, "@noticetitle");
             this.NoticeContent = XmlUtil.GetSubNodeText(node, "@noticecontent");
+            this.GroupBeforeSave = XmlUtil.GetSubNodeText(node, "@groupbeforesave")=="1";
 
             this.Screen = XmlUtil.GetSubNodeText(node, "@screen");
             this.Target = XmlUtil.GetSubNodeText(node, "@target");
@@ -162,7 +165,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
             this.OnlyKeyDisplay = XmlUtil.GetSubNodeText(node, "@onlykeydisplay") == "1";
             this.OnlyNoKeyDisplay = XmlUtil.GetSubNodeText(node, "@onlynokeydisplay") == "1";
             this.AllowCheckedMultiItems = XmlUtil.GetSubNodeText(node, "@allowcheckedmultiItems") == "1";
-            this.GridGroupBy = XmlUtil.GetSubNodeText(node, "gridgroupby");
+            this.GridGroupBy = XmlUtil.GetSubNodeText(node, "@groupby");
 
 
             if (!int.TryParse(XmlUtil.GetSubNodeText(node, "@winwidth"), out this.WWidth))
@@ -406,6 +409,7 @@ namespace WolfInv.Com.XPlatformCtrlLib
 
         public void ReDoMenuXml()
         {
+            return;
             XmlNodeList xmlrefnodes = xmldoc.SelectNodes("/menus//menu[@reffile]");//检查菜单srcList属性
             foreach (XmlNode node in xmlrefnodes)
             {
@@ -438,9 +442,9 @@ namespace WolfInv.Com.XPlatformCtrlLib
             XmlNodeList xmlnodes = xmldoc.SelectNodes("/menus//menu[@list='1']");//检查菜单srcList属性
             for (int ncnt = xmlnodes.Count -1;ncnt >=0;ncnt--)
             {
-                XmlNode node = xmlnodes[ncnt];
+                XmlNode node = xmlnodes[ncnt];////////////////////
                 CMenuItem cmnu = new CMenuItem(Uid);
-                cmnu = GetMenu(cmnu, node,Uid);
+                ///////////////////////////////////////////////////////////cmnu = GetMenu(cmnu, node,Uid);
                 if (!cmnu.ReplaceMenu) continue;
                 string strds = XmlUtil.GetSubNodeText(node, "@repeatsource");
                 if (!GlobalShare.mapDataSource.ContainsKey(strds))//如果不存在数据源，删除掉模板节点
@@ -599,12 +603,13 @@ namespace WolfInv.Com.XPlatformCtrlLib
 
         public List<CMenuItem> GenerateMenus()
         {
-            ReDoMenuXml();
+            //ReDoMenuXml();
             List<CMenuItem> retList = new List<CMenuItem>();
             XmlNodeList nodes = xmldoc.SelectNodes("/menus/menu");
             for (int i = 0; i < nodes.Count; i++)
             {
                 CMenuItem mnu = new CMenuItem(Uid);
+                mnu.LoadXml(nodes[i]);
                 FillMnu(mnu, nodes[i]);
                 retList.Add(mnu);
             }
@@ -614,6 +619,8 @@ namespace WolfInv.Com.XPlatformCtrlLib
         public static CMenuItem GetMenu(CMenuItem mnu, XmlNode node,string uid)
         {
             if (mnu == null) mnu = new CMenuItem(uid);
+            mnu.LoadXml(node);
+            return mnu;
             mnu.MnuId = XmlUtil.GetSubNodeText(node, "@id");
             mnu.MnuName = XmlUtil.GetSubNodeText(node, "@name");
             mnu.LinkValue = XmlUtil.GetSubNodeText(node, "@classname");
@@ -701,11 +708,12 @@ namespace WolfInv.Com.XPlatformCtrlLib
 
         void FillMnu(CMenuItem mnu, XmlNode node)
         {
-            mnu = GetMenu(mnu, node,Uid);
+            mnu.LoadXml(node);// GetMenu(mnu, node,Uid);
             XmlNodeList subnodes = node.SelectNodes("menu");
             for (int i = 0; i < subnodes.Count; i++)
             {
                 CMenuItem submnu = new CMenuItem(Uid);
+                submnu.LoadXml(subnodes[i]);
                 FillMnu(submnu, subnodes[i]);
                 mnu.MnuItems.Add(submnu);
             }

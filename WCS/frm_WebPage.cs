@@ -11,10 +11,12 @@ using WolfInv.Com.CommFormCtrlLib;
 using WolfInv.Com.CommCtrlLib;
 using Xilium.CefGlue.WindowsForms;
 using Xilium.CefGlue;
+using Xilium.CefGlue.Platform;
+using Xilium.CefGlue.Platform.Windows;
 using WolfInv.Com.WCS_Process;
 namespace WCS
 {
-    public partial class frm_WebPage :frm_Model
+    public partial class frm_WebPage : frm_Model
     {
         string logurl;
         public frm_WebPage()
@@ -26,42 +28,47 @@ namespace WCS
         {
 
             webview.Visible = false;
-            
+
         }
 
         private void Webview_AddressChanged(object sender, AddressChangedEventArgs e)
         {
-            BeginInvoke(new Action(() => {
+            BeginInvoke(new Action(() =>
+            {
                 //MessageBox.Show(e.Address);
             }));
         }
 
         private void Webview_StatusMessage(object sender, Xilium.CefGlue.WindowsForms.StatusMessageEventArgs e)
         {
-            BeginInvoke(new Action(() => {
+            BeginInvoke(new Action(() =>
+            {
                 //MessageBox.Show(e.Value);
             }));
         }
 
         private void Webview_LoadError(object sender, Xilium.CefGlue.WindowsForms.LoadErrorEventArgs e)
         {
-            BeginInvoke(new Action(() => {
+            BeginInvoke(new Action(() =>
+            {
                 //MessageBox.Show(string.Format("url:{0};code:{1};text:{2}",e.FailedUrl,e.ErrorCode,e.ErrorText));
             }));
         }
 
         private void Webview_LoadEnd(object sender, Xilium.CefGlue.WindowsForms.LoadEndEventArgs e)
         {
-            if(e.Frame.Url == logurl)//for log
+            this.toolStrip1.Visible = false;
+            if (e.Frame.Url == logurl)//for log
             {
                 GlobalShare.Logined = true;
                 e.Frame.LoadUrl(FromMenu.LinkUrl);
-                
-                BeginInvoke(new Action(()=>{
+
+                BeginInvoke(new Action(() =>
+                {
 
                     //e.Frame.LoadUrl(FromMenu.LinkUrl);
                 }));
-                
+
             }
             else
             {
@@ -71,7 +78,7 @@ namespace WCS
 
         private void frm_WebPage_DockChanged(object sender, EventArgs e)
         {
-            if(!GlobalShare.Logined)//如果未登陆，先登陆
+            if (!GlobalShare.Logined)//如果未登陆，先登陆
             {
                 CITMSUser user = GlobalShare.UserAppInfos.Values.First().CurrUser;
                 string url = string.Format(GlobalShare.SystemAppInfo.LoginUrl, user.LoginName, user.Password);
@@ -92,7 +99,22 @@ namespace WCS
                 webview.LoadEnd += Webview_LoadEnd;
             }
             //string url = 
-            
+
         }
+
+        ////internal class DownloadHandler : IDownloadHandler
+        ////{
+
+        ////    public bool OnBeforeDownload(CefSharp.DownloadItem downloadItem, out string downloadPath, out bool showDialog)
+        ////    {
+        ////        downloadPath = "";
+        ////        showDialog = true;
+        ////        return true;
+        ////    }
+        ////    public bool OnDownloadUpdated(CefSharp.DownloadItem downloadItem)
+        ////    {
+        ////        return false;
+        ////    }
+        ////}
     }
 }

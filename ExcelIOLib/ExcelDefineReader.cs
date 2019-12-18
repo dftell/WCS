@@ -409,7 +409,19 @@ namespace WolfInv.Com.ExcelIOLib
                 string keyval = strKeyModel;
                 for (int j=0;j<FixPoint.Count;j++)
                 {
-                    object val = (ws.Cells[isVer ? i : FixPoint[j].pos,isVer?FixPoint[j].pos : i] as Range).Value;
+                    object val = null;
+                    try
+                    {
+                        object range = ws.Cells[isVer ? i : FixPoint[j].pos, isVer ? FixPoint[j].pos : i];
+                        if (range == null)
+                            continue;
+                        val = (range as Range).Value;
+                    }
+                    catch(Exception ce)
+                    {
+                        msg = string.Format("固定列第{0}行/列，第{1}个数据点出现错误[{2}]", i, j,ce.Message);
+                        return false;
+                    }
                     dr[FixPoint[j].name] = val;
                     if (val == null)
                     {

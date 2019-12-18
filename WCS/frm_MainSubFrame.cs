@@ -77,7 +77,7 @@ namespace WCS
             GridObj.SumItems = GridObj.listViewObj.SumItems;
             if (GridObj.Lbl_Title != null)
                 GridObj.Lbl_Title.Text = XmlUtil.GetSubNodeText(cmbNode, "@title");
-
+            this.GridObj.ToolBar.Items.Clear();
 
             InitToolBarStrips(cmbNode,GridObj.ToolBar,SubGrid_btn_Click);
             AddGroupInToolBar(cmbNode, GridObj.ToolBar);
@@ -132,13 +132,13 @@ namespace WCS
             this.LoadFlag = false;
             try
             {
-                if (LoadControls() == false)
-                {
-                    //this.LoadFlag = true;
-                    //this.LoadFlag = true;
-                    this.Cursor = Cursors.Default;
-                    return;
-                }
+                //if (LoadControls() == false)
+                //{
+                //    //this.LoadFlag = true;
+                //    //this.LoadFlag = true;
+                //    this.Cursor = Cursors.Default;
+                //    return;
+                //}
                 InitEditPanelDefaultValue();
                 bool isExtraData = false;
                 PanelObj.CoverData(this.NeedUpdateData, strRowId != "");
@@ -293,11 +293,14 @@ namespace WCS
         
         public override bool Save(CMenuItem mnu)
         {
+            this.Cursor = Cursors.WaitCursor;
             if( SaveData(mnu,DataRequestType.Update))
             {
+                this.Cursor = Cursors.Default;
                 MessageBox.Show("保存成功");
                 return true;
             }
+            this.Cursor = Cursors.Default;
             return false;
         }
 
@@ -402,6 +405,13 @@ namespace WCS
         {
             CMenuItem mnu = (sender as ToolStripButton).Tag as CMenuItem;
             if (mnu == null) return;
+            if (mnu.NeedNotice)
+            {
+                if (MessageBox.Show(mnu.NoticeContent, mnu.NoticeTitle, MessageBoxButtons.YesNo) == DialogResult.No)
+                {
+                    return;
+                }
+            }
             try
             {
                 switch (mnu.MnuId)
@@ -539,7 +549,11 @@ namespace WCS
                 //gi.Items.Select(a=>a.Value)
             }
             if (DirDel)
+            {
+                GridObj.FillListView();
+                this.label_buttom.Text = string.Format("合计：{0} 条件记录", GridObj.Items.Count);
                 return;
+            }
             if (this.listView1.CheckedItems.Count == 0)
                 return;
             if (this.SaveData(null,DataRequestType.Delete))//如果
@@ -771,8 +785,9 @@ namespace WCS
             this.panel_subtoolbar.Top = this.panel_Title.Height +this.panel_Title.Top + 2;
             this.panel_subtoolbar.Width = allwidth - 1;
             this.panel_subtoolbar.Height = allheight - this.panel_Title.Height;
-            this.toolStrip1.Top = 1;
+            this.toolStrip1.Top = this.panel_Title.Height+1;
             this.toolStrip1.Left = left;
+            this.toolStrip1.Width = this.Width - 1;
             this.listView1.Top = this.toolStrip1.Height + 5;
             this.listView1.Left = left;
             this.listView1.Width = allwidth ;

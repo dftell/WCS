@@ -60,7 +60,7 @@ namespace WolfInv.Com.MetaDataCenter
 
     public class DataTranMapping
     {
-        public DataPoint FromDataPoint;
+        public DataPoint FromDataPoint = new DataPoint();
         public string ToDataPoint;
 
         public void LoadXml(XmlNode node)

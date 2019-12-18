@@ -40,7 +40,7 @@ namespace WolfInv.Com.ExcelIOLib
             }
 
         }
-        public bool getDataSet(XmlNode config,ref DataSet ds,ref string msg)
+        public bool getDataSet(XmlNode config,ref DataSet ds,ref string msg,XmlNode condition = null)
         {
             try
             {
@@ -98,12 +98,12 @@ namespace WolfInv.Com.ExcelIOLib
             return false;
         }
 
-        public bool getJsonData(XmlNode config, ref string strJson, ref string msg)
+        public bool getJsonData(XmlNode config, ref string strJson, ref string msg, XmlNode condition = null)
         {
             throw new NotImplementedException();
         }
 
-        public bool getXmlData(XmlNode config, ref XmlDocument ret, ref XmlDocument xmlshema, ref string msg)
+        public bool getXmlData(XmlNode config, ref XmlDocument ret, ref XmlDocument xmlshema, ref string msg, XmlNode condition = null)
         {
             throw new NotImplementedException();
         }

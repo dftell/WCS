@@ -84,6 +84,8 @@ namespace WolfInv.Com.WCS_Process
         //外部数据类型
         public string extradatatype { get; set; }
 
+        public XmlNode condition { get; set; }
+
         #endregion
 
         public void LoadXml(XmlNode node)
@@ -106,6 +108,7 @@ namespace WolfInv.Com.WCS_Process
             this.extradataconvertconfig = node.SelectSingleNode("extradataconvertconfig");
             this.extradatagetconfig = node.SelectSingleNode("extradatagetconfig");
             this.extradatatype = XmlUtil.GetSubNodeText(node, "extradatatype");
+            this.condition = node.SelectSingleNode("condition");
         }
 
         public static Dictionary<string, DataSource> GetDataSourceMapping()
@@ -139,11 +142,20 @@ namespace WolfInv.Com.WCS_Process
             return ret;
         }
 
-        public static DataSet InitDataSource(string dscName, string[] keys, string[] values)
+        public static DataSet InitDataSource(string dscName, string[] keys, string[] values,out string msg, bool forceUseClientData = false)
         {
-            string msg = null;
+            //string msg = null;
             bool isextradata = false;
-            return InitDataSource(dscName,keys,values,GlobalShare.DefaultUser,out msg,ref isextradata);
+            List<DataCondition> conds = new List<DataCondition>();
+            for(int i=0;i<Math.Min(keys.Length,values.Length);i++)
+            {
+                DataCondition dc = new DataCondition();
+                dc.Datapoint = new DataPoint(keys[i]);
+                dc.value = values[i];
+                conds.Add(dc);
+            }
+            DataSource dsr = GlobalShare.UserAppInfos.First().Value.mapDataSource[dscName];
+            return InitDataSource(dsr, conds, out msg, forceUseClientData);
         }
         public static DataSet InitDataSource(string dsrcName, string[] keys, string[] values, string uid, out string msg)
         {
@@ -189,8 +201,55 @@ namespace WolfInv.Com.WCS_Process
             isExtraData = ds.isextradata;
             if (ds.isextradata)
             {
+                DataTranMappings dms = new DataTranMappings();
+                dms.LoadXml(ds.extradataconvertconfig);
                 msg = null;
                 WCSExtraDataAdapter adp = new WCSExtraDataAdapter(uid,ds.extradataconvertconfig);
+                if(dc.Count>0)
+                {
+                    XmlNode req =  ds.extradatagetconfig.SelectSingleNode("req");
+                    if(req == null)
+                    {
+                        req = ds.extradatagetconfig.OwnerDocument.CreateElement("req");
+                        ds.extradatagetconfig.AppendChild(req);
+                    }
+                    req.RemoveAll();
+                    for (int i = 0; i < dc.Count; i++)
+                    {
+                        string strName = dc[i].Datapoint.Name;
+                        if(string.IsNullOrEmpty(strName))
+                        {
+                            continue;
+                        }
+                        if (dms.AllTo.ContainsKey(strName))
+                        {
+                            strName = dms.AllTo[strName].FromDataPoint.Name;
+                        }
+                        else 
+                        {
+                            if(dms.AllFrom.ContainsKey(strName))
+                            {
+                                strName = dms.AllFrom[strName].ToDataPoint;
+                            }
+                        }
+                        XmlNode reqnode = req.OwnerDocument.CreateElement(strName);
+                        XmlAttribute att = req.OwnerDocument.CreateAttribute("o");
+                        att.Value = dc[i].strOpt;
+                        reqnode.Attributes.Append(att);
+                        att = req.OwnerDocument.CreateAttribute("fmt");
+                        att.Value = dc[i].Format;
+                        reqnode.Attributes.Append(att);
+                        att = req.OwnerDocument.CreateAttribute("flds");
+                        att.Value = dc[i].FormatFields;
+                        reqnode.Attributes.Append(att);
+                        att = req.OwnerDocument.CreateAttribute("value");
+                        att.Value = dc[i].value;
+                        reqnode.Attributes.Append(att);
+                        //reqnode.InnerText = dc[i].value;
+
+                        req.AppendChild(reqnode);
+                    }
+                }
                 DataSet ret = null;
                 bool succ = adp.getData(ds.extradataassembly, ds.extradataclass, ds.extradatagetconfig, ds.extradatatype, ref ret,ref msg);
                 if (succ == true)
@@ -202,6 +261,7 @@ namespace WolfInv.Com.WCS_Process
             }
             return GlobalShare.DataCenterClientObj.GetData(ds, dc,out msg);
         }
+
         public static UpdateData getDefaultData(string dsrcName,string uid)
         {
             if (!GlobalShare.UserAppInfos.ContainsKey(uid))
@@ -229,16 +289,41 @@ namespace WolfInv.Com.WCS_Process
             return ud;
         }
 
-        public static DataSet InitDataSource(DataSource dsrobj, List<DataCondition> dcs, out string msg)//必须要修改，但目前无任何有效功能调用
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dsrobj"></param>
+        /// <param name="dcs"></param>
+        /// <param name="msg"></param>
+        /// <param name="forceUseClientData">强制使用本地数据</param>
+        /// <returns></returns>
+        public static DataSet InitDataSource(DataSource dsrobj, List<DataCondition> dcs, out string msg,bool forceUseClientData = false)//必须要修改，但目前无任何有效功能调用
         {
-            if(dsrobj.isextradata)
+            if(dsrobj.isextradata && !forceUseClientData)
             {
                 msg = null;
                 WCSExtraDataAdapter adp = new WCSExtraDataAdapter(null,dsrobj.extradataconvertconfig);
                 DataSet ds = null;
-                bool succ = adp.getData(dsrobj.extradataassembly, dsrobj.extradataclass, dsrobj.extradatagetconfig, dsrobj.extradatatype,ref ds, ref msg);
+                bool succ = false;
+                XmlNode condition = dsrobj.condition;
+                if (dcs.Count > 0)
+                {
+                    if(condition == null)
+                    {
+                        XmlDocument xmldoc = new XmlDocument();
+                        xmldoc.LoadXml("<condition/>");
+                        condition = xmldoc.SelectSingleNode("condition");
+                    }
+                    dcs.ForEach(a =>
+                    {
+                        condition.AppendChild(a.ToXml(condition));
+                    }
+                        );
+                }
+                
+                succ = adp.getData(dsrobj.extradataassembly, dsrobj.extradataclass, dsrobj.extradatagetconfig, dsrobj.extradatatype, ref ds, ref msg);
                 //DataSet ds = null;
-                if(!succ)
+                if (!succ)
                 {
                     return null;
                 }
@@ -305,7 +390,7 @@ namespace WolfInv.Com.WCS_Process
             return ret;
         }
 
-        public static List<UpdateData> DataSet2UpdateData(DataSet ds, string dsrcName, string uid,int tableindex=0,string keycol=null,string keycolval=null)
+        public static List<UpdateData> DataSet2UpdateData(DataSet ds, string dsrcName, string uid,int tableindex=0, bool getParentInfo = false,UpdateData parent=null, string keycol=null,string keycolval=null)
         {
             List<UpdateData> ret = new List<UpdateData>();
             if (!GlobalShare.UserAppInfos.ContainsKey(uid))
@@ -367,6 +452,23 @@ namespace WolfInv.Com.WCS_Process
                         continue;
                     ud.Items.Add(dc.ColumnName,new UpdateItem(dc.ColumnName, rows[i][dc.ColumnName].ToString()));
                 }
+                if(getParentInfo)
+                {
+                    if(parent!=null)
+                    {
+                        parent.Items.Values.ToList().ForEach(a => {
+                            if(!ud.Items.ContainsKey(a.datapoint.Name))
+                            {
+                                ud.Items.Add(a.datapoint.Name, new UpdateItem(a.datapoint.Name, null));
+                            }
+                            if(!string.IsNullOrEmpty(a.value))
+                                ud.Items[a.datapoint.Name].value = a.value;
+                            if (!string.IsNullOrEmpty(a.text))
+                                ud.Items[a.datapoint.Name].text = a.text;
+
+                        });
+                    }
+                }
                 ret.Add(ud);
             }
             if (ret.Count == 0)
@@ -412,7 +514,7 @@ namespace WolfInv.Com.WCS_Process
                 if(ret[i].Items.ContainsKey(strKey))
                 {
                     string keyval = ret[i].Items[usekey].value;
-                    List<UpdateData> subdatas = DataSet2UpdateData(ds, dsr.SubSourceName, uid, tableindex + 1, strKey, keyval);
+                    List<UpdateData> subdatas = DataSet2UpdateData(ds, dsr.SubSourceName, uid, tableindex + 1,getParentInfo,ret[i], strKey, keyval);
                     if (subdatas != null)
                         ret[i].SubItems.AddRange(subdatas);
                 }

@@ -294,8 +294,8 @@ namespace WolfInv.Com.DataCenter
 
         public static string UpdateDataList(XmlNode req)
         {
-            
 
+            string MainTableName = null;
             DataRequest datareq = new DataRequest(req);
             SqlBuilder sb = new SqlBuilder(datareq);
             //DataRequestType reqtype = DataRequestType.Update;
@@ -393,7 +393,7 @@ namespace WolfInv.Com.DataCenter
                 return null;
             }
 
-            if (Udata.keyvalue == null || Udata.keyvalue == "" || datareq.RequestType == DataRequestType.Add)//新增
+            if (Udata.Items.Count>0 &&  (Udata.keyvalue == null || Udata.keyvalue == "" || datareq.RequestType == DataRequestType.Add))//新增,前提是items长度不为0
             {
                 //获得主表的标识值
                 DataColumn dc = MappingConvert.DataPointToColumn(Udata.keydpt);
@@ -403,14 +403,17 @@ namespace WolfInv.Com.DataCenter
                 DataSet ds = null;
                 if (dit.IdenColumn != null)
                 {
+                    /* 无需判断，明显降低速度*/
                     DataColumn keypt = MappingConvert.DataPointToColumn(new DataPoint(dit.IdenColumn));
-                    string msg = db.GetResult(string.Format(indsql, mtable, dc.Column, dc.DataPoint, keypt.Column),ref ds);
+                    string keysql = string.Format(indsql, mtable, dc.Column, dc.DataPoint, keypt.Column);
+                    string msg = db.GetResult(keysql, ref ds);
                     if (msg != null)
                     {
                         db.RollBack();
                         db.Close(true);
                         return msg;
                     }
+                    
                 }
                 if (ds == null)
                 {
@@ -495,11 +498,15 @@ namespace WolfInv.Com.DataCenter
                         subdata.Items[datakey].Validate = false;
                 }
                 string subtable = MappingConvert.DataPointToColumn(subdata.keydpt).Table;//子数据表 主要表
-                string ret = SqlBuilder.AddRefKeyItemInData(ref subdata, subtable,Udata.keydpt.Name,Udata.keyvalue,false);
-                if (ret != null)
+                string ret = null;
+                if (Udata.keydpt.Name != subdata.keydpt.Name)
                 {
-                    db.RollBack();
-                    return ret;
+                    ret = SqlBuilder.AddRefKeyItemInData(ref subdata, subtable, Udata.keydpt.Name, Udata.keyvalue, false);
+                    if (ret != null)
+                    {
+                        db.RollBack();
+                        return ret;
+                    }
                 }
                 DataCondition dc = new DataCondition();
                 

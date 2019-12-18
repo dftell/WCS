@@ -16,10 +16,10 @@ namespace WolfInv.Com.WCSExtraDataInterface
     }
     public interface IWCSExtraDataInterface
     {
-        bool getJsonData(XmlNode config,ref string strJson,ref string msg);
-        bool getXmlData(XmlNode config, ref XmlDocument ret,ref XmlDocument xmlshema,ref string msg);
+        bool getJsonData(XmlNode config,ref string strJson,ref string msg, XmlNode condition = null);
+        bool getXmlData(XmlNode config, ref XmlDocument ret,ref XmlDocument xmlshema,ref string msg,XmlNode condition = null);
 
-        bool getDataSet(XmlNode config,ref DataSet ds,ref string msg);
+        bool getDataSet(XmlNode config,ref DataSet ds,ref string msg, XmlNode condition = null);
 
         bool writeJsonData(XmlNode config, DataSet data,  ref string strJson,ref string msg, string writetype="Add");
         bool writeXmlData(XmlNode config,DataSet data, ref XmlDocument ret, ref XmlDocument xmlshema,ref string msg, string writetype = "Add");
@@ -47,11 +47,11 @@ namespace WolfInv.Com.WCSExtraDataInterface
             obj = Activator.CreateInstance(t) as IWCSExtraDataInterface;
     
         }
-        public bool getExtraData(ref XmlDocument ret,ref XmlDocument xmlschema,ref string msg)
+        public bool getExtraData(ref XmlDocument ret,ref XmlDocument xmlschema,ref string msg, XmlNode condition = null)
         {
             if (obj == null)
                 return false;
-            return obj.getXmlData(confignode,ref ret,ref xmlschema,ref msg);
+            return obj.getXmlData(confignode,ref ret,ref xmlschema,ref msg, condition);
 
         }
         
@@ -60,10 +60,10 @@ namespace WolfInv.Com.WCSExtraDataInterface
             return obj.writeXmlData(confignode, ds, ref ret, ref xmlschema, ref msg,updateype);
         }
 
-        public bool getExtraData(ref DataSet ret,ref string msg)
+        public bool getExtraData(ref DataSet ret,ref string msg,XmlNode condition = null)
         {
             DataSet ds = null;
-            bool succ =  obj.getDataSet(confignode,ref ds,ref msg);
+            bool succ =  obj.getDataSet(confignode,ref ds,ref msg, condition);
             ret = ds;
             return succ;
         }

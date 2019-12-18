@@ -742,6 +742,7 @@ namespace WolfInv.Com.CommWebCtrlLib
         }
 
         public CMenuItem FromMenu { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool UseSubItems { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         #endregion
 

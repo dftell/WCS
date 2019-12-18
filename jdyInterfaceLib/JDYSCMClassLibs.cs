@@ -77,7 +77,7 @@ namespace WolfInv.Com.jdyInterfaceLib
             public int page { get; set; }//":1
         }
 
-        public void RequestSizeAndPage(int pageSize, int page)
+        public void RequestSizeAndPage(int pageSize, int page, XmlNode reqnode = null)
         {
             if(this.Module.RequestMethodUseGET)
             {
@@ -109,6 +109,26 @@ namespace WolfInv.Com.jdyInterfaceLib
             else
             {
                 node.InnerText = page.ToString();
+            }
+            if(reqnode!=null)
+            {
+                for(int i=0;i<reqnode.ChildNodes.Count;i++)
+                {
+                    XmlNode cnode = reqnode.ChildNodes[i];
+                    string val = XmlUtil.GetSubNodeText(cnode, "@value");
+                    if (string.IsNullOrEmpty(val))//值为空，直接跳过
+                    {
+                        continue;
+                    }
+                    string name = cnode.Name;
+                    XmlNode currnode = root.SelectSingleNode(name);
+                    if(currnode == null)
+                    {
+                        currnode = doc.CreateElement(name);
+                        root.AppendChild(currnode);
+                    }
+                    currnode.InnerText = val.Trim();
+                }
             }
             this.Req_PostData =  XML_JSON.XML2Json(doc, "filter");
         }
@@ -233,7 +253,7 @@ namespace WolfInv.Com.jdyInterfaceLib
         {
             if (this.Module.RequestSchema == null)
                 this.Module.RequestSchema = "";
-            string xmlreq = jdy_GlbObject.getText(this.Module.RequestSchema);
+            string xmlreq = null;
             if (xmlreq == null || xmlreq.Trim().Length == 0)//如果获取不到，获取过滤请求
                 xmlreq = jdy_GlbObject.getText("Schema\\System.Bussiness.Item.Filter.Model.xml", "", "");
             if (xmlreq == null || xmlreq.Trim().Length == 0)
@@ -476,4 +496,176 @@ namespace WolfInv.Com.jdyInterfaceLib
         public string number { get; set; }
         public string name { get; set; }
     }
+    public class XmlSchemaClass
+    {
+        string _rootPath = "root";
+        /// <summary>
+        /// 数据根结点
+        /// </summary>
+        public string rootNodePath { get { return _rootPath; } set { _rootPath = value; } }
+
+        string _dataItemName = "data";
+        /// <summary>
+        /// 数据项名
+        /// </summary>
+        public string dataItemName { get { return _dataItemName; } set { _dataItemName = value; } }
+
+        string _codeItemName = "code";
+        string _msgItemName = "msg";
+        public string codeItemName
+        {
+            get { return _codeItemName; }
+            set { _codeItemName = value; }
+        }
+        public string msgItemName
+        {
+            get { return _msgItemName; }
+            set { _msgItemName = value; }
+        }
+        //totalCountItemName="totalCount" pageCountItemName="pages" pageSizeItemName="pageSize" pageIndexItemName="pageIndex"
+        public string totalCountItemName { get; set; }
+        public string pageCountItemName { get; set; }
+        public string pageSizeItemName { get; set; }
+        public string pageIndexName { get; set; }
+
+        public Dictionary<string, TableGuider> TableList = new Dictionary<string, TableGuider>();
+
+        public XmlSchemaClass(XmlDocument xml)
+        {
+            if (xml == null)
+                return;
+            XmlNode schemaNode = xml.SelectSingleNode("req/Schema");
+            rootNodePath = XmlUtil.GetSubNodeText(schemaNode, "@rootNodeName");
+            dataItemName = XmlUtil.GetSubNodeText(schemaNode, "@dataItemName");
+            codeItemName = XmlUtil.GetSubNodeText(schemaNode, "@codeItemName");
+            msgItemName = XmlUtil.GetSubNodeText(schemaNode, "@msgItemName");
+            totalCountItemName = XmlUtil.GetSubNodeText(schemaNode, "@totalCountItemName");
+            pageCountItemName = XmlUtil.GetSubNodeText(schemaNode, "@pageCountItemName");
+            pageSizeItemName = XmlUtil.GetSubNodeText(schemaNode, "@pageSizeItemName");
+            pageIndexName = XmlUtil.GetSubNodeText(schemaNode, "@pageIndexItemName");
+            XmlNodeList tabs = xml.SelectNodes("Table");
+            TableList = getTableGuiders(schemaNode);
+        }
+
+        Dictionary<string, TableGuider> getTableGuiders(XmlNode xmlSchema)
+        {
+            Dictionary<string, TableGuider> ret = new Dictionary<string, TableGuider>();
+            if (xmlSchema == null)
+            {
+                return ret;
+            }
+            XmlNodeList nodes = xmlSchema.SelectNodes("Table");
+            foreach (XmlNode node in nodes)
+            {
+                TableGuider tg = new TableGuider(node);
+                if (!ret.ContainsKey(tg.TableName))
+                {
+                    ret.Add(tg.TableName, tg);
+                }
+            }
+            return ret;
+        }
+
+    }
+
+
+    public class TableGuider
+    {
+        public string TableName { get; set; }
+        public string Key { get; set; }
+        public string KeyValue;
+
+        public string KeySplitor { get; set; }
+
+        string _rootPath = "root";
+        /// <summary>
+        /// 数据根结点
+        /// </summary>
+        public string rootNodePath { get { return _rootPath; } set { _rootPath = value; } }
+
+        string _dataItemName = "data";
+        /// <summary>
+        /// 数据项名
+        /// </summary>
+        public string dataItemName { get { return _dataItemName; } set { _dataItemName = value; } }
+        public string NextRef { get; set; }
+        public Dictionary<string, ResponseDataColumn> Columns = new Dictionary<string, ResponseDataColumn>();
+
+        string _codeItemName = "code";
+        string _msgItemName = "msg";
+        public string codeItemName
+        {
+            get { return _codeItemName; }
+            set { _codeItemName = value; }
+        }
+        public string msgItemName
+        {
+            get { return _msgItemName; }
+            set { _msgItemName = value; }
+        }
+        public TableGuider() { }
+        public TableGuider(XmlNode node)
+        {
+            LoadXml(node);
+        }
+
+        public void LoadXml(XmlNode node)
+        {
+            TableName = XmlUtil.GetSubNodeText(node, "@Name");
+            Key = XmlUtil.GetSubNodeText(node, "@MainKey");
+            NextRef = XmlUtil.GetSubNodeText(node, "@MainRef");
+            KeySplitor = XmlUtil.GetSubNodeText(node, "@Split");
+            string _tmp = XmlUtil.GetSubNodeText(node, "@rootNodePath");
+            if (!string.IsNullOrEmpty(_tmp))
+            {
+                rootNodePath = _tmp;
+            }
+            _tmp = XmlUtil.GetSubNodeText(node, "@dataItemName");
+            if (!string.IsNullOrEmpty(_tmp))
+            {
+                dataItemName = _tmp;
+            }
+            _tmp = XmlUtil.GetSubNodeText(node, "@codeItemName");
+            if (!string.IsNullOrEmpty(_tmp))
+            {
+                codeItemName = _tmp;
+            }
+            _tmp = XmlUtil.GetSubNodeText(node, "@msgItemName");
+            if (!string.IsNullOrEmpty(_tmp))
+            {
+                msgItemName = _tmp;
+            }
+            XmlNodeList colNodes = node.SelectNodes("Columns/Col");
+            if (colNodes.Count == 0)
+            {
+                return;
+            }
+            Columns = new Dictionary<string, ResponseDataColumn>();
+            foreach (XmlNode colNode in colNodes)
+            {
+                string strColName = XmlUtil.GetSubNodeText(colNode, "@name");
+                if (Columns.ContainsKey(strColName))
+                {
+                    continue;
+                }
+                ResponseDataColumn jdc = new ResponseDataColumn();
+                jdc.name = strColName;
+                jdc.format = XmlUtil.GetSubNodeText(colNode, "@format");
+                jdc.xPath = XmlUtil.GetSubNodeText(colNode, "@xPath");
+                jdc.dataType = XmlUtil.GetSubNodeText(colNode, "@dataType");
+                Columns.Add(jdc.name, jdc);
+            }
+        }
+
+    }
+
+    public class ResponseDataColumn
+    {
+        public string name { get; set; }
+        public string xPath { get; set; }
+        public string format { get; set; }
+        public string dataType { get; set; }
+    }
+
+
 }

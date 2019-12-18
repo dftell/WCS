@@ -65,7 +65,7 @@ namespace WCS
                 loginwithpwd = false;
                 
             }
-            string err = user.Login(this.txt_user.Text, this.txt_pwd.Text, loginwithpwd);
+            string err = user.Login(this.txt_user.Text.Trim(), this.txt_pwd.Text.Trim(), loginwithpwd);
             if (loginwithpwd)//非web登录
             {
                 
@@ -78,9 +78,14 @@ namespace WCS
             }
             else
             {
+                if (err != null)
+                {
+                    MessageBox.Show(err);
+                    return;
+                }
                 string strurl = GlobalShare.SystemAppInfo.LoginUrl;
                 //string reurl = GetRedirectUrl(strurl);
-                string url = string.Format(strurl, txt_user.Text, txt_pwd.Text);
+                string url = string.Format(strurl, txt_user.Text.Trim(), txt_pwd.Text.Trim());
                 //CefWebBrowser webctrl11 = new CefWebBrowser();
                 
                 
@@ -109,7 +114,7 @@ namespace WCS
                 if(retOjb == null || retOjb["msg"] == null || retOjb["msg"].Value<string>()!="OK")
                 {
                     this.btn_enter.Enabled = true;
-                    MessageBox.Show(string.Format("密码错误:{0}",retOjb["msg"].Value<string>()));
+                    MessageBox.Show(string.Format("密码错误:{0}", strjson));
                     return;
                 }
                 user.UserId = retOjb["data"]["userId"].Value<int>();
@@ -135,7 +140,12 @@ namespace WCS
                 this.Close();
                 return;
             }
-            MDI_Main frm = new MDI_Main(this.txt_user.Text);
+            Form frm = null;
+            if (GlobalShare.SystemAppInfo.NoNeedLeftTreeView)
+                frm = new frm_Main(user.LoginName);
+            else
+                frm = new MDI_Main(this.txt_user.Text);
+            //MDI_Main frm = new MDI_Main(this.txt_user.Text);
             FrameSwitch.ParentForm = frm;
             if (!loginwithpwd)
             {

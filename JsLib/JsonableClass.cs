@@ -23,5 +23,7 @@ namespace WolfInv.Com.JsLib
             JavaScriptSerializer js = new JavaScriptSerializer();
             return js.Serialize(this);
         }
+
+        
     }
 }

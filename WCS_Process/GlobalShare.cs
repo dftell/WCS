@@ -162,7 +162,7 @@ namespace WolfInv.Com.WCS_Process
             //初始化数据源
        
             DataConnectObjs = InitConnectOjects(GlobalShare.AppPath, true);
-            DataCenterClientObj = new DataCenterClient(AppPath, DataConnectObjs, FileConnectObjs);
+            DataCenterClientObj = new DataCenterClient(GlobalShare.AppPath, DataConnectObjs, FileConnectObjs);
             if (UserAppInfos == null)
             {
                 UserAppInfos = new Dictionary<string, UserGlobalShare>();
@@ -219,7 +219,10 @@ namespace WolfInv.Com.WCS_Process
                 xmldoc = new XmlDocument();
                 try
                 {
-                    xmldoc.Load(GlobalShare.AppPath + "\\xml\\config.xml");
+                    if (GlobalShare.AppXmlPath == GlobalShare.AppPath)
+                        xmldoc.Load(GlobalShare.AppPath + "\\xml\\config.xml");
+                    else
+                        xmldoc.Load(GlobalShare.AppXmlPath + "\\xml\\config.xml");
                 }
                 catch
                 {

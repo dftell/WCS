@@ -5,6 +5,8 @@ using System.Net;
 using System.IO;
 using WolfInv.Com.MetaDataCenter;
 using System.Data;
+using System.Linq;
+
 namespace WolfInv.Com.WCS_Process
 {
     /// <summary>
@@ -106,8 +108,8 @@ namespace WolfInv.Com.WCS_Process
                 return "用户名和密码不能为空！";
             }
             CITMSUser currUser = this;
-            currUser.LoginName = loginName;
-            currUser.Password = LoginPwd;
+            currUser.LoginName = loginName.Trim();
+            currUser.Password = LoginPwd.Trim();
             currUser.LoginWithPwd = withpwd;
             string retError = CheckUser(currUser);
             if (retError != null)
@@ -140,13 +142,22 @@ namespace WolfInv.Com.WCS_Process
                 dc_pwd.Datapoint = new DataPoint(ski_pwd.datapoint);
                 dc_pwd.value = user.Password;
             }
+            if(!user.LoginWithPwd)
+            {
+                dc_user.value = "";
+                dc_user.strOpt = "is not nll";
+                
+            }
             if (dc_user.Datapoint == null || (dc_pwd.Datapoint == null && user.LoginWithPwd ))
             {
                 return "用户名和密码字段未定义！";
             }
-            dcs.Add(dc_user);
-            if(user.LoginWithPwd)
+            if (user.LoginWithPwd)
+            {
+                dcs.Add(dc_user);
                 dcs.Add(dc_pwd);
+            }
+            
             string msg = null;
             if(!GlobalShare.mapDataSource.ContainsKey(GlobalShare.SystemAppInfo.DataSource))
             {
@@ -158,8 +169,20 @@ namespace WolfInv.Com.WCS_Process
             {
                 return msg;
             }
-            if (ds == null) return "无法连接到数据库！";
-            if (ds.Tables.Count != 1 ||ds.Tables[0].Rows.Count != 1) return "用户名或密码错误!";
+            if (ds == null)
+                return "无法连接到数据库！";
+            if (user.LoginWithPwd)
+            {
+                if (ds.Tables.Count != 1 || ds.Tables[0].Rows.Count != 1)
+                    return "用户名或密码错误!";
+                if (ds.Tables[0].Rows[0][dc_user.Datapoint.Name].ToString() == dc_user.value && ds.Tables[0].Rows[0][dc_pwd.Datapoint.Name].ToString() == dc_pwd.value)
+                {
+                }
+                else
+                {
+                    return "非法攻击！";
+                }
+            }
             DataRow dr = ds.Tables[0].Rows[0];
             UserGlobalShare userinfo = new UserGlobalShare(user.LoginName);
             userinfo.appinfo.UserInfo = new UpdateData();//重新实例化
@@ -183,6 +206,13 @@ namespace WolfInv.Com.WCS_Process
             //
             GlobalShare.DataChoices =  DataChoice.InitDataChoiceMappings(null);
             userinfo.DataChoices = DataChoice.InitDataChoiceMappings( userinfo);
+
+            SystemConts.ToDictionary().Values.ToList().ForEach(a => {
+                if(!userinfo.appinfo.UserInfo.Items.ContainsKey(a.datapoint.Name))
+                {
+                    userinfo.appinfo.UserInfo.Items.Add(a.datapoint.Name, a);
+                }
+            });
             return strError;
             
         }

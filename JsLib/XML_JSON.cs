@@ -39,7 +39,7 @@ namespace WolfInv.Com.JsLib
                 if(OnlyInnerText)//去掉最外面的花括号
                 {
                     string nopi = result.Substring(1, result.Length - 2);//2边        花括号
-                    return nopi.Substring(nodename.Length + 3);//+2个引号+1个冒号
+                    return nopi.Substring(node.Name.Length + 3);//+2个引号+1个冒号
                 }
                 return result;
             }

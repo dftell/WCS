@@ -89,7 +89,7 @@ namespace WolfInv.Com.WCS_Process
             return ds;
         }
 
-        public bool getData(string assembly,string classname,XmlNode callguider,  string type,ref DataSet ret,ref string msg)
+        public bool getData(string assembly,string classname,XmlNode callguider,  string type,ref DataSet ret,ref string msg,XmlNode condition = null)
         {
             ret = null;
             msg = null;
@@ -106,7 +106,7 @@ namespace WolfInv.Com.WCS_Process
                         {
                             WCSExtraDataClass wdc = new WCSExtraDataClass(assembly, classname, type, callguider);
                             DataSet ds = null;
-                            if (!wdc.getExtraData(ref ds, ref msg))
+                            if (!wdc.getExtraData(ref ds, ref msg,condition))
                             {
                                 msg = "无法获取到数据！";
                                 return false;
@@ -128,7 +128,7 @@ namespace WolfInv.Com.WCS_Process
                             WCSExtraDataClass wdc = new WCSExtraDataClass(assembly, classname, type, callguider);
                             XmlDocument node = null;
                             XmlDocument schema = null;
-                            if (!wdc.getExtraData(ref node, ref schema,ref msg))
+                            if (!wdc.getExtraData(ref node, ref schema,ref msg,condition))
                             {
                                 return false;
                             }
@@ -147,13 +147,13 @@ namespace WolfInv.Com.WCS_Process
             return true;
         }
 
-        public bool writeData(string assembly, string classname, XmlNode callguider, string type,string updateype, DataSet inputds,ref DataSet ret, ref string msg)
+        public bool writeData(string assembly, string classname, XmlNode callguider, string type,string updateype, DataSet inputds1,ref DataSet ret, ref string msg)
         {
             ret = null;
             msg = null;
             try
             {
-                inputds = ConvertDataSet(inputds);
+                DataSet inputds = ConvertDataSet(inputds1);
                 if(!getAttachInfo(ref inputds,ref msg))
                 {
 

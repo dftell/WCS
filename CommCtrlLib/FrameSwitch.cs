@@ -118,6 +118,7 @@ namespace WolfInv.Com.CommCtrlLib
                 objInst.lb_Title.Text = mnu.MnuName;
             objInst.GridSource = mnu.GridSource;
             objInst.DetailSource = mnu.DetailSrouce;
+            objInst.UseSubItems = mnu.UseSubItems;
             objInst.strKey = mnu.Key;
             if (mnu.Module.Trim().Length > 0)
                 objInst.strModule = mnu.Module;
@@ -529,11 +530,11 @@ namespace WolfInv.Com.CommCtrlLib
                         {
                             mp.First().FromDataPoint.Text = inputdata.FromDataPoint.Text;
                         }
-                        if (!data.Items.ContainsKey(inputdata.FromDataPoint.Name))
+                        if (!data.Items.ContainsKey(inputdata.ToDataPoint))
                         {
-                            data.Items.Add(inputdata.FromDataPoint.Name, new UpdateItem(inputdata.FromDataPoint.Name, inputdata.FromDataPoint.Text));
+                            data.Items.Add(inputdata.ToDataPoint, new UpdateItem(inputdata.ToDataPoint, inputdata.FromDataPoint.Text));
                         }
-                        data.Items[inputdata.FromDataPoint.Name].text = inputdata.FromDataPoint.Text;
+                        data.Items[inputdata.ToDataPoint].text = inputdata.FromDataPoint.Text;
 
                     }
                 }
@@ -554,13 +555,13 @@ namespace WolfInv.Com.CommCtrlLib
                                 val = mnu.Params;
                             }
                         }
-                        if(data.Items.ContainsKey(dtm.FromDataPoint.Name))
+                        if(data.Items.ContainsKey(dtm.ToDataPoint))
                         {
-                            data.Items[dtm.FromDataPoint.Name].value = val;
+                            data.Items[dtm.ToDataPoint].value = val;
                         }
                         else
                         {
-                            data.Items.Add(dtm.FromDataPoint.Name, new UpdateItem(dtm.FromDataPoint.Name, val));
+                            data.Items.Add(dtm.ToDataPoint, new UpdateItem(dtm.ToDataPoint, val));
                         }
                         //break;
                     }
