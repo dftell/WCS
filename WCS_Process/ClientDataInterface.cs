@@ -20,10 +20,10 @@ namespace WolfInv.Com.WCS_Process
             if (GlobalShare.DataConnectObjs == null) return;
             dac = new DataAccessCenter(GlobalShare.AppPath, GlobalShare.DataConnectObjs ,xmlmap,xmlcol);
         }
-        public override DataSet GetDataSet(XmlNode xml, out string msg)
+        public override DataSet GetDataSet(XmlNode xml, out string msg,bool debug=false)
         {
 
-            return DataAccessCenter.GetDataList(xml,out msg);
+            return DataAccessCenter.GetDataList(xml,out msg,debug);
             //throw new Exception("The method or operation is not implemented.");
         }
 

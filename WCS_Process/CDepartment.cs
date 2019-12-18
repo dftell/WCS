@@ -100,7 +100,7 @@ namespace WolfInv.Com.WCS_Process
         /// <param name="LoginPwd"></param>
         /// <param name="withpwd">是否用密码登陆，如果false,只要验证用户名</param>
         /// <returns></returns>
-        public string Login(string loginName, string LoginPwd,bool withpwd)
+        public string Login(string loginName, string LoginPwd,bool withpwd,bool debug=false)
         {
             LoginWithPwd = withpwd;
             if ((LoginPwd.Trim().Length  == 0 && withpwd) || loginName.Trim().Length == 0)
@@ -111,7 +111,7 @@ namespace WolfInv.Com.WCS_Process
             currUser.LoginName = loginName.Trim();
             currUser.Password = LoginPwd.Trim();
             currUser.LoginWithPwd = withpwd;
-            string retError = CheckUser(currUser);
+            string retError = CheckUser(currUser,debug);
             if (retError != null)
             {
                 return retError;
@@ -119,7 +119,7 @@ namespace WolfInv.Com.WCS_Process
             return retError;
         }
 
-        string CheckUser(CITMSUser user)
+        string CheckUser(CITMSUser user,bool debug=false)
         {
             string strError = null;
             List<DataCondition> dcs = new List<DataCondition>();
@@ -163,7 +163,7 @@ namespace WolfInv.Com.WCS_Process
             {
                 return string.Format("用户登录数据源名：[{0}]，数据源集未定义用户登录数据源！",GlobalShare.SystemAppInfo.DataSource);
             }
-            DataSet ds = DataSource.InitDataSource(GlobalShare.mapDataSource[GlobalShare.SystemAppInfo.DataSource], dcs, out msg);
+            DataSet ds = DataSource.InitDataSource(GlobalShare.mapDataSource[GlobalShare.SystemAppInfo.DataSource], dcs, out msg,debug);
             
             if (msg != null)
             {

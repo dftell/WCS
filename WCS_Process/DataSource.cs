@@ -84,8 +84,6 @@ namespace WolfInv.Com.WCS_Process
         //外部数据类型
         public string extradatatype { get; set; }
 
-        public XmlNode condition { get; set; }
-
         #endregion
 
         public void LoadXml(XmlNode node)
@@ -108,7 +106,6 @@ namespace WolfInv.Com.WCS_Process
             this.extradataconvertconfig = node.SelectSingleNode("extradataconvertconfig");
             this.extradatagetconfig = node.SelectSingleNode("extradatagetconfig");
             this.extradatatype = XmlUtil.GetSubNodeText(node, "extradatatype");
-            this.condition = node.SelectSingleNode("condition");
         }
 
         public static Dictionary<string, DataSource> GetDataSourceMapping()
@@ -142,27 +139,18 @@ namespace WolfInv.Com.WCS_Process
             return ret;
         }
 
-        public static DataSet InitDataSource(string dscName, string[] keys, string[] values,out string msg, bool forceUseClientData = false)
+        public static DataSet InitDataSource(string dscName, string[] keys, string[] values,bool debug=false)
         {
-            //string msg = null;
+            string msg = null;
             bool isextradata = false;
-            List<DataCondition> conds = new List<DataCondition>();
-            for(int i=0;i<Math.Min(keys.Length,values.Length);i++)
-            {
-                DataCondition dc = new DataCondition();
-                dc.Datapoint = new DataPoint(keys[i]);
-                dc.value = values[i];
-                conds.Add(dc);
-            }
-            DataSource dsr = GlobalShare.UserAppInfos.First().Value.mapDataSource[dscName];
-            return InitDataSource(dsr, conds, out msg, forceUseClientData);
+            return InitDataSource(dscName,keys,values,GlobalShare.DefaultUser,out msg,ref isextradata,debug);
         }
-        public static DataSet InitDataSource(string dsrcName, string[] keys, string[] values, string uid, out string msg)
+        public static DataSet InitDataSource(string dsrcName, string[] keys, string[] values, string uid, out string msg,bool debug=false)
         {
             bool isExtraData = false;
-            return InitDataSource(dsrcName, keys, values, uid,out msg,ref isExtraData);
+            return InitDataSource(dsrcName, keys, values, uid,out msg,ref isExtraData,debug);
         }
-        public static DataSet InitDataSource(string dsrcName,string[] keys,string[] values,string uid,out string msg,ref bool isExtraData)
+        public static DataSet InitDataSource(string dsrcName,string[] keys,string[] values,string uid,out string msg,ref bool isExtraData,bool debuug=false)
         {
             msg = null;
             List<DataCondition> dcs = new List<DataCondition>();
@@ -184,7 +172,7 @@ namespace WolfInv.Com.WCS_Process
             return InitDataSource(dsrcName, dcs,uid,out msg, ref isExtraData);
         }
 
-        public static DataSet InitDataSource(string dsrcName, List<DataCondition> dc,string uid,out string msg, ref bool isExtraData)
+        public static DataSet InitDataSource(string dsrcName, List<DataCondition> dc,string uid,out string msg, ref bool isExtraData,bool debug=false)
         {
             if (!GlobalShare.UserAppInfos.ContainsKey(uid))
             {
@@ -259,9 +247,8 @@ namespace WolfInv.Com.WCS_Process
                     return null;
                 }
             }
-            return GlobalShare.DataCenterClientObj.GetData(ds, dc,out msg);
+            return GlobalShare.DataCenterClientObj.GetData(ds, dc,out msg,debug);
         }
-
         public static UpdateData getDefaultData(string dsrcName,string uid)
         {
             if (!GlobalShare.UserAppInfos.ContainsKey(uid))
@@ -289,47 +276,22 @@ namespace WolfInv.Com.WCS_Process
             return ud;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dsrobj"></param>
-        /// <param name="dcs"></param>
-        /// <param name="msg"></param>
-        /// <param name="forceUseClientData">强制使用本地数据</param>
-        /// <returns></returns>
-        public static DataSet InitDataSource(DataSource dsrobj, List<DataCondition> dcs, out string msg,bool forceUseClientData = false)//必须要修改，但目前无任何有效功能调用
+        public static DataSet InitDataSource(DataSource dsrobj, List<DataCondition> dcs, out string msg,bool debug=false)//必须要修改，但目前无任何有效功能调用
         {
-            if(dsrobj.isextradata && !forceUseClientData)
+            if(dsrobj.isextradata)
             {
                 msg = null;
                 WCSExtraDataAdapter adp = new WCSExtraDataAdapter(null,dsrobj.extradataconvertconfig);
                 DataSet ds = null;
-                bool succ = false;
-                XmlNode condition = dsrobj.condition;
-                if (dcs.Count > 0)
-                {
-                    if(condition == null)
-                    {
-                        XmlDocument xmldoc = new XmlDocument();
-                        xmldoc.LoadXml("<condition/>");
-                        condition = xmldoc.SelectSingleNode("condition");
-                    }
-                    dcs.ForEach(a =>
-                    {
-                        condition.AppendChild(a.ToXml(condition));
-                    }
-                        );
-                }
-                
-                succ = adp.getData(dsrobj.extradataassembly, dsrobj.extradataclass, dsrobj.extradatagetconfig, dsrobj.extradatatype, ref ds, ref msg);
+                bool succ = adp.getData(dsrobj.extradataassembly, dsrobj.extradataclass, dsrobj.extradatagetconfig, dsrobj.extradatatype,ref ds, ref msg);
                 //DataSet ds = null;
-                if (!succ)
+                if(!succ)
                 {
                     return null;
                 }
                 return FilterExtraData(ds,dcs);
             }
-            return GlobalShare.DataCenterClientObj.GetData(dsrobj, dcs, out msg);
+            return GlobalShare.DataCenterClientObj.GetData(dsrobj, dcs, out msg,debug);
         }
 
         public static DataSet FilterExtraData(DataSet ds, List<DataCondition> dcs)

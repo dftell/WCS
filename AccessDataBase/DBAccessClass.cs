@@ -13,16 +13,24 @@ namespace WolfInv.Com.AccessDataBase
         protected OleDbDataAdapter adp;
         protected OleDbCommand comm;
         protected OleDbTransaction tran;
+        bool fDebug = false;
+        //public static LogClass lgc;
         static DBAccessClass()
         {
             //conn = new OleDbConnection();
         }
 
-        public DBAccessClass(string connstr)
+        public DBAccessClass(string connstr, bool debug = false)
         {
             ConnString = connstr;
+            fDebug = debug;
             //Connect();
        
+        }
+
+        public void SetDebug(bool debug)
+        {
+            fDebug = debug;
         }
         public void Connect()
         {
@@ -91,6 +99,7 @@ namespace WolfInv.Com.AccessDataBase
 
         public string GetResult(string sql,ref DataSet ds)
         {
+            //lgc.SetLogFileName("getDataList.txt");
             string ret = null;
             ds = new DataSet();
             try
@@ -106,7 +115,7 @@ namespace WolfInv.Com.AccessDataBase
             }
             catch (Exception ce)
             {
-                ret = ce.Message;
+                ret = string.Format("{0}{1}",ce.Message,fDebug?":"+sql:"");
                 
             }
             finally

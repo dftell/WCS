@@ -312,6 +312,7 @@ namespace WCS
 
         void InitEditPanel(XmlNode xmldoc)
         {
+            this.tableLayoutPanel1.AutoScroll = true;
             if (xmldoc == null) return;
             XmlNode cmbNode = xmldoc.SelectSingleNode("/root/EditPanel");
             if (cmbNode == null)
@@ -364,7 +365,9 @@ namespace WCS
 
             }
             this.tableLayoutPanel1.Tag = PanelObj;
-
+            
+            this.tableLayoutPanel1_Resize(null, null);
+            this.tableLayoutPanel1.AutoScroll = false;
             //this.listView1.Tag = GridObj;
 
         }
@@ -760,7 +763,7 @@ namespace WCS
 
         private void frm_MainSubFrame_DockChanged(object sender, EventArgs e)
         {
-            
+            //splitContainer_detail.Panel1.Height = this.PanelObj.Height+5;
         }
 
         private void splitContainer_detail_DockChanged(object sender, EventArgs e)
@@ -820,6 +823,12 @@ namespace WCS
         private bool frm_MainSubFrame_ToolBar_ChangeGroup(CMenuItem mnu)
         {
             return ChangeGridGroup(this.GridObj, mnu);
+        }
+
+        private void tableLayoutPanel1_Resize(object sender, EventArgs e)
+        {
+            int panelHight = tableLayoutPanel1.DisplayRectangle.Height;
+            this.splitContainer_detail.SplitterDistance = panelHight;
         }
     }
 

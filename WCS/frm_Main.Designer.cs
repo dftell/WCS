@@ -64,9 +64,11 @@ namespace WCS
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(12, 4, 0, 4);
-            this.menuStrip1.Size = new System.Drawing.Size(1200, 43);
+            this.menuStrip1.Size = new System.Drawing.Size(1200, 46);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
+            this.menuStrip1.DoubleClick += new System.EventHandler(this.menuStrip1_DoubleClick);
             // 
             // toolStripMenuItem1
             // 
@@ -75,7 +77,7 @@ namespace WCS
             this.toolStripMenuItem3,
             this.toolStripMenuItem4});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(257, 35);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(257, 38);
             this.toolStripMenuItem1.Text = "toolStripMenuItem1";
             // 
             // toolStripMenuItem2
@@ -99,7 +101,7 @@ namespace WCS
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(257, 35);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(257, 38);
             this.toolStripMenuItem5.Text = "toolStripMenuItem5";
             // 
             // toolStrip1
@@ -118,6 +120,8 @@ namespace WCS
             this.Main_Plan.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.Main_Plan.CurrMainControl = null;
+            this.Main_Plan.InForm = false;
             this.Main_Plan.Location = new System.Drawing.Point(0, 46);
             this.Main_Plan.Name = "Main_Plan";
             this.Main_Plan.Size = new System.Drawing.Size(1200, 657);

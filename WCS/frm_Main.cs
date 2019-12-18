@@ -46,7 +46,8 @@ namespace WCS
             XmlDocument xmlnav = new XmlDocument();
             try
             {
-                xmlmnu.Load(Application.StartupPath + @"\xml\menus.xml");
+                //xmlmnu.Load(Application.StartupPath + @"\xml\menus.xml");
+                xmlmnu= GlobalShare.GetXmlFile(@"\xml\menus.xml");
                 //xmlnav.Load(Application.StartupPath + @"\xml\nav_main_main.xml");
             }
             catch(Exception ce)
@@ -190,8 +191,15 @@ namespace WCS
             frm.Show();
         }
 
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
 
-        
+        }
+
+        private void menuStrip1_DoubleClick(object sender, EventArgs e)
+        {
+            Init();
+        }
     }
 
 }

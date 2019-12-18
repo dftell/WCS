@@ -26,12 +26,12 @@ namespace WolfInv.Com.WCS_Process
             }
         }
 
-        public abstract DataSet GetDataSet(XmlNode xml, out string msg);
+        public abstract DataSet GetDataSet(XmlNode xml, out string msg,bool debug=false);
         
-        public DataSet GetDataSet(XmlNode xml)
+        public DataSet GetDataSet(XmlNode xml,bool debug=false)
         {
             string msg = null;
-            return GetDataSet(xml, out msg);
+            return GetDataSet(xml, out msg,debug);
         }
         public abstract string UpdateData(XmlNode xml);
         public abstract XmlNode GetViewSettings(XmlNode xml);

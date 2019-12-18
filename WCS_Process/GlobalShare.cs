@@ -23,6 +23,7 @@ namespace WolfInv.Com.WCS_Process
         /// </summary>
         public static SystemMode AppMode;
         public static Assembly MainAssem;
+        public static bool DebugMode;
 
         
         /// <summary>
@@ -268,6 +269,8 @@ namespace WolfInv.Com.WCS_Process
             else
             {
                 XmlNode node = xmldoc.SelectSingleNode("/root/@SystemMode");
+                XmlNode debugnode = xmldoc.SelectSingleNode("/root/@debug");
+                DebugMode = (debugnode == null || !debugnode.Value.Trim().Equals("1")) ? false : true;
                 AppMode = (node==null ||node.Value.Trim().ToUpper().Equals("PLUGIN")==false)? SystemMode.FullMode:SystemMode.PluginMode;
                 if (FileAccConnObj.Method == ConnectMethod.WebSvr)
                 {

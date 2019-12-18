@@ -52,25 +52,14 @@ namespace WCS
             this.toolStrip_subtitle.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panel_Title
-            // 
-            this.panel_Title.Location = new System.Drawing.Point(0, 25);
-            this.panel_Title.Size = new System.Drawing.Size(1200, 42);
-            // 
             // panel_main
             // 
             this.panel_main.Controls.Add(this.splitContainer_detail);
             this.panel_main.Size = new System.Drawing.Size(1190, 727);
             // 
-            // panel_bottom
-            // 
-            this.panel_bottom.Location = new System.Drawing.Point(0, 848);
-            this.panel_bottom.Size = new System.Drawing.Size(1200, 52);
-            // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.AutoScroll = true;
-            this.tableLayoutPanel1.AutoSize = true;
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -83,6 +72,7 @@ namespace WCS
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(1186, 100);
             this.tableLayoutPanel1.TabIndex = 0;
+            this.tableLayoutPanel1.Resize += new System.EventHandler(this.tableLayoutPanel1_Resize);
             // 
             // Panel_ToolBar
             // 
@@ -149,6 +139,7 @@ namespace WCS
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
             this.listView1.GroupBy = null;
+            this.listView1.HideSelection = false;
             this.listView1.Location = new System.Drawing.Point(6, 67);
             this.listView1.Margin = new System.Windows.Forms.Padding(6);
             this.listView1.Name = "listView1";
@@ -203,7 +194,6 @@ namespace WCS
             this.Name = "frm_MainSubFrame";
             this.Size = new System.Drawing.Size(1200, 900);
             this.ToolBar_ChangeGroup += new WolfInv.Com.CommCtrlLib.ToolBarResponseHandle(this.frm_MainSubFrame_ToolBar_ChangeGroup);
-            this.ToolBar_BatchUpdate += Frm_MainSubFrame_ToolBar_BatchUpdate ;
             this.ToolBar_AddExist += new WolfInv.Com.CommCtrlLib.AddExistHandle(this.AddExist_Click);
             this.Load += new System.EventHandler(this.frm_MainSubFrame_Load);
             this.DockChanged += new System.EventHandler(this.frm_MainSubFrame_DockChanged);
@@ -216,7 +206,6 @@ namespace WCS
             this.Panel_ToolBar.ResumeLayout(false);
             this.Panel_ToolBar.PerformLayout();
             this.splitContainer_detail.Panel1.ResumeLayout(false);
-            this.splitContainer_detail.Panel1.PerformLayout();
             this.splitContainer_detail.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer_detail)).EndInit();
             this.splitContainer_detail.ResumeLayout(false);
@@ -224,7 +213,6 @@ namespace WCS
             this.toolStrip_subtitle.ResumeLayout(false);
             this.toolStrip_subtitle.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

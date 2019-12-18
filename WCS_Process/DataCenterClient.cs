@@ -43,7 +43,7 @@ namespace WolfInv.Com.WCS_Process
             
         }
 
-        public DataSet GetData(string userid, string dsrname,List<DataCondition> conditions, out string msg)
+        public DataSet GetData(string userid, string dsrname,List<DataCondition> conditions, out string msg,bool debug=false)
         {
             UserGlobalShare ugs = null;
             bool rs = GlobalShare.UserAppInfos.TryGetValue(userid, out ugs);
@@ -59,21 +59,21 @@ namespace WolfInv.Com.WCS_Process
                 msg = string.Format("数据源集{0}未定义或者加载错误！", dsrname);
                 return null;
             }
-            return GetData(ds, conditions, out msg);
+            return GetData(ds, conditions, out msg,debug);
         }
 
-        public DataSet GetData(string userid, string dsrname,out string msg)
+        public DataSet GetData(string userid, string dsrname,out string msg,bool debug=false)
         {
-            return GetData(userid, dsrname, null, out msg);
+            return GetData(userid, dsrname, null, out msg,debug);
         }
 
-        public DataSet GetData(DataSource ds,out string msg)
+        public DataSet GetData(DataSource ds,out string msg,bool debug=false)
         {
             XmlNode xml = ds.xmlReq;
-            return GetData(xml,out msg);
+            return GetData(xml,out msg,debug);
         }
 
-        public DataSet GetData(DataSource ds,List<DataCondition> conditions,out string msg)
+        public DataSet GetData(DataSource ds,List<DataCondition> conditions,out string msg,bool debug=false)
         {
             XmlNode xml = ds.xmlReq;
             XmlDocument xmldoc = new XmlDataDocument();
@@ -125,17 +125,17 @@ namespace WolfInv.Com.WCS_Process
                 //condgroupnode = new XmlNode();
             }
             reqcond.ToXml(condgroupnode);
-            return GetData(xml,out msg);
+            return GetData(xml,out msg,debug);
         }
 
-        public DataSet GetData(XmlNode xml,out string msg)
+        public DataSet GetData(XmlNode xml,out string msg,bool debug=false)
         {
             ////if (connobj.Method == ConnectMethod.WebSvr)
             ////{
             ////    return wdi.GetDataSet(xml,out msg);
             ////}
             ////return DataAccessCenter.GetDataList(xml,out msg);
-            return DataAccObj.GetDataSet(xml, out msg);
+            return DataAccObj.GetDataSet(xml, out msg,debug);
         }
 
         public Dictionary<string, List<DataPoint>> GetViewDataPointList(DataSource ds)

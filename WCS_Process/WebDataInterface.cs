@@ -15,7 +15,7 @@ namespace WolfInv.Com.WCS_Process
             if (connobj == null) return;
             aws = new AccessWebService(connobj);
         }
-        public override DataSet GetDataSet(XmlNode xml, out string msg)
+        public override DataSet GetDataSet(XmlNode xml, out string msg,bool debug=false)
         {
             return aws.GetDataSet("GetDataList", xml, out msg);
             //throw new Exception("The method or operation is not implemented.");

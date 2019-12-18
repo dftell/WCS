@@ -857,7 +857,7 @@ namespace WolfInv.Com.CommFormCtrlLib
                     bool succ = SaveExtraData(useMenu, updata, ref ud);
                     if (!succ)
                     {
-                        if (DialogResult.Cancel == MessageBox.Show( string.Format("保存数据{0}时遇到错误.点确定按钮，本次将跳过错误内容，请您记录关键内容，下次单独存储！点取消按钮，本次保存将停止，已经保存的数据请您在可删除的界面手动删除！", "跳过错误内容，继续保存",string.Join(",", updata.Items.Select(a => a.Value.value)), ""), "跳过错误内容，继续保存", MessageBoxButtons.YesNoCancel))
+                        if (DialogResult.Cancel == MessageBox.Show( string.Format("保存数据{0}时遇到错误.点确定按钮，本次将跳过错误内容，请您记录关键内容，下次单独存储！点取消按钮，本次保存将停止，已经保存的数据请您在可删除的界面手动删除！", string.Join(",", updata.Items.Select(a => a.Value.value)), ""), "跳过错误内容，继续保存", MessageBoxButtons.YesNoCancel))
                         {
                             return false;
                         }
